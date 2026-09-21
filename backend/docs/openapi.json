@@ -1,0 +1,2064 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ISI-Eco Report API",
+    "version": "2.1.0",
+    "description": "Contrat API courant du backend ISI-Eco Report. Routes Laravel exposées sous /api. Authentification via Laravel Sanctum."
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication"
+    },
+    {
+      "name": "Signalements"
+    },
+    {
+      "name": "Affectations"
+    },
+    {
+      "name": "Interventions"
+    },
+    {
+      "name": "Notifications"
+    },
+    {
+      "name": "Gamification"
+    },
+    {
+      "name": "Administration"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Sanctum token"
+      }
+    }
+  },
+  "paths": {
+    "/affectations": {
+      "get": {
+        "tags": [
+          "Affectations"
+        ],
+        "operationId": "get_affectations",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Affectations"
+        ],
+        "operationId": "head_affectations",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Affectations"
+        ],
+        "operationId": "post_affectations",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/affectations/{affectation}": {
+      "get": {
+        "tags": [
+          "Affectations"
+        ],
+        "operationId": "get_affectations_affectation",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "affectation",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Affectations"
+        ],
+        "operationId": "head_affectations_affectation",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "affectation",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Affectations"
+        ],
+        "operationId": "delete_affectations_affectation",
+        "responses": {
+          "204": {
+            "description": "Ressource supprimée"
+          }
+        },
+        "parameters": [
+          {
+            "name": "affectation",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/affectations/{affectation}/reaffecter": {
+      "post": {
+        "tags": [
+          "Affectations"
+        ],
+        "operationId": "post_affectations_affectation_reaffecter",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "affectation",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "post_auth_forgot_password",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "post_auth_login",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "post_auth_logout",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "post_auth_register",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": []
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "post_auth_reset_password",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/heatmap": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_dashboard_heatmap",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_dashboard_heatmap",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/equipes": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_equipes",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_equipes",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "post_equipes",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/equipes/{equipe}": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_equipes_equipe",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "equipe",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_equipes_equipe",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "equipe",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "put_equipes_equipe",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "equipe",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "patch_equipes_equipe",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "equipe",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "delete_equipes_equipe",
+        "responses": {
+          "204": {
+            "description": "Ressource supprimée"
+          }
+        },
+        "parameters": [
+          {
+            "name": "equipe",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/gamification/leaderboard": {
+      "get": {
+        "tags": [
+          "Gamification"
+        ],
+        "operationId": "get_gamification_leaderboard",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Gamification"
+        ],
+        "operationId": "head_gamification_leaderboard",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/historique-points": {
+      "get": {
+        "tags": [
+          "Gamification"
+        ],
+        "operationId": "get_historique_points",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Gamification"
+        ],
+        "operationId": "head_historique_points",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/historique-points/{historiquePoint}": {
+      "get": {
+        "tags": [
+          "Gamification"
+        ],
+        "operationId": "get_historique_points_historiquePoint",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "historiquePoint",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Gamification"
+        ],
+        "operationId": "head_historique_points_historiquePoint",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "historiquePoint",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interventions": {
+      "get": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "get_interventions",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "head_interventions",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "post_interventions",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/interventions/{intervention}": {
+      "get": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "get_interventions_intervention",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "intervention",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "head_interventions_intervention",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "intervention",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "put_interventions_intervention",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "intervention",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "patch_interventions_intervention",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "intervention",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "delete_interventions_intervention",
+        "responses": {
+          "204": {
+            "description": "Ressource supprimée"
+          }
+        },
+        "parameters": [
+          {
+            "name": "intervention",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interventions/{intervention}/cloturer": {
+      "post": {
+        "tags": [
+          "Interventions"
+        ],
+        "operationId": "post_interventions_intervention_cloturer",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "intervention",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "get_notifications",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "head_notifications",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/notifications/{notification}/read": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "post_notifications_notification_read",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "notification",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/signalements": {
+      "get": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "get_signalements",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "head_signalements",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "post_signalements",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  },
+                  "zone_id": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "type_dechets": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "photos[]": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "required": [
+                  "latitude",
+                  "longitude"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signalements/{signalement}": {
+      "get": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "get_signalements_signalement",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "head_signalements_signalement",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "put_signalements_signalement",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "patch_signalements_signalement",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "delete_signalements_signalement",
+        "responses": {
+          "204": {
+            "description": "Ressource supprimée"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/signalements/{signalement}/prioriser": {
+      "post": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "post_signalements_signalement_prioriser",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signalements/{signalement}/rejeter": {
+      "post": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "post_signalements_signalement_rejeter",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/signalements/{signalement}/valider": {
+      "post": {
+        "tags": [
+          "Signalements"
+        ],
+        "operationId": "post_signalements_signalement_valider",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "signalement",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/types-dechets": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_types_dechets",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_types_dechets",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "post_types_dechets",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/types-dechets/{types_dechet}": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_types_dechets_types_dechet",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "types_dechet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_types_dechets_types_dechet",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "types_dechet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "put_types_dechets_types_dechet",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "types_dechet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "patch_types_dechets_types_dechet",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "types_dechet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "delete_types_dechets_types_dechet",
+        "responses": {
+          "204": {
+            "description": "Ressource supprimée"
+          }
+        },
+        "parameters": [
+          {
+            "name": "types_dechet",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "get_user",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "head_user",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_users",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_users",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "post_users",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user}": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_users_user",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_users_user",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "put_users_user",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "patch_users_user",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "delete_users_user",
+        "responses": {
+          "204": {
+            "description": "Ressource supprimée"
+          }
+        },
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/zones": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_zones",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_zones",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "post_zones",
+        "responses": {
+          "201": {
+            "description": "Ressource créée"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/{zone}": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "get_zones_zone",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "zone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "head": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "head_zones_zone",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "zone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "put_zones_zone",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "zone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "patch_zones_zone",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        },
+        "parameters": [
+          {
+            "name": "zone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Administration"
+        ],
+        "operationId": "delete_zones_zone",
+        "responses": {
+          "204": {
+            "description": "Ressource supprimée"
+          }
+        },
+        "parameters": [
+          {
+            "name": "zone",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  }
+}
