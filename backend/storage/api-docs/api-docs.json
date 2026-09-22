@@ -71,6 +71,670 @@
                 ]
             }
         },
+        "/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Oubli mot de passe",
+                "operationId": "b1ff7c459a9fec2ac05541848a768b83",
+                "responses": {
+                    "200": {
+                        "description": "Email envoyé"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Réinitialisation mot de passe",
+                "operationId": "92f72120af6836efb02f39cde32189ab",
+                "responses": {
+                    "200": {
+                        "description": "Succès"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Profil actuel",
+                "operationId": "cc067d8fc4ee88652322a9816ca6079f",
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur connecté"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Lister les utilisateurs (ADMIN)",
+                "operationId": "caed9c21fe975df9190788a75f4b758c",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer un utilisateur (ADMIN)",
+                "operationId": "4f0b4b5cc1916208e42c21db68b4f0ae",
+                "responses": {
+                    "201": {
+                        "description": "Créé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Détails utilisateur (ADMIN)",
+                "operationId": "28c8679c3bcc7f7e2469e732ce035974",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier utilisateur (ADMIN)",
+                "operationId": "165a4ede0a0ecfc2bb8a11f6046ae366",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mis à jour"
+                    },
+                    "409": {
+                        "description": "Conflit rôle/équipe"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer utilisateur (ADMIN)",
+                "operationId": "fe34178197b07119bd2b397f3b281e90",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/types-dechets": {
+            "get": {
+                "tags": [
+                    "Types Déchets"
+                ],
+                "summary": "Lister types déchets",
+                "operationId": "81d461921ba08e277cdba92f2b421dd1",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer type déchet (ADMIN)",
+                "operationId": "da2aacb24995403be3499cfb9a9c4d0e",
+                "responses": {
+                    "201": {
+                        "description": "Créé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/types-dechets/{id}": {
+            "get": {
+                "tags": [
+                    "Types Déchets"
+                ],
+                "summary": "Détails type déchet",
+                "operationId": "1a4d2b3dc98156ee1ad71bc6067e7ce5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier type déchet (ADMIN)",
+                "operationId": "e4c35c0cff812efa9e5f519f67a4e334",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mis à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer type déchet (ADMIN)",
+                "operationId": "365d1d55fae47948d2970f76ab22c2ed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/zones": {
+            "get": {
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Lister les zones",
+                "operationId": "a404b51a66ffd4c8b6607ce778ee734d",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer une zone (ADMIN)",
+                "operationId": "21064b79efb997c3576162bb0f582e9e",
+                "responses": {
+                    "201": {
+                        "description": "Créée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/zones/{id}": {
+            "get": {
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Détails zone",
+                "operationId": "58e15fd4bd62362469f8a1e69b2fe441",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier zone (ADMIN)",
+                "operationId": "adadb37c2955486617b51cead4ae93e7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mise à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer zone (ADMIN)",
+                "operationId": "822e7cfe81089a777d23f6e37f3c6503",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/equipes": {
+            "get": {
+                "tags": [
+                    "Équipes"
+                ],
+                "summary": "Lister les équipes",
+                "operationId": "d1b6aaa538683f55cf8bd02c714391e8",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer une équipe (ADMIN)",
+                "operationId": "4a3073b804dfb5ed065b9173f76457fc",
+                "responses": {
+                    "201": {
+                        "description": "Créée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/equipes/{id}": {
+            "get": {
+                "tags": [
+                    "Équipes"
+                ],
+                "summary": "Détails équipe",
+                "operationId": "13258af909d3cf86203280d60158bdb6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier équipe (ADMIN)",
+                "operationId": "5dcb932472a5703e322d88285e93a360",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mise à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer équipe (ADMIN)",
+                "operationId": "579b48540ee5aa72890e57cc343ba688",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
         "/signalements": {
             "get": {
                 "tags": [
@@ -176,7 +840,40 @@
                         "description": "Mis à jour"
                     },
                     "403": {
-                        "description": "Bypass de workflow interdit"
+                        "description": "Bypass workflow interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Signalements"
+                ],
+                "summary": "Supprimer un signalement",
+                "operationId": "3592653233b0075f24112191ab06922f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
                     }
                 },
                 "security": [
@@ -195,9 +892,9 @@
         "/signalements/{id}/valider": {
             "post": {
                 "tags": [
-                    "Signalements"
+                    "Administration"
                 ],
-                "summary": "Valider un signalement",
+                "summary": "Valider (ADMIN)",
                 "operationId": "5f1d8a5e7b83376a17b88864b63f82d5",
                 "parameters": [
                     {
@@ -230,9 +927,9 @@
         "/signalements/{id}/rejeter": {
             "post": {
                 "tags": [
-                    "Signalements"
+                    "Administration"
                 ],
-                "summary": "Rejeter un signalement",
+                "summary": "Rejeter (ADMIN)",
                 "operationId": "6418ed00e2f20f4c09acedadde3ff313",
                 "parameters": [
                     {
@@ -265,9 +962,9 @@
         "/signalements/{id}/prioriser": {
             "post": {
                 "tags": [
-                    "Signalements"
+                    "Administration"
                 ],
-                "summary": "Prioriser un signalement",
+                "summary": "Prioriser (ADMIN)",
                 "operationId": "4838228e86fa53e2c27509756f0ca6c0",
                 "parameters": [
                     {
@@ -298,11 +995,34 @@
             }
         },
         "/affectations": {
-            "post": {
+            "get": {
                 "tags": [
                     "Affectations"
                 ],
-                "summary": "Affecter une équipe à un signalement",
+                "summary": "Lister les affectations",
+                "operationId": "65be21fd7b38a706a1dc7d863b94aaf9",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Affecter une équipe (ADMIN)",
                 "operationId": "8fe33bbb6975163ce017e6b918b915bc",
                 "responses": {
                     "201": {
@@ -322,12 +1042,80 @@
                 ]
             }
         },
-        "/affectations/{id}/reaffecter": {
-            "post": {
+        "/affectations/{id}": {
+            "get": {
                 "tags": [
                     "Affectations"
                 ],
-                "summary": "Réaffecter une nouvelle équipe",
+                "summary": "Détails affectation",
+                "operationId": "e0b53481c8c70343b3b7c7e71051bea1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer affectation (ADMIN)",
+                "operationId": "c8c06ca4792fa62fcfb96d32fce018a8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/affectations/{id}/reaffecter": {
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Réaffecter (ADMIN)",
                 "operationId": "9f65229cfd40b862537a13ee47c80b73",
                 "parameters": [
                     {
@@ -380,15 +1168,70 @@
                         "description": "Serveur API local"
                     }
                 ]
+            },
+            "post": {
+                "tags": [
+                    "Interventions"
+                ],
+                "summary": "Démarrer intervention (AGENT)",
+                "operationId": "1aeac10e5985fdde087b92aad190f12a",
+                "responses": {
+                    "201": {
+                        "description": "Créée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
             }
         },
         "/interventions/{id}": {
+            "get": {
+                "tags": [
+                    "Interventions"
+                ],
+                "summary": "Détails intervention",
+                "operationId": "3da9ac94cc7191c8090df14ddf49a33a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "Interventions"
                 ],
-                "summary": "Mettre à jour l'avancement",
-                "description": "Utilisé par les agents pour passer en cours ou terminer (avec CR obligatoire).",
+                "summary": "Mise à jour avancement (AGENT)",
                 "operationId": "076010d6f056667336e60077213d69c2",
                 "parameters": [
                     {
@@ -416,15 +1259,48 @@
                         "description": "Serveur API local"
                     }
                 ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer intervention (ADMIN)",
+                "operationId": "641f2e7aaeab1d70375634223a3e2c9a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
             }
         },
         "/interventions/{id}/cloturer": {
             "post": {
                 "tags": [
-                    "Interventions"
+                    "Administration"
                 ],
                 "summary": "Clôturer le signalement (ADMIN ONLY)",
-                "description": "Action finale déclenchant l'attribution des points. Préréquis : intervention terminée et signalement à l'état TERMINE.",
+                "description": "Action finale déclenchant l'attribution des points. Préréquis : intervention terminée et signalement TERMINE.",
                 "operationId": "2f2201fc5d6a05446e2e55cea151a2c7",
                 "parameters": [
                     {
@@ -438,10 +1314,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Clôturé avec succès"
+                        "description": "Clôturé"
                     },
                     "403": {
-                        "description": "Accès réservé à l'administrateur"
+                        "description": "Réservé Admin"
                     }
                 },
                 "security": [
@@ -462,7 +1338,7 @@
                 "tags": [
                     "Gamification"
                 ],
-                "summary": "Classement des citoyens",
+                "summary": "Classement",
                 "operationId": "6b23da3eba89a9a53d8dfa8227f66ef7",
                 "responses": {
                     "200": {
@@ -487,12 +1363,47 @@
                 "tags": [
                     "Gamification"
                 ],
-                "summary": "Lister l'historique des points",
+                "summary": "Mon historique de points",
                 "description": "Isolé par utilisateur (RG34). Admin voit tout.",
                 "operationId": "b02a488ce0f317545183c16d68cec220",
                 "responses": {
                     "200": {
-                        "description": "Historique"
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/historique-points/{id}": {
+            "get": {
+                "tags": [
+                    "Gamification"
+                ],
+                "summary": "Détails d'un point",
+                "operationId": "ded60a0e7cc24476671fbbd85d7eb5de",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
                     }
                 },
                 "security": [
@@ -533,66 +1444,26 @@
                 ]
             }
         },
-        "/users": {
-            "get": {
+        "/notifications/{id}/read": {
+            "post": {
                 "tags": [
-                    "Administration"
+                    "Notifications"
                 ],
-                "summary": "Gérer les utilisateurs",
-                "operationId": "caed9c21fe975df9190788a75f4b758c",
+                "summary": "Marquer comme lu",
+                "operationId": "e7bbf03e5afb81ae6a3e565ec5f72d0a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Liste"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "servers": [
-                    {
-                        "url": "/api",
-                        "description": "Serveur API local"
-                    }
-                ]
-            }
-        },
-        "/zones": {
-            "get": {
-                "tags": [
-                    "Administration"
-                ],
-                "summary": "Gérer les zones",
-                "operationId": "a404b51a66ffd4c8b6607ce778ee734d",
-                "responses": {
-                    "200": {
-                        "description": "Liste"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "servers": [
-                    {
-                        "url": "/api",
-                        "description": "Serveur API local"
-                    }
-                ]
-            }
-        },
-        "/types-dechets": {
-            "get": {
-                "tags": [
-                    "Administration"
-                ],
-                "summary": "Gérer les types de déchets",
-                "operationId": "81d461921ba08e277cdba92f2b421dd1",
-                "responses": {
-                    "200": {
-                        "description": "Liste"
+                        "description": "Succès"
                     }
                 },
                 "security": [
@@ -613,7 +1484,7 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Heatmap critique",
+                "summary": "Heatmap critique (ADMIN)",
                 "operationId": "b039a332cb7cc3419a0bdd30d4bd49c2",
                 "responses": {
                     "200": {
@@ -650,6 +1521,22 @@
             "description": "Authentification"
         },
         {
+            "name": "Administration",
+            "description": "Administration"
+        },
+        {
+            "name": "Types Déchets",
+            "description": "Types Déchets"
+        },
+        {
+            "name": "Zones",
+            "description": "Zones"
+        },
+        {
+            "name": "Équipes",
+            "description": "Équipes"
+        },
+        {
             "name": "Signalements",
             "description": "Signalements"
         },
@@ -668,10 +1555,6 @@
         {
             "name": "Notifications",
             "description": "Notifications"
-        },
-        {
-            "name": "Administration",
-            "description": "Administration"
         }
     ]
 }

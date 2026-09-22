@@ -1,2064 +1,1560 @@
 {
-  "openapi": "3.0.3",
-  "info": {
-    "title": "ISI-Eco Report API",
-    "version": "2.1.0",
-    "description": "Contrat API courant du backend ISI-Eco Report. Routes Laravel exposées sous /api. Authentification via Laravel Sanctum."
-  },
-  "servers": [
-    {
-      "url": "/api"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Authentication"
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ISI-Eco-Report API",
+        "description": "API certifiée de signalement et de gestion des déchets sauvages. Supporte PostgreSQL 17. Permet l'authentification (Sanctum), le signalement géolocalisé, l'affectation d'équipes, le suivi d'interventions et la gamification avec historique de points.",
+        "version": "2.2.0"
     },
-    {
-      "name": "Signalements"
-    },
-    {
-      "name": "Affectations"
-    },
-    {
-      "name": "Interventions"
-    },
-    {
-      "name": "Notifications"
-    },
-    {
-      "name": "Gamification"
-    },
-    {
-      "name": "Administration"
-    }
-  ],
-  "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "Sanctum token"
-      }
-    }
-  },
-  "paths": {
-    "/affectations": {
-      "get": {
-        "tags": [
-          "Affectations"
-        ],
-        "operationId": "get_affectations",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Affectations"
-        ],
-        "operationId": "head_affectations",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Affectations"
-        ],
-        "operationId": "post_affectations",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/affectations/{affectation}": {
-      "get": {
-        "tags": [
-          "Affectations"
-        ],
-        "operationId": "get_affectations_affectation",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "affectation",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Affectations"
-        ],
-        "operationId": "head_affectations_affectation",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "affectation",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "delete": {
-        "tags": [
-          "Affectations"
-        ],
-        "operationId": "delete_affectations_affectation",
-        "responses": {
-          "204": {
-            "description": "Ressource supprimée"
-          }
-        },
-        "parameters": [
-          {
-            "name": "affectation",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/affectations/{affectation}/reaffecter": {
-      "post": {
-        "tags": [
-          "Affectations"
-        ],
-        "operationId": "post_affectations_affectation_reaffecter",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "affectation",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/forgot-password": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "post_auth_forgot_password",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "post_auth_login",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": []
-      }
-    },
-    "/auth/logout": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "post_auth_logout",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/register": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "post_auth_register",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": []
-      }
-    },
-    "/auth/reset-password": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "post_auth_reset_password",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/dashboard/heatmap": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_dashboard_heatmap",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_dashboard_heatmap",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/equipes": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_equipes",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_equipes",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "post_equipes",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/equipes/{equipe}": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_equipes_equipe",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "equipe",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_equipes_equipe",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "equipe",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "put_equipes_equipe",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "equipe",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "patch_equipes_equipe",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "equipe",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "delete_equipes_equipe",
-        "responses": {
-          "204": {
-            "description": "Ressource supprimée"
-          }
-        },
-        "parameters": [
-          {
-            "name": "equipe",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/gamification/leaderboard": {
-      "get": {
-        "tags": [
-          "Gamification"
-        ],
-        "operationId": "get_gamification_leaderboard",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Gamification"
-        ],
-        "operationId": "head_gamification_leaderboard",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/historique-points": {
-      "get": {
-        "tags": [
-          "Gamification"
-        ],
-        "operationId": "get_historique_points",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Gamification"
-        ],
-        "operationId": "head_historique_points",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/historique-points/{historiquePoint}": {
-      "get": {
-        "tags": [
-          "Gamification"
-        ],
-        "operationId": "get_historique_points_historiquePoint",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "historiquePoint",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Gamification"
-        ],
-        "operationId": "head_historique_points_historiquePoint",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "historiquePoint",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/interventions": {
-      "get": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "get_interventions",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "head_interventions",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "post_interventions",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/interventions/{intervention}": {
-      "get": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "get_interventions_intervention",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "intervention",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "head_interventions_intervention",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "intervention",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "put_interventions_intervention",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "intervention",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "patch_interventions_intervention",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "intervention",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "delete_interventions_intervention",
-        "responses": {
-          "204": {
-            "description": "Ressource supprimée"
-          }
-        },
-        "parameters": [
-          {
-            "name": "intervention",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/interventions/{intervention}/cloturer": {
-      "post": {
-        "tags": [
-          "Interventions"
-        ],
-        "operationId": "post_interventions_intervention_cloturer",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "intervention",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/notifications": {
-      "get": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "get_notifications",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "head_notifications",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/notifications/{notification}/read": {
-      "post": {
-        "tags": [
-          "Notifications"
-        ],
-        "operationId": "post_notifications_notification_read",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "notification",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/signalements": {
-      "get": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "get_signalements",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "head_signalements",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "post_signalements",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "description": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "latitude": {
-                    "type": "number"
-                  },
-                  "longitude": {
-                    "type": "number"
-                  },
-                  "zone_id": {
-                    "type": "integer",
-                    "nullable": true
-                  },
-                  "type_dechets": {
-                    "type": "array",
-                    "items": {
-                      "type": "object"
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Inscription citoyenne",
+                "operationId": "f18a0c4b85d7508bf5f73ad13af12198",
+                "responses": {
+                    "201": {
+                        "description": "Citoyen créé"
                     }
-                  },
-                  "photos[]": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "format": "binary"
-                    }
-                  }
                 },
-                "required": [
-                  "latitude",
-                  "longitude"
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
                 ]
-              }
             }
-          }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Connexion",
+                "operationId": "c6c9874077b7f3ebeda92067d8d9fa9f",
+                "responses": {
+                    "200": {
+                        "description": "Token retourné"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Déconnexion",
+                "operationId": "767c40d11a53a4b9ef07c97c6353be52",
+                "responses": {
+                    "204": {
+                        "description": "Succès"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Oubli mot de passe",
+                "operationId": "b1ff7c459a9fec2ac05541848a768b83",
+                "responses": {
+                    "200": {
+                        "description": "Email envoyé"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Réinitialisation mot de passe",
+                "operationId": "92f72120af6836efb02f39cde32189ab",
+                "responses": {
+                    "200": {
+                        "description": "Succès"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Profil actuel",
+                "operationId": "cc067d8fc4ee88652322a9816ca6079f",
+                "responses": {
+                    "200": {
+                        "description": "Utilisateur connecté"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Lister les utilisateurs (ADMIN)",
+                "operationId": "caed9c21fe975df9190788a75f4b758c",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer un utilisateur (ADMIN)",
+                "operationId": "4f0b4b5cc1916208e42c21db68b4f0ae",
+                "responses": {
+                    "201": {
+                        "description": "Créé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Détails utilisateur (ADMIN)",
+                "operationId": "28c8679c3bcc7f7e2469e732ce035974",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier utilisateur (ADMIN)",
+                "operationId": "165a4ede0a0ecfc2bb8a11f6046ae366",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mis à jour"
+                    },
+                    "409": {
+                        "description": "Conflit rôle/équipe"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer utilisateur (ADMIN)",
+                "operationId": "fe34178197b07119bd2b397f3b281e90",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/types-dechets": {
+            "get": {
+                "tags": [
+                    "Types Déchets"
+                ],
+                "summary": "Lister types déchets",
+                "operationId": "81d461921ba08e277cdba92f2b421dd1",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer type déchet (ADMIN)",
+                "operationId": "da2aacb24995403be3499cfb9a9c4d0e",
+                "responses": {
+                    "201": {
+                        "description": "Créé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/types-dechets/{id}": {
+            "get": {
+                "tags": [
+                    "Types Déchets"
+                ],
+                "summary": "Détails type déchet",
+                "operationId": "1a4d2b3dc98156ee1ad71bc6067e7ce5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier type déchet (ADMIN)",
+                "operationId": "e4c35c0cff812efa9e5f519f67a4e334",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mis à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer type déchet (ADMIN)",
+                "operationId": "365d1d55fae47948d2970f76ab22c2ed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/zones": {
+            "get": {
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Lister les zones",
+                "operationId": "a404b51a66ffd4c8b6607ce778ee734d",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer une zone (ADMIN)",
+                "operationId": "21064b79efb997c3576162bb0f582e9e",
+                "responses": {
+                    "201": {
+                        "description": "Créée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/zones/{id}": {
+            "get": {
+                "tags": [
+                    "Zones"
+                ],
+                "summary": "Détails zone",
+                "operationId": "58e15fd4bd62362469f8a1e69b2fe441",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier zone (ADMIN)",
+                "operationId": "adadb37c2955486617b51cead4ae93e7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mise à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer zone (ADMIN)",
+                "operationId": "822e7cfe81089a777d23f6e37f3c6503",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/equipes": {
+            "get": {
+                "tags": [
+                    "Équipes"
+                ],
+                "summary": "Lister les équipes",
+                "operationId": "d1b6aaa538683f55cf8bd02c714391e8",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Créer une équipe (ADMIN)",
+                "operationId": "4a3073b804dfb5ed065b9173f76457fc",
+                "responses": {
+                    "201": {
+                        "description": "Créée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/equipes/{id}": {
+            "get": {
+                "tags": [
+                    "Équipes"
+                ],
+                "summary": "Détails équipe",
+                "operationId": "13258af909d3cf86203280d60158bdb6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Modifier équipe (ADMIN)",
+                "operationId": "5dcb932472a5703e322d88285e93a360",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mise à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer équipe (ADMIN)",
+                "operationId": "579b48540ee5aa72890e57cc343ba688",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/signalements": {
+            "get": {
+                "tags": [
+                    "Signalements"
+                ],
+                "summary": "Lister les signalements",
+                "description": "Citoyen : voit les siens. Admin/Agent : voit tout.",
+                "operationId": "49d2c9d81862854ebb2cdbc14914cc45",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Signalements"
+                ],
+                "summary": "Créer un signalement",
+                "operationId": "b0c4f8968fe5bd572a403ff3fba657e5",
+                "responses": {
+                    "201": {
+                        "description": "Créé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/signalements/{id}": {
+            "get": {
+                "tags": [
+                    "Signalements"
+                ],
+                "summary": "Détails d'un signalement",
+                "operationId": "0bc8a6adb944414a64a07304091f232c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Signalements"
+                ],
+                "summary": "Mise à jour générique",
+                "description": "Interdit la modification directe de 'statut' et 'priorite'. Permet de modifier la description ou la zone.",
+                "operationId": "6e22e9d3c1097d664b5f8d0466f9ac46",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mis à jour"
+                    },
+                    "403": {
+                        "description": "Bypass workflow interdit"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Signalements"
+                ],
+                "summary": "Supprimer un signalement",
+                "operationId": "3592653233b0075f24112191ab06922f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/signalements/{id}/valider": {
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Valider (ADMIN)",
+                "operationId": "5f1d8a5e7b83376a17b88864b63f82d5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Validé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/signalements/{id}/rejeter": {
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Rejeter (ADMIN)",
+                "operationId": "6418ed00e2f20f4c09acedadde3ff313",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rejeté"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/signalements/{id}/prioriser": {
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Prioriser (ADMIN)",
+                "operationId": "4838228e86fa53e2c27509756f0ca6c0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Priorisé"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/affectations": {
+            "get": {
+                "tags": [
+                    "Affectations"
+                ],
+                "summary": "Lister les affectations",
+                "operationId": "65be21fd7b38a706a1dc7d863b94aaf9",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Affecter une équipe (ADMIN)",
+                "operationId": "8fe33bbb6975163ce017e6b918b915bc",
+                "responses": {
+                    "201": {
+                        "description": "Affecté"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/affectations/{id}": {
+            "get": {
+                "tags": [
+                    "Affectations"
+                ],
+                "summary": "Détails affectation",
+                "operationId": "e0b53481c8c70343b3b7c7e71051bea1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer affectation (ADMIN)",
+                "operationId": "c8c06ca4792fa62fcfb96d32fce018a8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/affectations/{id}/reaffecter": {
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Réaffecter (ADMIN)",
+                "operationId": "9f65229cfd40b862537a13ee47c80b73",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Réaffecté"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/interventions": {
+            "get": {
+                "tags": [
+                    "Interventions"
+                ],
+                "summary": "Lister les interventions",
+                "operationId": "ce1611ef2aa04d7e07b334f39659ec80",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Interventions"
+                ],
+                "summary": "Démarrer intervention (AGENT)",
+                "operationId": "1aeac10e5985fdde087b92aad190f12a",
+                "responses": {
+                    "201": {
+                        "description": "Créée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/interventions/{id}": {
+            "get": {
+                "tags": [
+                    "Interventions"
+                ],
+                "summary": "Détails intervention",
+                "operationId": "3da9ac94cc7191c8090df14ddf49a33a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Interventions"
+                ],
+                "summary": "Mise à jour avancement (AGENT)",
+                "operationId": "076010d6f056667336e60077213d69c2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mis à jour"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Supprimer intervention (ADMIN)",
+                "operationId": "641f2e7aaeab1d70375634223a3e2c9a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Supprimée"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/interventions/{id}/cloturer": {
+            "post": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Clôturer le signalement (ADMIN ONLY)",
+                "description": "Action finale déclenchant l'attribution des points. Préréquis : intervention terminée et signalement TERMINE.",
+                "operationId": "2f2201fc5d6a05446e2e55cea151a2c7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Clôturé"
+                    },
+                    "403": {
+                        "description": "Réservé Admin"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/gamification/leaderboard": {
+            "get": {
+                "tags": [
+                    "Gamification"
+                ],
+                "summary": "Classement",
+                "operationId": "6b23da3eba89a9a53d8dfa8227f66ef7",
+                "responses": {
+                    "200": {
+                        "description": "Leaderboard"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/historique-points": {
+            "get": {
+                "tags": [
+                    "Gamification"
+                ],
+                "summary": "Mon historique de points",
+                "description": "Isolé par utilisateur (RG34). Admin voit tout.",
+                "operationId": "b02a488ce0f317545183c16d68cec220",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/historique-points/{id}": {
+            "get": {
+                "tags": [
+                    "Gamification"
+                ],
+                "summary": "Détails d'un point",
+                "operationId": "ded60a0e7cc24476671fbbd85d7eb5de",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mes notifications",
+                "operationId": "9cf159296d90714b3dc16b95bd2d921f",
+                "responses": {
+                    "200": {
+                        "description": "Liste"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/notifications/{id}/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Marquer comme lu",
+                "operationId": "e7bbf03e5afb81ae6a3e565ec5f72d0a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Succès"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
+        },
+        "/dashboard/heatmap": {
+            "get": {
+                "tags": [
+                    "Administration"
+                ],
+                "summary": "Heatmap critique (ADMIN)",
+                "operationId": "b039a332cb7cc3419a0bdd30d4bd49c2",
+                "responses": {
+                    "200": {
+                        "description": "Data"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "servers": [
+                    {
+                        "url": "/api",
+                        "description": "Serveur API local"
+                    }
+                ]
+            }
         }
-      }
     },
-    "/signalements/{signalement}": {
-      "get": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "get_signalements_signalement",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Insérez votre jeton d'accès brut obtenu lors de la connexion.",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "head_signalements_signalement",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "put_signalements_signalement",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
         }
-      },
-      "patch": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "patch_signalements_signalement",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "delete_signalements_signalement",
-        "responses": {
-          "204": {
-            "description": "Ressource supprimée"
-          }
-        },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
     },
-    "/signalements/{signalement}/prioriser": {
-      "post": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "post_signalements_signalement_prioriser",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
+    "tags": [
+        {
+            "name": "Authentification",
+            "description": "Authentification"
         },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
+        {
+            "name": "Administration",
+            "description": "Administration"
+        },
+        {
+            "name": "Types Déchets",
+            "description": "Types Déchets"
+        },
+        {
+            "name": "Zones",
+            "description": "Zones"
+        },
+        {
+            "name": "Équipes",
+            "description": "Équipes"
+        },
+        {
+            "name": "Signalements",
+            "description": "Signalements"
+        },
+        {
+            "name": "Affectations",
+            "description": "Affectations"
+        },
+        {
+            "name": "Interventions",
+            "description": "Interventions"
+        },
+        {
+            "name": "Gamification",
+            "description": "Gamification"
+        },
+        {
+            "name": "Notifications",
+            "description": "Notifications"
         }
-      }
-    },
-    "/signalements/{signalement}/rejeter": {
-      "post": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "post_signalements_signalement_rejeter",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/signalements/{signalement}/valider": {
-      "post": {
-        "tags": [
-          "Signalements"
-        ],
-        "operationId": "post_signalements_signalement_valider",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "signalement",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/types-dechets": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_types_dechets",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_types_dechets",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "post_types_dechets",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/types-dechets/{types_dechet}": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_types_dechets_types_dechet",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "types_dechet",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_types_dechets_types_dechet",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "types_dechet",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "put_types_dechets_types_dechet",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "types_dechet",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "patch_types_dechets_types_dechet",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "types_dechet",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "delete_types_dechets_types_dechet",
-        "responses": {
-          "204": {
-            "description": "Ressource supprimée"
-          }
-        },
-        "parameters": [
-          {
-            "name": "types_dechet",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/user": {
-      "get": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "get_user",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "head_user",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/users": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_users",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_users",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "post_users",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/{user}": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_users_user",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_users_user",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "put_users_user",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "patch_users_user",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "delete_users_user",
-        "responses": {
-          "204": {
-            "description": "Ressource supprimée"
-          }
-        },
-        "parameters": [
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
-    "/zones": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_zones",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_zones",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "post": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "post_zones",
-        "responses": {
-          "201": {
-            "description": "Ressource créée"
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      }
-    },
-    "/zones/{zone}": {
-      "get": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "get_zones_zone",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "zone",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "head": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "head_zones_zone",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "zone",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "put_zones_zone",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "zone",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "patch_zones_zone",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        },
-        "parameters": [
-          {
-            "name": "zone",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "additionalProperties": true
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Administration"
-        ],
-        "operationId": "delete_zones_zone",
-        "responses": {
-          "204": {
-            "description": "Ressource supprimée"
-          }
-        },
-        "parameters": [
-          {
-            "name": "zone",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    }
-  }
+    ]
 }
