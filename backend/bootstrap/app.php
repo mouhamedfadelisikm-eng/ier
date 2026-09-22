@@ -57,4 +57,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
         });
+
+        $exceptions->render(function (
+            \App\Exceptions\Business\AgentHasActiveTeamException $exception,
+            Request $request
+        ) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $exception->getMessage(),
+                ], Response::HTTP_CONFLICT);
+            }
+        });
     })->create();

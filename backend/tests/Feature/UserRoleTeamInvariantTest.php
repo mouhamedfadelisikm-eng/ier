@@ -33,7 +33,7 @@ class UserRoleTeamInvariantTest extends TestCase
             'role' => RoleEnum::CITIZEN->value
         ]);
 
-        $response->assertStatus(500) // BusinessException maps to 500 by default unless custom handler
+        $response->assertStatus(409)
                  ->assertJsonFragment(['message' => "Impossible de changer le rôle d'un agent ayant une appartenance active à une équipe."]);
 
         $this->assertTrue($agent->fresh()->hasRole(RoleEnum::AGENT->value));

@@ -20,19 +20,29 @@ final class HistoriquePointService
     public function awardPoints(int $userId, int $points, string $motif, ?string $description = null, ?int $signalementId = null): HistoriquePoint
     {
         if ($signalementId !== null) {
-            /** @var HistoriquePoint $existing */
-            $existing = HistoriquePoint::query()->firstOrCreate(
-                ['signalement_id' => $signalementId],
-                [
-                    'nombre_points' => $points,
-                    'motif' => $motif,
-                    'date_attribution' => now()->toDateString(),
-                    'user_id' => $userId,
-                    'description' => $description,
-                ]
-            );
+            try {
+                /** @var HistoriquePoint $existing */
+                $existing = HistoriquePoint::query()->firstOrCreate(
+                    ['signalement_id' => $signalementId],
+                    [
+                        'nombre_points' => $points,
+                        'motif' => $motif,
+                        'date_attribution' => now()->toDateString(),
+                        'user_id' => $userId,
+                        'description' => $description,
+                    ]
+                );
 
-            return $existing;
+                return $existing;
+            } catch (\Illuminate\Database\QueryException $e) {
+                // En cas de course critique sur la contrainte unique signalement_id
+                // On tente de rÃ©cupÃ©rer l\u0027existant une derniÃ¨re fois.
+                $existing = HistoriquePoint::where('signalement_id', $signalementId)->first();
+                if ($existing) {
+                    return $existing;
+                }
+                throw $e;
+            }
         }
 
         $dto = new CreateHistoriquePointDTO(

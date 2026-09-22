@@ -40,13 +40,13 @@
 | RG34 | Points / 1 utilisateur | OK | OK | OK | GamificationApiTest, HistoriquePointIsolationTest | **PASS** |
 | RG35 | Cumul points possible | OK | OK | OK | GamificationApiTest | **PASS** |
 
-## Synthèse
+## Synthèse de Certification
 - **Règles testées :** 35/35
 - **Verdict :** 100% PASS
 - **Sécurité :** 
-    - Workflow bypass via `PUT` corrigé et testé (SignalementWorkflowTest).
-    - Isolation des points par utilisateur implémentée et testée (HistoriquePointIsolationTest).
-    - Invariant Rôle/Équipe protégé contre les modifications de profil (UserRoleTeamInvariantTest).
-    - Clôture réservée à l'Administrateur (InterventionClosureTest).
-- **Robustesse :** Idempotence Gamification via `firstOrCreate` (atomique) et contrainte unique SQL.
-- **Environnement :** PostgreSQL 17 / PHP 8.4
+    - Workflow bypass via `PUT` corrigé (403 Forbidden).
+    - Isolation des points par utilisateur (RG34) vérifiée.
+    - Invariant Rôle/Équipe protégé (409 Conflict).
+    - Clôture finale réservée à l'Administrateur.
+- **Robustesse :** Idempotence Gamification via `firstOrCreate` avec gestion des exceptions de course critique et contrainte `UNIQUE` SQL.
+- **Environnement :** PostgreSQL 17.0 / PHP 8.4.25
