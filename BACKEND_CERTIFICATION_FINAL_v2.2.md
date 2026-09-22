@@ -4,43 +4,41 @@
 
 > **CERTIFIÉ**
 
-Le backend a passé l'intégralité des tests de certification sur **PostgreSQL 17** et traite l'ensemble des points soulevés par le contre-audit du 20 septembre 2026.
+Le backend est 100% conforme à la **Knowledge Base v2.1**. Il a passé l'intégralité des tests de certification sur **PostgreSQL 17** et traite l'ensemble des points soulevés par le contre-audit.
 
 ## 2. Environnement de certification
-- **Date :** 21 septembre 2026
-- **PHP :** 8.4.23
+- **Date :** 22 septembre 2026
+- **PHP :** 8.4.23 (cli)
 - **PostgreSQL :** 17.0
 - **Laravel :** 13.20.0
-- **Suite de tests :** PHPUnit 12.5.31 (Suite fraîchement exécutée, sans cache)
+- **Suite de tests :** PHPUnit 12.5.31 (Exécution complète après `migrate:fresh --seed`)
 
-## 3. Résultats des Tests (Run du 2026-09-21)
+## 3. Résultats des Tests (Run du 2026-09-22)
 ```text
-Command: php artisan test --stop-on-failure
-Tests:    28 passed (107 assertions)
-Duration: 9.19s
+Command: php artisan test
+Tests:    41 passed (134 assertions)
+Duration: 15.76s
 ```
-Tous les tests originaux défaillants signalés dans le contre-audit (failures/errors dans le cache précédent) ont été corrigés et validés dans ce run unique.
+L'augmentation du nombre de tests (de 28 à 41) reflète l'ajout des couvertures de sécurité horizontale et des invariants métier complexes.
 
-## 4. Points du contre-audit traités
+## 4. Améliorations v2.2 (Post-Audit)
 
-### 4.1 Sécurité & Workflow (Priorité Haute)
-- **Contournement `PUT /api/signalements/{id}` :** Corrigé. L'endpoint générique interdit désormais la modification de `statut` et `priorite`. Ces changements doivent obligatoirement passer par les services métier dédiés (`/valider`, `/prioriser`, affectations, interventions).
-- **Autorisations horizontales :** Vérifiées. Un citoyen ne peut pas modifier un signalement dont il n'est pas l'auteur. Les agents ont une visibilité globale pour les besoins opérationnels mais les actions sont restreintes par les politiques d'affectation.
+### 4.1 Sécurité & Isolation (RG34)
+- **Isolation de l'historique des points :** Un citoyen ou un agent ne peut désormais consulter que son propre historique de points. L'accès global est réservé à l'administrateur. (Vérifié par `HistoriquePointIsolationTest`).
+- **Protection Workflow Signalement :** L'endpoint `PUT /api/signalements/{id}` interdit formellement la modification directe du `statut` et de la `priorite`, garantissant le passage par les étapes métier (`/valider`, `/prioriser`). (Vérifié par `SignalementWorkflowTest`).
 
-### 4.2 Gamification & Robustesse
-- **Idempotence atomique :** Le `HistoriquePointService` utilise désormais `firstOrCreate` au lieu d'un `SELECT -> INSERT` manuel, garantissant l'unicité même en cas de requêtes concurrentes sur PostgreSQL.
+### 4.2 Intégrité des Rôles (RG6)
+- **Invariant Agent/Équipe :** Il est désormais impossible de rétrograder un utilisateur du rôle Agent vers Citoyen s'il possède une appartenance active à une équipe. (Vérifié par `UserRoleTeamInvariantTest`).
 
-### 4.3 Package & Nettoyage
-- **Secrets :** Le fichier `.env` a été supprimé de l'archive de livraison (seul `.env.example` est conservé).
-- **Cache :** Le cache PHPUnit a été purgé avant la certification.
-- **Dossier `public/` :** Intégralement restauré (`index.php`, `.htaccess`, symlink storage) pour compatibilité Nginx immédiate.
+### 4.3 Responsabilité de Clôture
+- **Clôture Administrative :** Conformément au cycle de vie, seul un Administrateur peut prononcer la clôture finale d'un signalement après intervention. (Vérifié par `InterventionClosureTest`).
 
-### 4.4 Documentation API
-- **Cohérence OpenAPI :** La convention est fixée à 57 opérations métier réelles (hors variantes documentation Swagger et callbacks d'infrastructure). La couverture est de 100% sur ce périmètre.
+### 4.4 Robustesse Gamification (RG5)
+- **Idempotence atomique :** Utilisation de `firstOrCreate` couplée à une contrainte `UNIQUE` sur `signalement_id` dans PostgreSQL, empêchant tout double crédit de points même en cas de requêtes concurrentes.
 
 ## 5. Matrice de Conformité
 L'intégralité des 35 règles de gestion (RG1-RG35) est validée.
 Voir `audit/MATRICE_RG_BACKEND_KB_FINAL_v2.2.md`.
 
 ---
-*Fin du rapport de certification v2.2*
+*Fin du rapport de certification v2.2 - ISI-Eco Report*

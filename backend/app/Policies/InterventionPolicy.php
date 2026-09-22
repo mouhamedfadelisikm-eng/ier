@@ -25,5 +25,6 @@ final class InterventionPolicy
     public function view(User $user, Intervention $intervention): bool { return $this->canOperate($user, $intervention); }
     public function create(User $user): bool { return $user->isAdmin() || $user->isAgent(); }
     public function update(User $user, Intervention $intervention): bool { return $this->canOperate($user, $intervention); }
+    public function cloturer(User $user, Intervention $intervention): bool { return $user->isAdmin(); }
     public function delete(User $user, Intervention $intervention): bool { return $user->isAdmin(); }
 }

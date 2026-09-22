@@ -55,7 +55,7 @@ final class InterventionController extends Controller
      */
     public function cloturer(Intervention $intervention): InterventionResource
     {
-        $this->authorize('update', $intervention);
+        $this->authorize('cloturer', $intervention);
         $cloturee = $this->service->cloturer($intervention);
         return new InterventionResource($cloturee->load(['affectation', 'photos']));
     }

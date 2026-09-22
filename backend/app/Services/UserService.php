@@ -41,6 +41,17 @@ final readonly class UserService
         UpdateUserDTO $dto
     ): User {
 
+        if ($dto->role !== null && $user->hasRole(\App\Enums\RoleEnum::AGENT->value) && $dto->role !== \App\Enums\RoleEnum::AGENT) {
+            $hasActiveMembership = \DB::table('appartenance_equipe')
+                ->where('user_id', $user->id)
+                ->whereNull('date_fin')
+                ->exists();
+
+            if ($hasActiveMembership) {
+                throw new \App\Exceptions\Business\AgentHasActiveTeamException();
+            }
+        }
+
         $this->userRepository->update(
             $user,
             $dto->toArray()

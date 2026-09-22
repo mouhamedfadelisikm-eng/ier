@@ -15,7 +15,9 @@ final class UpdateSignalementRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        // On interdit la modification directe du statut et de la priorité via cet endpoint générique,
+        // même pour un administrateur, pour garantir l'intégrité du workflow métier.
+        return !$this->hasAny(['statut', 'priorite']);
     }
 
     public function rules(): array

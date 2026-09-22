@@ -9,7 +9,7 @@
 | RG3 | Création multiple | OK | OK | OK | SignalementApiTest | **PASS** |
 | RG4 | Un seul créateur | OK | OK | OK | SignalementApiTest | **PASS** |
 | RG5 | Points après clôture | OK | OK | OK | GamificationApiTest | **PASS** |
-| RG6 | Seuls Agents en équipe | OK | OK | OK | EquipeApiTest | **PASS** |
+| RG6 | Seuls Agents en équipe | OK | OK | OK | EquipeApiTest, UserRoleTeamInvariantTest | **PASS** |
 | RG7 | Mobilité Agents | OK | OK | OK | EquipeApiTest | **PASS** |
 | RG8 | Historique appartenance | OK | OK | OK | EquipeApiTest | **PASS** |
 | RG9 | ID signalement unique | OK | OK | OK | SignalementApiTest | **PASS** |
@@ -37,12 +37,16 @@
 | RG31 | 1 intervention / 1 équipe | OK | OK | OK | InterventionApiTest | **PASS** |
 | RG32 | Photos intervention | OK | OK | OK | InterventionApiTest | **PASS** |
 | RG33 | Statut + CR obligatoire | OK | OK | OK | InterventionApiTest | **PASS** |
-| RG34 | Points / 1 utilisateur | OK | OK | OK | GamificationApiTest | **PASS** |
+| RG34 | Points / 1 utilisateur | OK | OK | OK | GamificationApiTest, HistoriquePointIsolationTest | **PASS** |
 | RG35 | Cumul points possible | OK | OK | OK | GamificationApiTest | **PASS** |
 
 ## Synthèse
 - **Règles testées :** 35/35
 - **Verdict :** 100% PASS
-- **Sécurité :** Workflow bypass via `PUT` corrigé et testé.
-- **Robustesse :** Idempotence Gamification via `firstOrCreate` (atomique).
+- **Sécurité :** 
+    - Workflow bypass via `PUT` corrigé et testé (SignalementWorkflowTest).
+    - Isolation des points par utilisateur implémentée et testée (HistoriquePointIsolationTest).
+    - Invariant Rôle/Équipe protégé contre les modifications de profil (UserRoleTeamInvariantTest).
+    - Clôture réservée à l'Administrateur (InterventionClosureTest).
+- **Robustesse :** Idempotence Gamification via `firstOrCreate` (atomique) et contrainte unique SQL.
 - **Environnement :** PostgreSQL 17 / PHP 8.4

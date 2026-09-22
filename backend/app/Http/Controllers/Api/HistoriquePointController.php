@@ -23,7 +23,9 @@ final class HistoriquePointController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $this->authorize('viewAny', HistoriquePoint::class);
-        return HistoriquePointResource::collection($this->service->paginate());
+        return HistoriquePointResource::collection(
+            $this->service->paginate(15, auth()->user())->load('user')
+        );
     }
 
     public function show(HistoriquePoint $historiquePoint): HistoriquePointResource

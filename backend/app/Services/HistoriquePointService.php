@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\DTOs\HistoriquePoint\CreateHistoriquePointDTO;
 use App\Models\HistoriquePoint;
+use App\Models\User;
 use App\Repositories\Contracts\HistoriquePointRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -53,8 +54,14 @@ final class HistoriquePointService
         return $this->repository->findOrFail($id);
     }
 
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $perPage = 15, ?User $user = null): LengthAwarePaginator
     {
-        return $this->repository->paginate($perPage);
+        $query = HistoriquePoint::query();
+
+        if ($user !== null && !$user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query->latest()->paginate($perPage);
     }
 }
