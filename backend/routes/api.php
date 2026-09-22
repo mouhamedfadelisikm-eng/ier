@@ -52,9 +52,8 @@ Route::middleware('auth:sanctum')
         /*
         | Current authenticated user
         */
-        Route::get('/user', function (Request $request) {
-            return new UserResource($request->user());
-        });
+        Route::get('/user', [UserController::class, 'getCurrentUser']);
+        Route::put('/user', [UserController::class, 'updateCurrentUser']);
 
 
         /*

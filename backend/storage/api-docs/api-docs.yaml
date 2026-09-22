@@ -82,6 +82,20 @@ paths:
       servers:
         - url: /api
           description: 'Serveur API local'
+    put:
+      tags:
+        - Authentification
+      summary: 'Mettre à jour mon profil'
+      operationId: 65f39515cb7f09d4abf4e543173ce5cf
+      responses:
+        200:
+          description: 'Profil mis à jour'
+      security:
+        -
+          bearerAuth: []
+      servers:
+        - url: /api
+          description: 'Serveur API local'
   /users:
     get:
       tags:

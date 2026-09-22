@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
@@ -23,6 +24,26 @@ final class UserController extends Controller
     public function __construct(
         private readonly UserService $userService,
     ) {
+    }
+
+
+    public function getCurrentUser(Request $request): UserResource
+    {
+        return new UserResource($request->user()->load('roles'));
+    }
+
+
+    public function updateCurrentUser(UpdateProfileRequest $request): UserResource
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        return new UserResource(
+            $this->userService->update(
+                $user,
+                $request->toDTO()
+            )
+        );
     }
 
 

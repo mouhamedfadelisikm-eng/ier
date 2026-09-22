@@ -31,6 +31,7 @@ use OpenApi\Attributes as OA;
 #[OA\Post(path: "/auth/forgot-password", summary: "Oubli mot de passe", tags: ["Authentification"], responses: [new OA\Response(response: 200, description: "Email envoyé")])]
 #[OA\Post(path: "/auth/reset-password", summary: "Réinitialisation mot de passe", tags: ["Authentification"], responses: [new OA\Response(response: 200, description: "Succès")])]
 #[OA\Get(path: "/user", summary: "Profil actuel", security: [['bearerAuth' => []]], tags: ["Authentification"], responses: [new OA\Response(response: 200, description: "Utilisateur connecté")])]
+#[OA\Put(path: "/user", summary: "Mettre à jour mon profil", security: [['bearerAuth' => []]], tags: ["Authentification"], responses: [new OA\Response(response: 200, description: "Profil mis à jour")])]
 
 // --- USERS ---
 
