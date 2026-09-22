@@ -43,10 +43,5 @@
 ## Synthèse de Certification
 - **Règles testées :** 35/35
 - **Verdict :** 100% PASS
-- **Sécurité :** 
-    - Workflow bypass via `PUT` corrigé (403 Forbidden).
-    - Isolation des points par utilisateur (RG34) vérifiée.
-    - Invariant Rôle/Équipe protégé (409 Conflict).
-    - Clôture finale réservée à l'Administrateur.
-- **Robustesse :** Idempotence Gamification via `firstOrCreate` avec gestion des exceptions de course critique et contrainte `UNIQUE` SQL.
-- **Environnement :** PostgreSQL 17.0 / PHP 8.4.25
+- **Environnement :** PostgreSQL 17.0 / PHP 8.4
+- **Couverture API :** 51 opérations métier (Standard) / 77 opérations (Expanded avec HEAD/PATCH).

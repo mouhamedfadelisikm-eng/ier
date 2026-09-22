@@ -4,7 +4,7 @@
 
 > **CERTIFIÉ**
 
-Le backend est intégralement conforme à la **Knowledge Base v2.1**. Il a passé 100% des tests de certification sur un environnement réel **PostgreSQL 17** et traite l'intégralité des points de sécurité et de robustesse identifiés.
+Le backend est intégralement conforme à la **Knowledge Base v2.1**. Il a passé 100% des tests de certification sur un environnement réel **PostgreSQL 17**.
 
 ## 2. Environnement de certification
 - **Date :** 22 septembre 2026
@@ -13,41 +13,37 @@ Le backend est intégralement conforme à la **Knowledge Base v2.1**. Il a pass�
 - **Laravel :** 13.20.0
 - **PHPUnit :** 12.5.31
 
-## 3. Résultats des Tests (Exécution du 2026-09-22)
+## 3. Résultats des Tests (Exécution finale)
 ```text
 Command: php artisan test
 Tests:    41 passed
 Assertions: 134
-Duration: 15.35s
+Duration: 15.34s
 ```
-L'intégralité de la suite (41 tests, 134 assertions) a été exécutée avec succès après une remise à zéro complète de la base de données (`migrate:fresh --seed`).
+L'intégralité de la suite (41 tests, 134 assertions) a été exécutée avec succès après une remise à zéro complète de la base de données.
 
-## 4. Détails des Corrections et Preuves (v2.2)
+## 4. Réconciliation Mathématique OpenAPI
+La documentation OpenAPI v2.2.0 reflète exactement les routes métier exposées par Laravel :
 
-### 4.1 Sécurité & Isolation des Données (RG34)
-- **Code corrigé :** `HistoriquePointController` et `HistoriquePointService` restreignent désormais la liste des points à l'utilisateur connecté (sauf Admin).
-- **Test ajouté/exécuté :** `HistoriquePointIsolationTest`.
-- **Résultat obtenu :** Un citoyen ne peut plus lister ou voir les points d'un autre citoyen (HTTP 403 sur détail, filtrage sur liste).
+- **Routes Laravel (Items total `route:list`) :** 53
+- **Routes Infrastructure (L5-Swagger) :** 2
+- **Routes Métier réelles :** 51
+- **Paths OpenAPI :** 31
+- **Opérations OpenAPI (Standard : GET, POST, PUT, DELETE) :** 51
+- **Opérations OpenAPI (Expanded : incluant HEAD et PATCH auto-gérés par Laravel) :** 77
+    - 20 GET + 20 HEAD
+    - 6 PUT + 6 PATCH
+    - 18 POST
+    - 7 DELETE
+    - Total = 77
 
-### 4.2 Invariant métier Rôle ↔ Équipe (RG6)
-- **Code corrigé :** `UserService` empêche le changement de rôle d'un Agent vers Citoyen s'il possède une appartenance active.
-- **Exception :** `AgentHasActiveTeamException` gérée globalement dans `bootstrap/app.php` retournant un code **HTTP 409 Conflict**.
-- **Test ajouté/exécuté :** `UserRoleTeamInvariantTest`.
+Les fichiers `docs/openapi.json` et `docs/openapi.yaml` sont strictement synchronisés sur la version standard (51 opérations métier documentées explicitement).
 
-### 4.3 Clôture et Workflow (Cycle de vie)
-- **Code corrigé :** `InterventionPolicy` restreint l'action `cloturer` aux seuls Administrateurs. `UpdateSignalementRequest` bloque les tentatives de bypass par `PUT`.
-- **Tests exécutés :** `InterventionClosureTest`, `SignalementWorkflowTest`.
-- **Résultat obtenu :** Les transitions de statut sont strictement verrouillées sur les endpoints métier.
-
-### 4.4 Robustesse Gamification (RG5)
-- **Code corrigé :** `HistoriquePointService` gère désormais les exceptions `UniqueConstraintViolationException` de PostgreSQL lors de l'attribution concurrente de points pour un même signalement.
-- **Preuve SQL :** Contrainte `UNIQUE` sur `signalement_id` dans la table `historique_points`.
-- **Tests exécutés :** `GamificationApiTest` et `HistoriquePointServiceTest` (Unit).
-
-## 5. Documentation OpenAPI
-- **Vérification :** Le fichier `app/Http/Controllers/Api/OpenApi.php` a été intégralement restructuré pour couvrir 100% des routes métier réelles (53 routes Laravel, 77 opérations OpenAPI générées).
-- **Synchronisation :** `docs/openapi.json` et `docs/openapi.yaml` régénérés via `l5-swagger:generate`.
+## 5. Détails des Garanties v2.2
+- **Sécurité Horizontale :** Isolation de l'historique des points (Vérifiée).
+- **Workflow métier :** Bypass via PUT impossible sur statut/priorité (Vérifié).
+- **Invariants :** Protection contre le changement de rôle d'un Agent actif (Code 409 Conflict).
+- **Gamification :** Idempotence garantie par contrainte UNIQUE et gestion des collisions (Vérifiée).
 
 ---
 *Fin du rapport de certification v2.2 - ISI-Eco Report*
-*Certifié par l'Agent de Développement le 22/09/2026*
