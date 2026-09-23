@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "ISI-Eco-Report API",
-        "description": "API certifiée de signalement et de gestion des déchets sauvages. Supporte PostgreSQL 17. Permet l'authentification (Sanctum), le signalement géolocalisé, l'affectation d'équipes, le suivi d'interventions et la gamification avec historique de points.",
+        "description": "API certifi\u00e9e de signalement et de gestion des d\u00e9chets sauvages. Supporte PostgreSQL 17. Permet l'authentification (Sanctum), le signalement g\u00e9olocalis\u00e9, l'affectation d'\u00e9quipes, le suivi d'interventions et la gamification avec historique de points.",
         "version": "2.2.0"
     },
     "paths": {
@@ -15,7 +15,7 @@
                 "operationId": "f18a0c4b85d7508bf5f73ad13af12198",
                 "responses": {
                     "201": {
-                        "description": "Citoyen créé"
+                        "description": "Citoyen cr\u00e9\u00e9"
                     }
                 },
                 "servers": [
@@ -35,7 +35,7 @@
                 "operationId": "c6c9874077b7f3ebeda92067d8d9fa9f",
                 "responses": {
                     "200": {
-                        "description": "Token retourné"
+                        "description": "Token retourn\u00e9"
                     }
                 },
                 "servers": [
@@ -51,11 +51,11 @@
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Déconnexion",
+                "summary": "D\u00e9connexion",
                 "operationId": "767c40d11a53a4b9ef07c97c6353be52",
                 "responses": {
                     "204": {
-                        "description": "Succès"
+                        "description": "Succ\u00e8s"
                     }
                 },
                 "security": [
@@ -80,7 +80,7 @@
                 "operationId": "b1ff7c459a9fec2ac05541848a768b83",
                 "responses": {
                     "200": {
-                        "description": "Email envoyé"
+                        "description": "Email envoy\u00e9"
                     }
                 },
                 "servers": [
@@ -96,11 +96,11 @@
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Réinitialisation mot de passe",
+                "summary": "R\u00e9initialisation mot de passe",
                 "operationId": "92f72120af6836efb02f39cde32189ab",
                 "responses": {
                     "200": {
-                        "description": "Succès"
+                        "description": "Succ\u00e8s"
                     }
                 },
                 "servers": [
@@ -120,7 +120,7 @@
                 "operationId": "cc067d8fc4ee88652322a9816ca6079f",
                 "responses": {
                     "200": {
-                        "description": "Utilisateur connecté"
+                        "description": "Utilisateur connect\u00e9"
                     }
                 },
                 "security": [
@@ -139,11 +139,11 @@
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Mettre à jour mon profil",
+                "summary": "Mettre \u00e0 jour mon profil",
                 "operationId": "65f39515cb7f09d4abf4e543173ce5cf",
                 "responses": {
                     "200": {
-                        "description": "Profil mis à jour"
+                        "description": "Profil mis \u00e0 jour"
                     }
                 },
                 "security": [
@@ -187,11 +187,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Créer un utilisateur (ADMIN)",
+                "summary": "Cr\u00e9er un utilisateur (ADMIN)",
                 "operationId": "4f0b4b5cc1916208e42c21db68b4f0ae",
                 "responses": {
                     "201": {
-                        "description": "Créé"
+                        "description": "Cr\u00e9\u00e9"
                     }
                 },
                 "security": [
@@ -212,8 +212,8 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Détails utilisateur (ADMIN)",
-                "operationId": "28c8679c3bcc7f7e2469e732ce035974",
+                "summary": "D\u00e9tails utilisateur",
+                "operationId": "74dcf73663678fb778b868e82ef6f827",
                 "parameters": [
                     {
                         "name": "id",
@@ -226,7 +226,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails"
                     }
                 },
                 "security": [
@@ -246,7 +246,7 @@
                     "Administration"
                 ],
                 "summary": "Modifier utilisateur (ADMIN)",
-                "operationId": "165a4ede0a0ecfc2bb8a11f6046ae366",
+                "operationId": "a84c7820ab0e37bc902c3ef3393b3f20",
                 "parameters": [
                     {
                         "name": "id",
@@ -259,10 +259,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mis à jour"
-                    },
-                    "409": {
-                        "description": "Conflit rôle/équipe"
+                        "description": "Mis \u00e0 jour"
                     }
                 },
                 "security": [
@@ -282,7 +279,7 @@
                     "Administration"
                 ],
                 "summary": "Supprimer utilisateur (ADMIN)",
-                "operationId": "fe34178197b07119bd2b397f3b281e90",
+                "operationId": "66e8574d6bba78eb8682a3d0774dfd38",
                 "parameters": [
                     {
                         "name": "id",
@@ -295,7 +292,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Supprimé"
+                        "description": "Supprim\u00e9"
                     }
                 },
                 "security": [
@@ -314,10 +311,10 @@
         "/types-dechets": {
             "get": {
                 "tags": [
-                    "Types Déchets"
+                    "Types D\u00e9chets"
                 ],
-                "summary": "Lister types déchets",
-                "operationId": "81d461921ba08e277cdba92f2b421dd1",
+                "summary": "Lister les types de d\u00e9chets",
+                "operationId": "04e30ef480be2e8f19da5c0667ea5565",
                 "responses": {
                     "200": {
                         "description": "Liste"
@@ -339,11 +336,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Créer type déchet (ADMIN)",
-                "operationId": "da2aacb24995403be3499cfb9a9c4d0e",
+                "summary": "Cr\u00e9er un type de d\u00e9chet (ADMIN)",
+                "operationId": "4402a3a5f45037d04bc5f22e70e5dfbf",
                 "responses": {
                     "201": {
-                        "description": "Créé"
+                        "description": "Cr\u00e9\u00e9"
                     }
                 },
                 "security": [
@@ -359,16 +356,16 @@
                 ]
             }
         },
-        "/types-dechets/{id}": {
+        "/types-dechets/{typesDechet}": {
             "get": {
                 "tags": [
-                    "Types Déchets"
+                    "Types D\u00e9chets"
                 ],
-                "summary": "Détails type déchet",
-                "operationId": "1a4d2b3dc98156ee1ad71bc6067e7ce5",
+                "summary": "D\u00e9tails type de d\u00e9chet",
+                "operationId": "44cf882f04e1bc58b29c9c104aa5bfb3",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "typesDechet",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -378,7 +375,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails"
                     }
                 },
                 "security": [
@@ -397,11 +394,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Modifier type déchet (ADMIN)",
-                "operationId": "e4c35c0cff812efa9e5f519f67a4e334",
+                "summary": "Modifier type de d\u00e9chet (ADMIN)",
+                "operationId": "a8b387e6fa0061e3d06fb6b3b5ca5280",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "typesDechet",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -411,7 +408,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mis à jour"
+                        "description": "Mis \u00e0 jour"
                     }
                 },
                 "security": [
@@ -430,11 +427,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Supprimer type déchet (ADMIN)",
-                "operationId": "365d1d55fae47948d2970f76ab22c2ed",
+                "summary": "Supprimer type de d\u00e9chet (ADMIN)",
+                "operationId": "f39b56f849ee1ff4c6c2b186b5bcf3a1",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "typesDechet",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -444,7 +441,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Supprimé"
+                        "description": "Supprim\u00e9"
                     }
                 },
                 "security": [
@@ -466,7 +463,7 @@
                     "Zones"
                 ],
                 "summary": "Lister les zones",
-                "operationId": "a404b51a66ffd4c8b6607ce778ee734d",
+                "operationId": "c9bba5181794b154df2c55b66d790ff4",
                 "responses": {
                     "200": {
                         "description": "Liste"
@@ -488,11 +485,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Créer une zone (ADMIN)",
-                "operationId": "21064b79efb997c3576162bb0f582e9e",
+                "summary": "Cr\u00e9er une zone (ADMIN)",
+                "operationId": "902df351540a87a2750e322efcb409c9",
                 "responses": {
                     "201": {
-                        "description": "Créée"
+                        "description": "Cr\u00e9\u00e9e"
                     }
                 },
                 "security": [
@@ -508,16 +505,16 @@
                 ]
             }
         },
-        "/zones/{id}": {
+        "/zones/{zone}": {
             "get": {
                 "tags": [
                     "Zones"
                 ],
-                "summary": "Détails zone",
-                "operationId": "58e15fd4bd62362469f8a1e69b2fe441",
+                "summary": "D\u00e9tails zone",
+                "operationId": "87807df529d2f6277265538e3e4a2bc0",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "zone",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -527,7 +524,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails"
                     }
                 },
                 "security": [
@@ -547,10 +544,10 @@
                     "Administration"
                 ],
                 "summary": "Modifier zone (ADMIN)",
-                "operationId": "adadb37c2955486617b51cead4ae93e7",
+                "operationId": "bd8a0b0f0270a6c0ea4dc4b84c8cf7da",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "zone",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -560,7 +557,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mise à jour"
+                        "description": "Mis \u00e0 jour"
                     }
                 },
                 "security": [
@@ -580,10 +577,10 @@
                     "Administration"
                 ],
                 "summary": "Supprimer zone (ADMIN)",
-                "operationId": "822e7cfe81089a777d23f6e37f3c6503",
+                "operationId": "eb52865be9f97204f1416e3797072cc2",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "zone",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -593,7 +590,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Supprimée"
+                        "description": "Supprim\u00e9e"
                     }
                 },
                 "security": [
@@ -612,10 +609,10 @@
         "/equipes": {
             "get": {
                 "tags": [
-                    "Équipes"
+                    "\u00c9quipes"
                 ],
-                "summary": "Lister les équipes",
-                "operationId": "d1b6aaa538683f55cf8bd02c714391e8",
+                "summary": "Lister les \u00e9quipes",
+                "operationId": "a5a40bb56db5678120b60e6bb60f06e0",
                 "responses": {
                     "200": {
                         "description": "Liste"
@@ -637,11 +634,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Créer une équipe (ADMIN)",
-                "operationId": "4a3073b804dfb5ed065b9173f76457fc",
+                "summary": "Cr\u00e9er une \u00e9quipe (ADMIN)",
+                "operationId": "3d5082f057864f7df5d4a13f28cf01b1",
                 "responses": {
                     "201": {
-                        "description": "Créée"
+                        "description": "Cr\u00e9\u00e9e"
                     }
                 },
                 "security": [
@@ -657,16 +654,16 @@
                 ]
             }
         },
-        "/equipes/{id}": {
+        "/equipes/{equipe}": {
             "get": {
                 "tags": [
-                    "Équipes"
+                    "\u00c9quipes"
                 ],
-                "summary": "Détails équipe",
-                "operationId": "13258af909d3cf86203280d60158bdb6",
+                "summary": "D\u00e9tails \u00e9quipe",
+                "operationId": "e14741369fbc81ffcaae4bb94e6378ef",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "equipe",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -676,7 +673,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails"
                     }
                 },
                 "security": [
@@ -695,11 +692,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Modifier équipe (ADMIN)",
-                "operationId": "5dcb932472a5703e322d88285e93a360",
+                "summary": "Modifier \u00e9quipe (ADMIN)",
+                "operationId": "daa9dd701f2f87a8bdfdff012bb2a67e",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "equipe",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -709,7 +706,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mise à jour"
+                        "description": "Mis \u00e0 jour"
                     }
                 },
                 "security": [
@@ -728,11 +725,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Supprimer équipe (ADMIN)",
-                "operationId": "579b48540ee5aa72890e57cc343ba688",
+                "summary": "Supprimer \u00e9quipe (ADMIN)",
+                "operationId": "31f822830232230da37190b65ffcb3a7",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "equipe",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -742,7 +739,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Supprimée"
+                        "description": "Supprim\u00e9e"
                     }
                 },
                 "security": [
@@ -768,7 +765,28 @@
                 "operationId": "49d2c9d81862854ebb2cdbc14914cc45",
                 "responses": {
                     "200": {
-                        "description": "Liste"
+                        "description": "Liste",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Signalement"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -787,11 +805,32 @@
                 "tags": [
                     "Signalements"
                 ],
-                "summary": "Créer un signalement",
+                "summary": "Cr\u00e9er un signalement",
                 "operationId": "b0c4f8968fe5bd572a403ff3fba657e5",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSignalementRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
-                        "description": "Créé"
+                        "description": "Cr\u00e9\u00e9",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Signalement"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -812,7 +851,7 @@
                 "tags": [
                     "Signalements"
                 ],
-                "summary": "Détails d'un signalement (inclut type_dechets avec attributs du pivot: type_dechet_id, quantite_estime, volume_estime, dangerosite, remarque)",
+                "summary": "D\u00e9tails d'un signalement",
                 "operationId": "0bc8a6adb944414a64a07304091f232c",
                 "parameters": [
                     {
@@ -826,7 +865,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Signalement"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -845,8 +896,8 @@
                 "tags": [
                     "Signalements"
                 ],
-                "summary": "Mise à jour générique",
-                "description": "Interdit la modification directe de 'statut' et 'priorite'. Permet de modifier la description, la zone ou les type_dechets (avec attributs du pivot: type_dechet_id, quantite_estime, volume_estime, dangerosite, remarque).",
+                "summary": "Mise \u00e0 jour g\u00e9n\u00e9rique",
+                "description": "Interdit la modification directe de 'statut' et 'priorite'. Permet de modifier la description, la zone ou les type_dechets.",
                 "operationId": "6e22e9d3c1097d664b5f8d0466f9ac46",
                 "parameters": [
                     {
@@ -858,9 +909,30 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSignalementRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Mis à jour"
+                        "description": "Mis \u00e0 jour",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Signalement"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     },
                     "403": {
                         "description": "Bypass workflow interdit"
@@ -896,7 +968,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Supprimé"
+                        "description": "Supprim\u00e9"
                     }
                 },
                 "security": [
@@ -931,7 +1003,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Validé"
+                        "description": "Valid\u00e9",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Signalement"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -966,7 +1050,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Rejeté"
+                        "description": "Rejet\u00e9",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Signalement"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -999,9 +1095,30 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PrioritizeSignalementRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Priorisé"
+                        "description": "Prioris\u00e9",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Signalement"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1045,11 +1162,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Affecter une équipe (ADMIN)",
+                "summary": "Affecter une \u00e9quipe (ADMIN)",
                 "operationId": "8fe33bbb6975163ce017e6b918b915bc",
                 "responses": {
                     "201": {
-                        "description": "Affecté"
+                        "description": "Affect\u00e9"
                     }
                 },
                 "security": [
@@ -1070,7 +1187,7 @@
                 "tags": [
                     "Affectations"
                 ],
-                "summary": "Détails affectation",
+                "summary": "D\u00e9tails affectation",
                 "operationId": "e0b53481c8c70343b3b7c7e71051bea1",
                 "parameters": [
                     {
@@ -1084,7 +1201,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails"
                     }
                 },
                 "security": [
@@ -1117,7 +1234,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Supprimée"
+                        "description": "Supprim\u00e9e"
                     }
                 },
                 "security": [
@@ -1138,7 +1255,7 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Réaffecter (ADMIN)",
+                "summary": "R\u00e9affecter (ADMIN)",
                 "operationId": "9f65229cfd40b862537a13ee47c80b73",
                 "parameters": [
                     {
@@ -1152,7 +1269,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Réaffecté"
+                        "description": "R\u00e9affect\u00e9"
                     }
                 },
                 "security": [
@@ -1196,11 +1313,11 @@
                 "tags": [
                     "Interventions"
                 ],
-                "summary": "Démarrer intervention (AGENT)",
+                "summary": "D\u00e9marrer intervention (AGENT)",
                 "operationId": "1aeac10e5985fdde087b92aad190f12a",
                 "responses": {
                     "201": {
-                        "description": "Créée"
+                        "description": "Cr\u00e9\u00e9e"
                     }
                 },
                 "security": [
@@ -1221,7 +1338,7 @@
                 "tags": [
                     "Interventions"
                 ],
-                "summary": "Détails intervention",
+                "summary": "D\u00e9tails intervention",
                 "operationId": "3da9ac94cc7191c8090df14ddf49a33a",
                 "parameters": [
                     {
@@ -1235,7 +1352,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails"
                     }
                 },
                 "security": [
@@ -1254,7 +1371,7 @@
                 "tags": [
                     "Interventions"
                 ],
-                "summary": "Mise à jour avancement (AGENT)",
+                "summary": "Mise \u00e0 jour avancement (AGENT)",
                 "operationId": "076010d6f056667336e60077213d69c2",
                 "parameters": [
                     {
@@ -1268,7 +1385,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mis à jour"
+                        "description": "Mis \u00e0 jour"
                     }
                 },
                 "security": [
@@ -1301,7 +1418,7 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "Supprimée"
+                        "description": "Supprim\u00e9e"
                     }
                 },
                 "security": [
@@ -1322,8 +1439,8 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Clôturer le signalement (ADMIN ONLY)",
-                "description": "Action finale déclenchant l'attribution des points. Préréquis : intervention terminée et signalement TERMINE.",
+                "summary": "Cl\u00f4turer le signalement (ADMIN ONLY)",
+                "description": "Action finale d\u00e9clenchant l'attribution des points. Pr\u00e9r\u00e9quis : intervention termin\u00e9e et signalement TERMINE.",
                 "operationId": "2f2201fc5d6a05446e2e55cea151a2c7",
                 "parameters": [
                     {
@@ -1337,10 +1454,10 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Clôturé"
+                        "description": "Cl\u00f4tur\u00e9"
                     },
                     "403": {
-                        "description": "Réservé Admin"
+                        "description": "R\u00e9serv\u00e9 Admin"
                     }
                 },
                 "security": [
@@ -1387,7 +1504,7 @@
                     "Gamification"
                 ],
                 "summary": "Mon historique de points",
-                "description": "Isolé par utilisateur (RG34). Admin voit tout.",
+                "description": "Isol\u00e9 par utilisateur (RG34). Admin voit tout.",
                 "operationId": "b02a488ce0f317545183c16d68cec220",
                 "responses": {
                     "200": {
@@ -1412,7 +1529,7 @@
                 "tags": [
                     "Gamification"
                 ],
-                "summary": "Détails d'un point",
+                "summary": "D\u00e9tails d'un point",
                 "operationId": "ded60a0e7cc24476671fbbd85d7eb5de",
                 "parameters": [
                     {
@@ -1426,7 +1543,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Détails"
+                        "description": "D\u00e9tails"
                     }
                 },
                 "security": [
@@ -1486,7 +1603,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Succès"
+                        "description": "Succ\u00e8s"
                     }
                 },
                 "security": [
@@ -1532,9 +1649,265 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
-                "description": "Insérez votre jeton d'accès brut obtenu lors de la connexion.",
+                "description": "Ins\u00e9rez votre jeton d'acc\u00e8s brut obtenu lors de la connexion.",
                 "bearerFormat": "JWT",
                 "scheme": "bearer"
+            }
+        },
+        "schemas": {
+            "SignalementTypeDechet": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "type_dechet_id": {
+                        "type": "integer"
+                    },
+                    "libelle": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "quantite_estime": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "volume_estime": {
+                        "type": "number",
+                        "nullable": true
+                    },
+                    "dangerosite": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "faible",
+                            "modere",
+                            "eleve",
+                            "extreme"
+                        ]
+                    },
+                    "remarque": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "Signalement": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "latitude": {
+                        "type": "number"
+                    },
+                    "longitude": {
+                        "type": "number"
+                    },
+                    "statut": {
+                        "type": "string",
+                        "enum": [
+                            "brouillon",
+                            "en_attente_validation",
+                            "valide",
+                            "rejete",
+                            "priorise",
+                            "affecte",
+                            "en_intervention",
+                            "termine",
+                            "cloture"
+                        ]
+                    },
+                    "priorite": {
+                        "type": "string",
+                        "nullable": true,
+                        "enum": [
+                            "faible",
+                            "normale",
+                            "haute",
+                            "urgente"
+                        ]
+                    },
+                    "user": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "zone": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "type_dechets": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SignalementTypeDechet"
+                        }
+                    },
+                    "photos": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "date_heure_signalement": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "CreateSignalementRequest": {
+                "type": "object",
+                "required": [
+                    "latitude",
+                    "longitude"
+                ],
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90
+                    },
+                    "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180
+                    },
+                    "zone_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "type_dechets": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "type_dechet_id"
+                            ],
+                            "properties": {
+                                "type_dechet_id": {
+                                    "type": "integer"
+                                },
+                                "quantite_estime": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "nullable": true
+                                },
+                                "volume_estime": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "nullable": true
+                                },
+                                "dangerosite": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "enum": [
+                                        "faible",
+                                        "modere",
+                                        "eleve",
+                                        "extreme"
+                                    ]
+                                },
+                                "remarque": {
+                                    "type": "string",
+                                    "nullable": true
+                                }
+                            }
+                        }
+                    },
+                    "photos": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "binary"
+                        }
+                    }
+                }
+            },
+            "UpdateSignalementRequest": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "zone_id": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "type_dechets": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "type_dechet_id"
+                            ],
+                            "properties": {
+                                "type_dechet_id": {
+                                    "type": "integer"
+                                },
+                                "quantite_estime": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "nullable": true
+                                },
+                                "volume_estime": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "nullable": true
+                                },
+                                "dangerosite": {
+                                    "type": "string",
+                                    "nullable": true,
+                                    "enum": [
+                                        "faible",
+                                        "modere",
+                                        "eleve",
+                                        "extreme"
+                                    ]
+                                },
+                                "remarque": {
+                                    "type": "string",
+                                    "nullable": true
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "PrioritizeSignalementRequest": {
+                "type": "object",
+                "required": [
+                    "priorite"
+                ],
+                "properties": {
+                    "priorite": {
+                        "type": "string",
+                        "enum": [
+                            "faible",
+                            "normale",
+                            "haute",
+                            "urgente"
+                        ]
+                    }
+                }
             }
         }
     },
@@ -1548,16 +1921,16 @@
             "description": "Administration"
         },
         {
-            "name": "Types Déchets",
-            "description": "Types Déchets"
+            "name": "Types D\u00e9chets",
+            "description": "Types D\u00e9chets"
         },
         {
             "name": "Zones",
             "description": "Zones"
         },
         {
-            "name": "Équipes",
-            "description": "Équipes"
+            "name": "\u00c9quipes",
+            "description": "\u00c9quipes"
         },
         {
             "name": "Signalements",
