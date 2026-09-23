@@ -38,6 +38,10 @@ export class SignalementsListComponent implements OnInit {
   selectedSignalementForPrioritize = signal<Signalement | null>(null);
   selectedPriority = signal<SignalementPriorite>('normale');
 
+  // Reject Modal state
+  showRejectModal = signal<boolean>(false);
+  selectedSignalementForReject = signal<Signalement | null>(null);
+
   // Deletion Confirmation Modal state
   showDeleteModal = signal<boolean>(false);
   selectedSignalementForDelete = signal<Signalement | null>(null);
@@ -117,22 +121,31 @@ export class SignalementsListComponent implements OnInit {
     });
   }
 
-  reject(id: number, event: Event): void {
+  promptReject(item: Signalement, event: Event): void {
     event.stopPropagation();
-    if (this.actionInProgressId() !== null) return;
+    this.selectedSignalementForReject.set(item);
+    this.showRejectModal.set(true);
+  }
 
-    // Open confirmation or execute reject directly via safe inline confirmation
-    if (!window.confirm(`Confirmez-vous le rejet du signalement #${id} ?`)) return;
+  closeRejectModal(): void {
+    this.showRejectModal.set(false);
+    this.selectedSignalementForReject.set(null);
+  }
 
-    this.actionInProgressId.set(id);
+  confirmReject(): void {
+    const item = this.selectedSignalementForReject();
+    if (!item) return;
+
+    this.actionInProgressId.set(item.id);
+    this.closeRejectModal();
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.signalementService.reject(id).subscribe({
+    this.signalementService.reject(item.id).subscribe({
       next: (res) => {
         this.updateItemInList(res.data);
         this.actionInProgressId.set(null);
-        this.successMessage.set(`Signalement #${id} rejeté.`);
+        this.successMessage.set(`Signalement #${item.id} rejeté.`);
       },
       error: (err: HttpErrorResponse) => {
         this.actionInProgressId.set(null);

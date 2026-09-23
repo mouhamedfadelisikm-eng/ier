@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { SignalementDetailComponent } from './signalement-detail.component';
 import { SignalementService } from '../../../core/services/signalement.service';
 import { Signalement } from '../../../core/models/signalement.model';
+import { environment } from '../../../../environments/environment';
 
 describe('SignalementDetailComponent', () => {
   let component: SignalementDetailComponent;
@@ -19,10 +20,18 @@ describe('SignalementDetailComponent', () => {
     longitude: -17.4467,
     statut: 'en_attente_validation',
     priorite: 'normale',
-    user: { id: 1, prenom: 'Moussa', nom: 'Diop', email: 'moussa@test.com' },
+    user: { id: 1, prenom: 'Moussa', nom: 'Diop', email: 'moussa@test.com', telephone: '+221770000000' },
     zone: { id: 1, nom_zone: 'Plateau' },
     type_dechets: [
-      { id: 1, libelle: 'Plastique' }
+      {
+        id: 1,
+        type_dechet_id: 1,
+        libelle: 'Plastique',
+        quantite_estime: 10,
+        volume_estime: 2.5,
+        dangerosite: 'eleve',
+        remarque: 'Dangereux'
+      }
     ],
     photos: [
       { id: 1, url: 'http://localhost/storage/photo1.jpg', description: 'Déchets' }
@@ -62,7 +71,7 @@ describe('SignalementDetailComponent', () => {
     httpMock.verify();
   });
 
-  it('should create and load signalement detail successfully', () => {
+  it('should create and load signalement detail with type_dechets pivot data successfully', () => {
     fixture.detectChanges(); // triggers ngOnInit
 
     const req = httpMock.expectOne(req => req.url.includes('/signalements/1'));
@@ -73,7 +82,9 @@ describe('SignalementDetailComponent', () => {
     expect(component).toBeTruthy();
     expect(component.isLoading()).toBe(false);
     expect(component.signalement()?.id).toBe(1);
-    expect(component.signalement()?.description).toBe('Détail signalement test');
+    expect(component.signalement()?.type_dechets?.length).toBe(1);
+    expect(component.signalement()?.type_dechets?.[0].quantite_estime).toBe(10);
+    expect(component.signalement()?.type_dechets?.[0].dangerosite).toBe('eleve');
   });
 
   it('should handle 404 error when signalement not found', () => {
@@ -102,23 +113,81 @@ describe('SignalementDetailComponent', () => {
     expect(component.signalement()?.statut).toBe('valide');
   });
 
-  it('should execute update and verify PUT payload does not contain statut or priorite', () => {
+  it('should not send type_dechets when only description is modified (dirty checking check)', () => {
     fixture.detectChanges();
     const req = httpMock.expectOne(req => req.url.includes('/signalements/1'));
     req.flush({ data: mockSignalement });
     fixture.detectChanges();
 
-    component.editDescription.set('Description modifiée');
+    component.startEditing();
+    const zoneReq = httpMock.expectOne(req => req.url.includes('/zones'));
+    zoneReq.flush({ data: [] });
+    const typeReq = httpMock.expectOne(req => req.url.includes('/types-dechets'));
+    typeReq.flush({ data: [] });
+
+    component.editDescription.set('Description modifiée sans toucher aux déchets');
     component.saveEdition();
 
     const updateReq = httpMock.expectOne(req => req.url.includes('/signalements/1'));
     expect(updateReq.request.method).toBe('PUT');
     expect(updateReq.request.body.statut).toBeUndefined();
     expect(updateReq.request.body.priorite).toBeUndefined();
-    expect(updateReq.request.body.description).toBe('Description modifiée');
+    expect(updateReq.request.body.description).toBe('Description modifiée sans toucher aux déchets');
+    expect(updateReq.request.body.type_dechets).toBeUndefined(); // Crucial: should not be sent if unchanged
 
-    updateReq.flush({ data: { ...mockSignalement, description: 'Description modifiée' } });
-    expect(component.signalement()?.description).toBe('Description modifiée');
+    updateReq.flush({ data: { ...mockSignalement, description: 'Description modifiée sans toucher aux déchets' } });
+    expect(component.signalement()?.description).toBe('Description modifiée sans toucher aux déchets');
     expect(component.isEditing()).toBe(false);
+  });
+
+  it('should send type_dechets when waste types are modified', () => {
+    fixture.detectChanges();
+    const req = httpMock.expectOne(req => req.url.includes('/signalements/1'));
+    req.flush({ data: mockSignalement });
+    fixture.detectChanges();
+
+    component.startEditing();
+    const zoneReq = httpMock.expectOne(req => req.url.includes('/zones'));
+    zoneReq.flush({ data: [] });
+    const typeReq = httpMock.expectOne(req => req.url.includes('/types-dechets'));
+    typeReq.flush({ data: [] });
+
+    component.editableTypeDechets.set([
+      { type_dechet_id: 1, quantite_estime: 20, volume_estime: 4, dangerosite: 'faible', remarque: 'Modifié' }
+    ]);
+    component.saveEdition();
+
+    const updateReq = httpMock.expectOne(req => req.url.includes('/signalements/1'));
+    expect(updateReq.request.method).toBe('PUT');
+    expect(updateReq.request.body.type_dechets).toBeDefined();
+    expect(updateReq.request.body.type_dechets[0].quantite_estime).toBe(20);
+
+    updateReq.flush({
+      data: {
+        ...mockSignalement,
+        type_dechets: [{ id: 1, type_dechet_id: 1, libelle: 'Plastique', quantite_estime: 20, volume_estime: 4, dangerosite: 'faible', remarque: 'Modifié' }]
+      }
+    });
+    expect(component.isEditing()).toBe(false);
+  });
+
+  it('should prevent duplicate waste types in editable list', () => {
+    fixture.detectChanges();
+    const req = httpMock.expectOne(req => req.url.includes('/signalements/1'));
+    req.flush({ data: mockSignalement });
+    fixture.detectChanges();
+
+    component.startEditing();
+    const zoneReq = httpMock.expectOne(req => req.url.includes('/zones'));
+    zoneReq.flush({ data: [] });
+    const typeReq = httpMock.expectOne(req => req.url.includes('/types-dechets'));
+    typeReq.flush({ data: [{ id: 2, libelle: 'Verre', description: 'Verre brisé' }] });
+
+    component.addWasteType(2);
+    expect(component.editableTypeDechets().length).toBe(2);
+
+    // Try adding duplicate type_dechet_id 2
+    component.addWasteType(2);
+    expect(component.editableTypeDechets().length).toBe(2); // Should not duplicate
   });
 });

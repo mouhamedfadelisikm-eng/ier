@@ -40,9 +40,23 @@ export class SignalementDetailComponent implements OnInit {
     remarque?: string | null;
   }>>([]);
 
+  // Initial state snapshots for dirty-checking
+  private initialDescription: string | null = null;
+  private initialZoneId: number | null = null;
+  private initialTypeDechets: Array<{
+    type_dechet_id: number;
+    quantite_estime?: number | null;
+    volume_estime?: number | null;
+    dangerosite?: DangerositeType | null;
+    remarque?: string | null;
+  }> = [];
+
   // Prioritize modal state
   showPrioritizeModal = signal<boolean>(false);
   selectedPriority = signal<SignalementPriorite>('normale');
+
+  // Reject modal state
+  showRejectModal = signal<boolean>(false);
 
   // Delete modal state
   showDeleteModal = signal<boolean>(false);
@@ -75,18 +89,26 @@ export class SignalementDetailComponent implements OnInit {
         this.editZoneId.set(item.zone?.id || null);
         this.selectedPriority.set(item.priorite || 'normale');
 
-        if (item.type_dechets) {
-          this.editableTypeDechets.set(
-            item.type_dechets.map(td => ({
-              type_dechet_id: td.id || td.type_dechet_id || 0,
-              libelle: td.libelle,
-              quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
-              volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
-              dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
-              remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
-            }))
-          );
-        }
+        this.initialDescription = item.description || null;
+        this.initialZoneId = item.zone?.id || null;
+
+        const canonicalWastes = (item.type_dechets || []).map(td => ({
+          type_dechet_id: td.id || td.type_dechet_id || 0,
+          quantite_estime: td.quantite_estime !== undefined && td.quantite_estime !== null ? Number(td.quantite_estime) : (td.pivot?.quantite_estime !== null && td.pivot?.quantite_estime !== undefined ? Number(td.pivot.quantite_estime) : null),
+          volume_estime: td.volume_estime !== undefined && td.volume_estime !== null ? Number(td.volume_estime) : (td.pivot?.volume_estime !== null && td.pivot?.volume_estime !== undefined ? Number(td.pivot.volume_estime) : null),
+          dangerosite: td.dangerosite !== undefined ? (td.dangerosite || null) : ((td.pivot?.dangerosite as DangerositeType) || null),
+          remarque: td.remarque !== undefined ? (td.remarque || null) : (td.pivot?.remarque || null)
+        }));
+
+        this.initialTypeDechets = JSON.parse(JSON.stringify(canonicalWastes));
+        this.editableTypeDechets.set((item.type_dechets || []).map(td => ({
+          type_dechet_id: td.id || td.type_dechet_id || 0,
+          libelle: td.libelle,
+          quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
+          volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
+          dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
+          remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
+        })));
 
         this.isLoading.set(false);
       },
@@ -119,20 +141,17 @@ export class SignalementDetailComponent implements OnInit {
     this.isEditing.set(false);
     const item = this.signalement();
     if (item) {
-      this.editDescription.set(item.description || '');
-      this.editZoneId.set(item.zone?.id || null);
-      if (item.type_dechets) {
-        this.editableTypeDechets.set(
-          item.type_dechets.map(td => ({
-            type_dechet_id: td.id || td.type_dechet_id || 0,
-            libelle: td.libelle,
-            quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
-            volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
-            dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
-            remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
-          }))
-        );
-      }
+      this.editDescription.set(this.initialDescription);
+      this.editZoneId.set(this.initialZoneId);
+      const loadedWastes = (item.type_dechets || []).map(td => ({
+        type_dechet_id: td.id || td.type_dechet_id || 0,
+        libelle: td.libelle,
+        quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
+        volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
+        dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
+        remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
+      }));
+      this.editableTypeDechets.set(JSON.parse(JSON.stringify(loadedWastes)));
     }
   }
 
@@ -141,7 +160,6 @@ export class SignalementDetailComponent implements OnInit {
     const found = this.typesDechetsList().find(t => t.id === Number(typeDechetId));
     if (!found) return;
 
-    // Check if already added
     const current = this.editableTypeDechets();
     if (current.some(item => item.type_dechet_id === found.id)) return;
 
@@ -170,21 +188,55 @@ export class SignalementDetailComponent implements OnInit {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    const payload: UpdateSignalementPayload = {
-      description: this.editDescription(),
-      zone_id: this.editZoneId(),
-      type_dechets: this.editableTypeDechets().map(w => ({
-        type_dechet_id: w.type_dechet_id,
-        quantite_estime: w.quantite_estime !== null && w.quantite_estime !== undefined ? Number(w.quantite_estime) : null,
-        volume_estime: w.volume_estime !== null && w.volume_estime !== undefined ? Number(w.volume_estime) : null,
-        dangerosite: w.dangerosite || null,
-        remarque: w.remarque || null
-      }))
-    };
+    const currentDesc = this.editDescription();
+    const currentZoneId = this.editZoneId();
+    const currentWastes = this.editableTypeDechets().map(w => ({
+      type_dechet_id: w.type_dechet_id,
+      quantite_estime: w.quantite_estime !== null && w.quantite_estime !== undefined && w.quantite_estime !== ('' as unknown as number) ? Number(w.quantite_estime) : null,
+      volume_estime: w.volume_estime !== null && w.volume_estime !== undefined && w.volume_estime !== ('' as unknown as number) ? Number(w.volume_estime) : null,
+      dangerosite: w.dangerosite || null,
+      remarque: w.remarque || null
+    }));
+
+    const descChanged = currentDesc !== this.initialDescription;
+    const zoneChanged = currentZoneId !== this.initialZoneId;
+    const wastesChanged = JSON.stringify(currentWastes) !== JSON.stringify(this.initialTypeDechets);
+
+    if (!descChanged && !zoneChanged && !wastesChanged) {
+      this.successMessage.set('Aucune modification détectée.');
+      this.isEditing.set(false);
+      this.actionInProgress.set(false);
+      return;
+    }
+
+    const payload: UpdateSignalementPayload = {};
+    if (descChanged) payload.description = currentDesc;
+    if (zoneChanged) payload.zone_id = currentZoneId;
+    if (wastesChanged) payload.type_dechets = currentWastes;
 
     this.signalementService.update(item.id, payload).subscribe({
       next: (res) => {
-        this.signalement.set(res.data);
+        const updated = res.data;
+        this.signalement.set(updated);
+        this.initialDescription = updated.description || null;
+        this.initialZoneId = updated.zone?.id || null;
+        const newWastes = (updated.type_dechets || []).map(td => ({
+          type_dechet_id: td.id || td.type_dechet_id || 0,
+          quantite_estime: td.quantite_estime !== undefined && td.quantite_estime !== null ? Number(td.quantite_estime) : (td.pivot?.quantite_estime !== null && td.pivot?.quantite_estime !== undefined ? Number(td.pivot.quantite_estime) : null),
+          volume_estime: td.volume_estime !== undefined && td.volume_estime !== null ? Number(td.volume_estime) : (td.pivot?.volume_estime !== null && td.pivot?.volume_estime !== undefined ? Number(td.pivot.volume_estime) : null),
+          dangerosite: td.dangerosite !== undefined ? (td.dangerosite || null) : ((td.pivot?.dangerosite as DangerositeType) || null),
+          remarque: td.remarque !== undefined ? (td.remarque || null) : (td.pivot?.remarque || null)
+        }));
+        this.initialTypeDechets = JSON.parse(JSON.stringify(newWastes));
+        this.editableTypeDechets.set((updated.type_dechets || []).map(td => ({
+          type_dechet_id: td.id || td.type_dechet_id || 0,
+          libelle: td.libelle,
+          quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
+          volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
+          dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
+          remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
+        })));
+
         this.isEditing.set(false);
         this.actionInProgress.set(false);
         this.successMessage.set('Signalement mis à jour avec succès.');
@@ -217,13 +269,20 @@ export class SignalementDetailComponent implements OnInit {
     });
   }
 
-  reject(): void {
-    const item = this.signalement();
-    if (!item || this.actionInProgress()) return;
+  promptReject(): void {
+    this.showRejectModal.set(true);
+  }
 
-    if (!window.confirm('Confirmez-vous le rejet de ce signalement ?')) return;
+  closeRejectModal(): void {
+    this.showRejectModal.set(false);
+  }
+
+  confirmReject(): void {
+    const item = this.signalement();
+    if (!item) return;
 
     this.actionInProgress.set(true);
+    this.closeRejectModal();
     this.errorMessage.set(null);
     this.successMessage.set(null);
 

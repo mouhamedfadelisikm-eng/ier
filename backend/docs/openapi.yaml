@@ -504,7 +504,7 @@ paths:
     get:
       tags:
         - Signalements
-      summary: "Détails d'un signalement"
+      summary: "Détails d'un signalement (inclut type_dechets avec attributs du pivot: type_dechet_id, quantite_estime, volume_estime, dangerosite, remarque)"
       operationId: 0bc8a6adb944414a64a07304091f232c
       parameters:
         -
@@ -526,7 +526,7 @@ paths:
       tags:
         - Signalements
       summary: 'Mise à jour générique'
-      description: "Interdit la modification directe de 'statut' et 'priorite'. Permet de modifier la description ou la zone."
+      description: "Interdit la modification directe de 'statut' et 'priorite'. Permet de modifier la description, la zone ou les type_dechets (avec attributs du pivot: type_dechet_id, quantite_estime, volume_estime, dangerosite, remarque)."
       operationId: 6e22e9d3c1097d664b5f8d0466f9ac46
       parameters:
         -

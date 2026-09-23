@@ -161,7 +161,7 @@
                       </button>
                       <button
                         class="btn btn-danger btn-xs"
-                        (click)="reject(item.id, $event)"
+                        (click)="promptReject(item, $event)"
                         [disabled]="actionInProgressId() === item.id"
                         title="Rejeter le signalement">
                         Rejeter
@@ -247,6 +247,25 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" (click)="closePrioritizeModal()">Annuler</button>
           <button class="btn btn-primary" (click)="confirmPrioritize()" [disabled]="actionInProgressId() !== null">Enregistrer la priorité</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Reject Confirmation Modal -->
+  @if (showRejectModal()) {
+    <div class="modal-backdrop" (click)="closeRejectModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Confirmer le rejet</h3>
+          <button class="modal-close" (click)="closeRejectModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Êtes-vous sûr de vouloir rejeter le signalement #{{ selectedSignalementForReject()?.id }} ?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeRejectModal()">Annuler</button>
+          <button class="btn btn-danger" (click)="confirmReject()" [disabled]="actionInProgressId() !== null">Confirmer le rejet</button>
         </div>
       </div>
     </div>
