@@ -1,0 +1,253 @@
+<div class="signalements-container">
+  <!-- Header Title & Stats -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestion des Signalements</h1>
+      <p class="page-subtitle">Supervision, validation, priorisation et suivi des signalements citoyens</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary btn-sm" (click)="loadSignalements(currentPage())" [disabled]="isLoading()">
+        <svg class="refresh-icon" [class.spinning]="isLoading()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="searchQuery">Recherche</label>
+      <input
+        type="text"
+        id="searchQuery"
+        class="form-control"
+        placeholder="Rechercher par description, zone, utilisateur..."
+        [(ngModel)]="searchQuery"
+      >
+    </div>
+
+    <div class="filter-group">
+      <label for="filterStatus">Filtrer par Statut</label>
+      <select id="filterStatus" class="form-control" [(ngModel)]="filterStatus">
+        <option value="">Tous les statuts</option>
+        <option value="brouillon">Brouillon</option>
+        <option value="en_attente_validation">En attente de validation</option>
+        <option value="valide">Validé</option>
+        <option value="rejete">Rejeté</option>
+        <option value="priorise">Priorisé</option>
+        <option value="affecte">Affecté</option>
+        <option value="en_intervention">En intervention</option>
+        <option value="termine">Terminé</option>
+        <option value="cloture">Clôturé</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filterPriority">Filtrer par Priorité</label>
+      <select id="filterPriority" class="form-control" [(ngModel)]="filterPriority">
+        <option value="">Toutes les priorités</option>
+        <option value="faible">Faible</option>
+        <option value="normale">Normale</option>
+        <option value="haute">Haute</option>
+        <option value="urgente">Urgente</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="dashboard-card">
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="state-container">
+        <div class="spinner spinner-dark"></div>
+        <p class="state-text">Chargement des signalements depuis l'API...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @else if (errorMessage()) {
+      <div class="state-container state-error">
+        <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p class="error-title">Erreur de chargement</p>
+        <p class="error-desc">{{ errorMessage() }}</p>
+        <button class="btn btn-secondary btn-sm" (click)="loadSignalements(currentPage())">Réessayer</button>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @else if (filteredSignalements().length === 0) {
+      <div class="state-container state-empty">
+        <svg class="empty-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M8 12h8"></path>
+        </svg>
+        <p class="empty-title">Aucun signalement trouvé</p>
+        <p class="empty-desc">Aucun signalement ne correspond aux critères de recherche ou la liste est vide.</p>
+      </div>
+    }
+
+    <!-- Table -->
+    @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date & Heure</th>
+              <th>Utilisateur</th>
+              <th>Zone</th>
+              <th>Statut</th>
+              <th>Priorité</th>
+              <th>Coordonnées</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredSignalements(); track item.id) {
+              <tr class="clickable-row" [routerLink]="['/admin/signalements', item.id]">
+                <td><strong>#{{ item.id }}</strong></td>
+                <td>
+                  <span class="date-text">{{ item.date_heure_signalement | date:'dd/MM/yyyy HH:mm' }}</span>
+                </td>
+                <td>
+                  <div class="user-cell">
+                    <span class="user-name">{{ item.user?.prenom }} {{ item.user?.nom }}</span>
+                    <span class="user-email">{{ item.user?.email }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="zone-badge">{{ item.zone?.nom_zone || 'Non assignée' }}</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getStatutBadgeClass(item.statut)">
+                    {{ formatStatut(item.statut) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="priority-text">{{ formatPriorite(item.priorite) }}</span>
+                </td>
+                <td>
+                  <span class="coord-badge" title="Latitude, Longitude">
+                    {{ item.latitude | number:'1.4-4' }}, {{ item.longitude | number:'1.4-4' }}
+                  </span>
+                </td>
+                <td class="text-right actions-cell" (click)="$event.stopPropagation()">
+                  <div class="action-buttons">
+                    <!-- View detail -->
+                    <a [routerLink]="['/admin/signalements', item.id]" class="btn-icon btn-icon-view" title="Voir le détail">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </a>
+
+                    <!-- Validate / Reject if en_attente_validation -->
+                    @if (item.statut === 'en_attente_validation') {
+                      <button
+                        class="btn btn-success btn-xs"
+                        (click)="validate(item.id, $event)"
+                        [disabled]="actionInProgressId() === item.id"
+                        title="Valider le signalement">
+                        Valider
+                      </button>
+                      <button
+                        class="btn btn-danger btn-xs"
+                        (click)="reject(item.id, $event)"
+                        [disabled]="actionInProgressId() === item.id"
+                        title="Rejeter le signalement">
+                        Rejeter
+                      </button>
+                    }
+
+                    <!-- Prioritize if valide -->
+                    @if (item.statut === 'valide') {
+                      <button
+                        class="btn btn-primary btn-xs"
+                        (click)="openPrioritizeModal(item, $event)"
+                        [disabled]="actionInProgressId() === item.id"
+                        title="Prioriser le signalement">
+                        Prioriser
+                      </button>
+                    }
+
+                    <!-- Delete -->
+                    <button
+                      class="btn-icon btn-icon-delete"
+                      (click)="deleteSignalement(item.id, $event)"
+                      [disabled]="actionInProgressId() === item.id"
+                      title="Supprimer">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination bar -->
+      @if (meta() && meta()!.last_page > 1) {
+        <div class="pagination-bar">
+          <span class="pagination-info">
+            Affichage de {{ meta()!.from }} à {{ meta()!.to }} sur {{ meta()!.total }} signalements
+          </span>
+          <div class="pagination-buttons">
+            <button
+              class="btn btn-secondary btn-sm"
+              [disabled]="meta()!.current_page === 1 || isLoading()"
+              (click)="onPageChange(meta()!.current_page - 1)">
+              Précédent
+            </button>
+            <span class="page-indicator">Page {{ meta()!.current_page }} / {{ meta()!.last_page }}</span>
+            <button
+              class="btn btn-secondary btn-sm"
+              [disabled]="meta()!.current_page === meta()!.last_page || isLoading()"
+              (click)="onPageChange(meta()!.current_page + 1)">
+              Suivant
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Prioritization Modal -->
+  @if (showPrioritizeModal()) {
+    <div class="modal-backdrop" (click)="closePrioritizeModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Prioriser le signalement #{{ selectedSignalementForPrioritize()?.id }}</h3>
+          <button class="modal-close" (click)="closePrioritizeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Veuillez sélectionner le niveau de priorité à assigner à ce signalement validé :</p>
+          <div class="form-group">
+            <label for="prioritySelect">Niveau de priorité</label>
+            <select id="prioritySelect" class="form-control" [(ngModel)]="selectedPriority">
+              <option value="faible">Faible</option>
+              <option value="normale">Normale</option>
+              <option value="haute">Haute</option>
+              <option value="urgente">Urgente</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closePrioritizeModal()">Annuler</button>
+          <button class="btn btn-primary" (click)="confirmPrioritize()" [disabled]="actionInProgressId() !== null">Enregistrer la priorité</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

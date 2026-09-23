@@ -5,6 +5,8 @@ import { guestGuard } from './core/guards/guest.guard';
 import { LoginComponent } from './features/auth/login/login.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { SignalementsListComponent } from './features/signalements/signalements-list/signalements-list.component';
+import { SignalementDetailComponent } from './features/signalements/signalement-detail/signalement-detail.component';
 import { ModulePlaceholderComponent } from './shared/components/module-placeholder/module-placeholder.component';
 
 export const routes: Routes = [
@@ -40,12 +42,12 @@ export const routes: Routes = [
       },
       {
         path: 'signalements',
-        component: ModulePlaceholderComponent,
+        component: SignalementsListComponent,
         data: { title: 'Gestion des Signalements' }
       },
       {
         path: 'signalements/:id',
-        component: ModulePlaceholderComponent,
+        component: SignalementDetailComponent,
         data: { title: 'Détail du Signalement' }
       },
       {
