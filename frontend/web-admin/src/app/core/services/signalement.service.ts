@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Signalement, PaginatedResponse, ZoneSummary, TypeDechetItem } from '../models/signalement.model';
+import { Signalement, PaginatedResponse, ZoneSummary, TypeDechetItem, UpdateSignalementPayload } from '../models/signalement.model';
+import { SignalementPriorite } from '../models/signalement-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -29,8 +30,8 @@ export class SignalementService {
    * Met à jour un signalement (description, zone_id, type_dechets).
    * Règle backend stricte : n'envoie jamais statut ni priorite.
    */
-  update(id: number, data: { description?: string | null; zone_id?: number | null; type_dechets?: any[] }): Observable<{ data: Signalement }> {
-    return this.http.put<{ data: Signalement }>(`${this.baseUrl}/signalements/${id}`, data);
+  update(id: number, payload: UpdateSignalementPayload): Observable<{ data: Signalement }> {
+    return this.http.put<{ data: Signalement }>(`${this.baseUrl}/signalements/${id}`, payload);
   }
 
   /**
@@ -57,7 +58,7 @@ export class SignalementService {
   /**
    * Priorise un signalement validé
    */
-  prioritize(id: number, priorite: string): Observable<{ data: Signalement }> {
+  prioritize(id: number, priorite: SignalementPriorite): Observable<{ data: Signalement }> {
     return this.http.post<{ data: Signalement }>(`${this.baseUrl}/signalements/${id}/prioriser`, { priorite });
   }
 

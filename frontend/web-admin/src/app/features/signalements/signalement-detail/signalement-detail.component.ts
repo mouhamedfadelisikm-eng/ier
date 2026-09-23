@@ -4,7 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SignalementService } from '../../../core/services/signalement.service';
-import { Signalement, ZoneSummary, TypeDechetItem } from '../../../core/models/signalement.model';
+import { Signalement, ZoneSummary, TypeDechetItem, UpdateSignalementPayload } from '../../../core/models/signalement.model';
+import { formatStatut, getStatutBadgeClass, formatPriorite, SignalementPriorite, DangerositeType } from '../../../core/models/signalement-constants';
 
 @Component({
   selector: 'app-signalement-detail',
@@ -21,19 +22,34 @@ export class SignalementDetailComponent implements OnInit {
   signalement = signal<Signalement | null>(null);
   isLoading = signal<boolean>(true);
   errorMessage = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
   actionInProgress = signal<boolean>(false);
 
   // Edit form state
   isEditing = signal<boolean>(false);
-  editDescription = signal<string>('');
+  editDescription = signal<string | null>('');
   editZoneId = signal<number | null>(null);
   zonesList = signal<ZoneSummary[]>([]);
   typesDechetsList = signal<TypeDechetItem[]>([]);
-  selectedTypeDechets = signal<Array<{ type_dechet_id: number; quantite_estime?: number; volume_estime?: number; dangerosite?: string; remarque?: string }>>([]);
+  editableTypeDechets = signal<Array<{
+    type_dechet_id: number;
+    libelle?: string;
+    quantite_estime?: number | null;
+    volume_estime?: number | null;
+    dangerosite?: DangerositeType | null;
+    remarque?: string | null;
+  }>>([]);
 
   // Prioritize modal state
   showPrioritizeModal = signal<boolean>(false);
-  selectedPriority = signal<string>('normale');
+  selectedPriority = signal<SignalementPriorite>('normale');
+
+  // Delete modal state
+  showDeleteModal = signal<boolean>(false);
+
+  readonly formatStatut = formatStatut;
+  readonly getStatutBadgeClass = getStatutBadgeClass;
+  readonly formatPriorite = formatPriorite;
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -49,6 +65,7 @@ export class SignalementDetailComponent implements OnInit {
   loadSignalement(id: number): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    this.successMessage.set(null);
 
     this.signalementService.getById(id).subscribe({
       next: (res) => {
@@ -59,13 +76,14 @@ export class SignalementDetailComponent implements OnInit {
         this.selectedPriority.set(item.priorite || 'normale');
 
         if (item.type_dechets) {
-          this.selectedTypeDechets.set(
+          this.editableTypeDechets.set(
             item.type_dechets.map(td => ({
-              type_dechet_id: td.id,
-              quantite_estime: td.pivot?.quantite_estime,
-              volume_estime: td.pivot?.volume_estime,
-              dangerosite: td.pivot?.dangerosite,
-              remarque: td.pivot?.remarque
+              type_dechet_id: td.id || td.type_dechet_id || 0,
+              libelle: td.libelle,
+              quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
+              volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
+              dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
+              remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
             }))
           );
         }
@@ -103,7 +121,45 @@ export class SignalementDetailComponent implements OnInit {
     if (item) {
       this.editDescription.set(item.description || '');
       this.editZoneId.set(item.zone?.id || null);
+      if (item.type_dechets) {
+        this.editableTypeDechets.set(
+          item.type_dechets.map(td => ({
+            type_dechet_id: td.id || td.type_dechet_id || 0,
+            libelle: td.libelle,
+            quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
+            volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
+            dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
+            remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
+          }))
+        );
+      }
     }
+  }
+
+  addWasteType(typeDechetId: number): void {
+    if (!typeDechetId) return;
+    const found = this.typesDechetsList().find(t => t.id === Number(typeDechetId));
+    if (!found) return;
+
+    // Check if already added
+    const current = this.editableTypeDechets();
+    if (current.some(item => item.type_dechet_id === found.id)) return;
+
+    this.editableTypeDechets.update(list => [
+      ...list,
+      {
+        type_dechet_id: found.id,
+        libelle: found.libelle,
+        quantite_estime: null,
+        volume_estime: null,
+        dangerosite: null,
+        remarque: ''
+      }
+    ]);
+  }
+
+  removeWasteType(index: number): void {
+    this.editableTypeDechets.update(list => list.filter((_, i) => i !== index));
   }
 
   saveEdition(): void {
@@ -111,12 +167,19 @@ export class SignalementDetailComponent implements OnInit {
     if (!item) return;
 
     this.actionInProgress.set(true);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
 
-    // CRITICAL: Ensure PUT request does NOT send statut or priorite
-    const payload = {
+    const payload: UpdateSignalementPayload = {
       description: this.editDescription(),
       zone_id: this.editZoneId(),
-      type_dechets: this.selectedTypeDechets()
+      type_dechets: this.editableTypeDechets().map(w => ({
+        type_dechet_id: w.type_dechet_id,
+        quantite_estime: w.quantite_estime !== null && w.quantite_estime !== undefined ? Number(w.quantite_estime) : null,
+        volume_estime: w.volume_estime !== null && w.volume_estime !== undefined ? Number(w.volume_estime) : null,
+        dangerosite: w.dangerosite || null,
+        remarque: w.remarque || null
+      }))
     };
 
     this.signalementService.update(item.id, payload).subscribe({
@@ -124,10 +187,11 @@ export class SignalementDetailComponent implements OnInit {
         this.signalement.set(res.data);
         this.isEditing.set(false);
         this.actionInProgress.set(false);
+        this.successMessage.set('Signalement mis à jour avec succès.');
       },
       error: (err: HttpErrorResponse) => {
         this.actionInProgress.set(false);
-        alert(err.error?.message || 'Erreur lors de la mise à jour du signalement.');
+        this.errorMessage.set(err.error?.message || 'Erreur lors de la mise à jour du signalement.');
       }
     });
   }
@@ -137,14 +201,18 @@ export class SignalementDetailComponent implements OnInit {
     if (!item || this.actionInProgress()) return;
 
     this.actionInProgress.set(true);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+
     this.signalementService.validate(item.id).subscribe({
       next: (res) => {
         this.signalement.set(res.data);
         this.actionInProgress.set(false);
+        this.successMessage.set('Signalement validé avec succès.');
       },
       error: (err: HttpErrorResponse) => {
         this.actionInProgress.set(false);
-        alert(err.error?.message || 'Erreur lors de la validation.');
+        this.errorMessage.set(err.error?.message || 'Erreur lors de la validation.');
       }
     });
   }
@@ -153,17 +221,21 @@ export class SignalementDetailComponent implements OnInit {
     const item = this.signalement();
     if (!item || this.actionInProgress()) return;
 
-    if (!confirm('Êtes-vous sûr de vouloir rejeter ce signalement ?')) return;
+    if (!window.confirm('Confirmez-vous le rejet de ce signalement ?')) return;
 
     this.actionInProgress.set(true);
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+
     this.signalementService.reject(item.id).subscribe({
       next: (res) => {
         this.signalement.set(res.data);
         this.actionInProgress.set(false);
+        this.successMessage.set('Signalement rejeté.');
       },
       error: (err: HttpErrorResponse) => {
         this.actionInProgress.set(false);
-        alert(err.error?.message || 'Erreur lors du rejet.');
+        this.errorMessage.set(err.error?.message || 'Erreur lors du rejet.');
       }
     });
   }
@@ -183,75 +255,46 @@ export class SignalementDetailComponent implements OnInit {
     const priorite = this.selectedPriority();
     this.actionInProgress.set(true);
     this.closePrioritizeModal();
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
 
     this.signalementService.prioritize(item.id, priorite).subscribe({
       next: (res) => {
         this.signalement.set(res.data);
         this.actionInProgress.set(false);
+        this.successMessage.set(`Signalement priorisé avec succès (${priorite}).`);
       },
       error: (err: HttpErrorResponse) => {
         this.actionInProgress.set(false);
-        alert(err.error?.message || 'Erreur lors de la priorisation.');
+        this.errorMessage.set(err.error?.message || 'Erreur lors de la priorisation.');
       }
     });
   }
 
-  deleteSignalement(): void {
+  promptDelete(): void {
+    this.showDeleteModal.set(true);
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal.set(false);
+  }
+
+  confirmDelete(): void {
     const item = this.signalement();
     if (!item) return;
 
-    if (!confirm('Êtes-vous sûr de vouloir supprimer définitivement ce signalement ?')) return;
-
     this.actionInProgress.set(true);
+    this.closeDeleteModal();
+    this.errorMessage.set(null);
+
     this.signalementService.delete(item.id).subscribe({
       next: () => {
         this.router.navigate(['/admin/signalements']);
       },
       error: (err: HttpErrorResponse) => {
         this.actionInProgress.set(false);
-        alert(err.error?.message || 'Erreur lors de la suppression.');
+        this.errorMessage.set(err.error?.message || 'Erreur lors de la suppression.');
       }
     });
-  }
-
-  formatStatut(statut: string): string {
-    const map: Record<string, string> = {
-      'brouillon': 'Brouillon',
-      'en_attente_validation': 'En attente de validation',
-      'valide': 'Validé',
-      'rejete': 'Rejeté',
-      'priorise': 'Priorisé',
-      'affecte': 'Affecté',
-      'en_intervention': 'En intervention',
-      'termine': 'Terminé',
-      'cloture': 'Clôturé'
-    };
-    return map[statut] || statut;
-  }
-
-  getStatutBadgeClass(statut: string): string {
-    switch (statut) {
-      case 'brouillon': return 'badge-secondary';
-      case 'en_attente_validation': return 'badge-warning';
-      case 'valide': return 'badge-success';
-      case 'rejete': return 'badge-danger';
-      case 'priorise': return 'badge-primary';
-      case 'affecte': return 'badge-info';
-      case 'en_intervention': return 'badge-warning';
-      case 'termine': return 'badge-success';
-      case 'cloture': return 'badge-dark';
-      default: return 'badge-secondary';
-    }
-  }
-
-  formatPriorite(priorite?: string | null): string {
-    if (!priorite) return 'Non priorisé';
-    const map: Record<string, string> = {
-      'faible': 'Faible',
-      'normale': 'Normale',
-      'haute': 'Haute',
-      'urgente': 'Urgente'
-    };
-    return map[priorite] || priorite;
   }
 }

@@ -17,6 +17,21 @@
     </div>
   </div>
 
+  <!-- Notification Banners -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <span>{{ successMessage() }}</span>
+      <button class="alert-close" (click)="successMessage.set(null)">&times;</button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">
+      <span>{{ errorMessage() }}</span>
+      <button class="alert-close" (click)="errorMessage.set(null)">&times;</button>
+    </div>
+  }
+
   <!-- Filters Bar -->
   <div class="filters-card">
     <div class="filter-group">
@@ -65,20 +80,6 @@
       <div class="state-container">
         <div class="spinner spinner-dark"></div>
         <p class="state-text">Chargement des signalements depuis l'API...</p>
-      </div>
-    }
-
-    <!-- Error State -->
-    @else if (errorMessage()) {
-      <div class="state-container state-error">
-        <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <p class="error-title">Erreur de chargement</p>
-        <p class="error-desc">{{ errorMessage() }}</p>
-        <button class="btn btn-secondary btn-sm" (click)="loadSignalements(currentPage())">Réessayer</button>
       </div>
     }
 
@@ -181,7 +182,7 @@
                     <!-- Delete -->
                     <button
                       class="btn-icon btn-icon-delete"
-                      (click)="deleteSignalement(item.id, $event)"
+                      (click)="promptDeleteSignalement(item, $event)"
                       [disabled]="actionInProgressId() === item.id"
                       title="Supprimer">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -246,6 +247,25 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" (click)="closePrioritizeModal()">Annuler</button>
           <button class="btn btn-primary" (click)="confirmPrioritize()" [disabled]="actionInProgressId() !== null">Enregistrer la priorité</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteModal()) {
+    <div class="modal-backdrop" (click)="closeDeleteModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Confirmer la suppression</h3>
+          <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Êtes-vous sûr de vouloir supprimer définitivement le signalement #{{ selectedSignalementForDelete()?.id }} ? Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+          <button class="btn btn-danger" (click)="confirmDeleteSignalement()" [disabled]="actionInProgressId() !== null">Supprimer définitivement</button>
         </div>
       </div>
     </div>

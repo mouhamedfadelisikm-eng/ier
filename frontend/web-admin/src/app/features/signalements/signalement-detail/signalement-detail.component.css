@@ -39,6 +39,41 @@
   flex-wrap: wrap;
 }
 
+.alert {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.alert-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alert-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.alert-close {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.alert-close:hover {
+  opacity: 1;
+}
+
 .detail-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -235,6 +270,12 @@
   flex-wrap: wrap;
 }
 
+.waste-remarque {
+  font-size: 0.8rem;
+  color: #475569;
+  font-style: italic;
+}
+
 .photos-card {
   display: flex;
   flex-direction: column;
@@ -291,6 +332,67 @@
   color: #1e293b;
 }
 
+.section-sub-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-top: 0.5rem;
+}
+
+.add-waste-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.editable-wastes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.editable-waste-item {
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.waste-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.waste-item-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.waste-item-grid .full-width {
+  grid-column: span 3;
+}
+
+.btn-text-danger {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-text-danger:hover {
+  text-decoration: underline;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -310,6 +412,11 @@
   font-size: 0.9rem;
   outline: none;
   background-color: white;
+}
+
+.form-control-sm {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
 }
 
 .form-control:focus {

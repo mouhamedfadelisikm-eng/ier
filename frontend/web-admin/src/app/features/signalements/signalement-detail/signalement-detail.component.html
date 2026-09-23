@@ -30,16 +30,31 @@
 
         <!-- Edit button -->
         @if (!isEditing()) {
-          <button class="btn btn-secondary btn-sm" (click)="startEditing()">Modifier</button>
+          <button class="btn btn-secondary btn-sm" (click)="startEditing()" [disabled]="actionInProgress()">Modifier</button>
         } @else {
-          <button class="btn btn-secondary btn-sm" (click)="cancelEditing()">Annuler</button>
+          <button class="btn btn-secondary btn-sm" (click)="cancelEditing()" [disabled]="actionInProgress()">Annuler</button>
         }
 
         <!-- Delete button -->
-        <button class="btn btn-danger btn-sm" (click)="deleteSignalement()" [disabled]="actionInProgress()">Supprimer</button>
+        <button class="btn btn-danger btn-sm" (click)="promptDelete()" [disabled]="actionInProgress()">Supprimer</button>
       </div>
     }
   </div>
+
+  <!-- Notification Banners -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <span>{{ successMessage() }}</span>
+      <button class="alert-close" (click)="successMessage.set(null)">&times;</button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">
+      <span>{{ errorMessage() }}</span>
+      <button class="alert-close" (click)="errorMessage.set(null)">&times;</button>
+    </div>
+  }
 
   <!-- Loading State -->
   @if (isLoading()) {
@@ -50,7 +65,7 @@
   }
 
   <!-- Error State -->
-  @else if (errorMessage()) {
+  @else if (errorMessage() && !signalement()) {
     <div class="state-container state-error">
       <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"></circle>
@@ -105,9 +120,63 @@
                 }
               </select>
             </div>
+
+            <!-- Waste Types Editor Section -->
+            <div class="form-group">
+              <label class="section-sub-label">Types de déchets associés</label>
+              <div class="add-waste-bar">
+                <select #newWasteSelect class="form-control form-control-sm">
+                  <option value="">-- Ajouter un type de déchet --</option>
+                  @for (t of typesDechetsList(); track t.id) {
+                    <option [value]="t.id">{{ t.libelle }}</option>
+                  }
+                </select>
+                <button type="button" class="btn btn-secondary btn-sm" (click)="addWasteType(+newWasteSelect.value); newWasteSelect.value=''">Ajouter</button>
+              </div>
+
+              @if (editableTypeDechets().length > 0) {
+                <div class="editable-wastes-list">
+                  @for (w of editableTypeDechets(); track w.type_dechet_id; let idx = $index) {
+                    <div class="editable-waste-item">
+                      <div class="waste-item-header">
+                        <strong>{{ w.libelle || ('Type #' + w.type_dechet_id) }}</strong>
+                        <button type="button" class="btn-text-danger" (click)="removeWasteType(idx)">Supprimer</button>
+                      </div>
+                      <div class="waste-item-grid">
+                        <div class="form-group">
+                          <label>Quantité estimée</label>
+                          <input type="number" step="any" class="form-control form-control-sm" [(ngModel)]="w.quantite_estime" placeholder="Ex: 5">
+                        </div>
+                        <div class="form-group">
+                          <label>Volume estimé (m³)</label>
+                          <input type="number" step="any" class="form-control form-control-sm" [(ngModel)]="w.volume_estime" placeholder="Ex: 1.5">
+                        </div>
+                        <div class="form-group">
+                          <label>Dangerosité</label>
+                          <select class="form-control form-control-sm" [(ngModel)]="w.dangerosite">
+                            <option [ngValue]="null">Non spécifié</option>
+                            <option value="faible">Faible</option>
+                            <option value="modere">Modéré</option>
+                            <option value="eleve">Elevé</option>
+                            <option value="extreme">Extrême</option>
+                          </select>
+                        </div>
+                        <div class="form-group full-width">
+                          <label>Remarque</label>
+                          <input type="text" class="form-control form-control-sm" [(ngModel)]="w.remarque" placeholder="Remarque spécifique...">
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="muted-text">Aucun type de déchet associé.</p>
+              }
+            </div>
+
             <div class="form-actions">
-              <button class="btn btn-secondary btn-sm" (click)="cancelEditing()">Annuler</button>
-              <button class="btn btn-primary btn-sm" (click)="saveEdition()" [disabled]="actionInProgress()">Enregistrer</button>
+              <button class="btn btn-secondary btn-sm" (click)="cancelEditing()" [disabled]="actionInProgress()">Annuler</button>
+              <button class="btn btn-primary btn-sm" (click)="saveEdition()" [disabled]="actionInProgress()">Enregistrer les modifications</button>
             </div>
           </div>
         }
@@ -158,21 +227,22 @@
           <h3 class="card-subtitle-heading">Types de Déchets Associés</h3>
           @if (item.type_dechets && item.type_dechets.length > 0) {
             <ul class="waste-list">
-              @for (dechet of item.type_dechets; track dechet.id) {
+              @for (dechet of item.type_dechets; track dechet.id || dechet.type_dechet_id) {
                 <li class="waste-item">
                   <div class="waste-name">{{ dechet.libelle }}</div>
-                  @if (dechet.pivot) {
-                    <div class="waste-pivot">
-                      @if (dechet.pivot.quantite_estime) {
-                        <span>Qté : {{ dechet.pivot.quantite_estime }}</span>
-                      }
-                      @if (dechet.pivot.volume_estime) {
-                        <span>Vol : {{ dechet.pivot.volume_estime }} m³</span>
-                      }
-                      @if (dechet.pivot.dangerosite) {
-                        <span class="badge badge-warning">Danger : {{ dechet.pivot.dangerosite }}</span>
-                      }
-                    </div>
+                  <div class="waste-pivot">
+                    @if (dechet.quantite_estime !== null && dechet.quantite_estime !== undefined) {
+                      <span>Qté : {{ dechet.quantite_estime }}</span>
+                    }
+                    @if (dechet.volume_estime !== null && dechet.volume_estime !== undefined) {
+                      <span>Vol : {{ dechet.volume_estime }} m³</span>
+                    }
+                    @if (dechet.dangerosite) {
+                      <span class="badge badge-warning">Danger : {{ dechet.dangerosite }}</span>
+                    }
+                  </div>
+                  @if (dechet.remarque) {
+                    <div class="waste-remarque">Remarque : {{ dechet.remarque }}</div>
                   }
                 </li>
               }
@@ -229,6 +299,25 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" (click)="closePrioritizeModal()">Annuler</button>
           <button class="btn btn-primary" (click)="confirmPrioritize()" [disabled]="actionInProgress()">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteModal()) {
+    <div class="modal-backdrop" (click)="closeDeleteModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Confirmer la suppression</h3>
+          <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Êtes-vous sûr de vouloir supprimer définitivement le signalement #{{ signalement()?.id }} ? Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+          <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="actionInProgress()">Supprimer définitivement</button>
         </div>
       </div>
     </div>

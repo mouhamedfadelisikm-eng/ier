@@ -156,4 +156,30 @@ class SignalementApiTest extends TestCase
         $this->assertTrue($s1->typeDechets->contains($type));
         $this->assertTrue($s2->typeDechets->contains($type));
     }
+
+    /**
+     * Test that signalement resource returns pivot attributes for type_dechets.
+     */
+    public function test_signalement_resource_returns_type_dechets_pivot_attributes(): void
+    {
+        $this->authenticateAdmin();
+        $type = TypeDechet::factory()->create();
+        $signalement = Signalement::factory()->create();
+
+        $signalement->typeDechets()->attach($type->id, [
+            'quantite_estime' => 12.5,
+            'volume_estime' => 3.2,
+            'dangerosite' => 'eleve',
+            'remarque' => 'Attention déchet toxique'
+        ]);
+
+        $response = $this->getJson("/api/signalements/{$signalement->id}");
+
+        $response->assertStatus(200)
+                 ->assertJsonPath('data.type_dechets.0.type_dechet_id', $type->id)
+                 ->assertJsonPath('data.type_dechets.0.quantite_estime', 12.5)
+                 ->assertJsonPath('data.type_dechets.0.volume_estime', 3.2)
+                 ->assertJsonPath('data.type_dechets.0.dangerosite', 'eleve')
+                 ->assertJsonPath('data.type_dechets.0.remarque', 'Attention déchet toxique');
+    }
 }

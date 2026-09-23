@@ -1,3 +1,5 @@
+import { SignalementStatut, SignalementPriorite, DangerositeType } from './signalement-constants';
+
 export interface UserSummary {
   id: number;
   nom?: string;
@@ -14,18 +16,24 @@ export interface ZoneSummary {
   description?: string;
 }
 
+export interface TypeDechetPivot {
+  type_dechet_id: number;
+  quantite_estime?: number | null;
+  volume_estime?: number | null;
+  dangerosite?: DangerositeType | null;
+  remarque?: string | null;
+}
+
 export interface TypeDechetItem {
   id: number;
+  type_dechet_id?: number;
   libelle: string;
   description?: string;
-  pivot?: {
-    signalement_id: number;
-    type_dechet_id: number;
-    quantite_estime?: number;
-    volume_estime?: number;
-    dangerosite?: string;
-    remarque?: string;
-  };
+  quantite_estime?: number | null;
+  volume_estime?: number | null;
+  dangerosite?: DangerositeType | null;
+  remarque?: string | null;
+  pivot?: TypeDechetPivot;
 }
 
 export interface SignalementPhoto {
@@ -36,11 +44,11 @@ export interface SignalementPhoto {
 
 export interface Signalement {
   id: number;
-  description: string;
+  description: string | null;
   latitude: number;
   longitude: number;
-  statut: string;
-  priorite?: string | null;
+  statut: SignalementStatut;
+  priorite?: SignalementPriorite | null;
   user?: UserSummary;
   zone?: ZoneSummary;
   type_dechets?: TypeDechetItem[];
@@ -48,6 +56,18 @@ export interface Signalement {
   created_at?: string;
   date_heure_signalement?: string;
   updated_at?: string;
+}
+
+export interface UpdateSignalementPayload {
+  description?: string | null;
+  zone_id?: number | null;
+  type_dechets?: Array<{
+    type_dechet_id: number;
+    quantite_estime?: number | null;
+    volume_estime?: number | null;
+    dangerosite?: DangerositeType | null;
+    remarque?: string | null;
+  }>;
 }
 
 export interface PaginatedResponse<T> {

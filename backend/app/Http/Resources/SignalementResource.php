@@ -32,8 +32,20 @@ final class SignalementResource extends JsonResource
                 $this->whenLoaded('zone')
             ),
 
-            'type_dechets' => TypeDechetResource::collection(
-                $this->whenLoaded('typeDechets')
+            'type_dechets' => $this->when(
+                $this->relationLoaded('typeDechets'),
+                fn () => $this->typeDechets->map(
+                    fn ($typeDechet) => [
+                        'id' => $typeDechet->id,
+                        'type_dechet_id' => $typeDechet->id,
+                        'libelle' => $typeDechet->libelle,
+                        'description' => $typeDechet->description,
+                        'quantite_estime' => $typeDechet->pivot?->quantite_estime !== null ? (float) $typeDechet->pivot?->quantite_estime : null,
+                        'volume_estime' => $typeDechet->pivot?->volume_estime !== null ? (float) $typeDechet->pivot?->volume_estime : null,
+                        'dangerosite' => $typeDechet->pivot?->dangerosite,
+                        'remarque' => $typeDechet->pivot?->remarque,
+                    ]
+                )
             ),
 
             'photos' => $this->when(
