@@ -18,14 +18,29 @@ describe('TokenService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should store and retrieve token', () => {
-    service.setToken('sample-sanctum-token');
-    expect(service.getToken()).toBe('sample-sanctum-token');
+  // 1. set token
+  it('should set token in storage', () => {
+    service.setToken('my-sanctum-token');
+    expect(localStorage.getItem('ier_admin_token')).toBe('my-sanctum-token');
+  });
+
+  // 2. get token
+  it('should get token from storage', () => {
+    localStorage.setItem('ier_admin_token', 'retrieved-token');
+    expect(service.getToken()).toBe('retrieved-token');
+  });
+
+  // 3. has token
+  it('should correctly check if token exists (has token)', () => {
+    expect(service.hasToken()).toBe(false);
+    service.setToken('valid-token');
     expect(service.hasToken()).toBe(true);
   });
 
-  it('should clear stored token', () => {
-    service.setToken('sample-sanctum-token');
+  // 4. clear token
+  it('should clear token from storage', () => {
+    service.setToken('token-to-remove');
+    expect(service.hasToken()).toBe(true);
     service.clearToken();
     expect(service.getToken()).toBeNull();
     expect(service.hasToken()).toBe(false);

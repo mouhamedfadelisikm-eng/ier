@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginRequest } from '../models/auth.model';
 import { User, UserResponse } from '../models/user.model';
@@ -28,32 +28,10 @@ export class AuthService {
     return user.role === 'admin' || (user.roles ? user.roles.includes('admin') : false);
   });
 
-  constructor() {
-    this.initAuth();
-  }
+  private loadUserRequest$: Observable<User> | null = null;
 
   /**
-   * Initialise l'état d'authentification au démarrage de l'application.
-   */
-  initAuth(): Observable<User | null> {
-    if (!this.tokenService.hasToken()) {
-      this.currentUser.set(null);
-      this.isInitialized.set(true);
-      return of(null);
-    }
-
-    return this.loadCurrentUser().pipe(
-      catchError(() => {
-        this.tokenService.clearToken();
-        this.currentUser.set(null);
-        this.isInitialized.set(true);
-        return of(null);
-      })
-    );
-  }
-
-  /**
-   * Connexion administrateur
+   * Connexion utilisateur
    */
   login(credentials: LoginRequest): Observable<User> {
     this.isLoading.set(true);
@@ -62,6 +40,7 @@ export class AuthService {
       tap(data => {
         this.tokenService.setToken(data.token);
         this.currentUser.set(data.user);
+        this.isInitialized.set(true);
         this.isLoading.set(false);
       }),
       map(data => data.user),
@@ -73,12 +52,12 @@ export class AuthService {
   }
 
   /**
-   * Déconnexion
+   * Déconnexion sécurisée (nettoie la session même en cas d'erreur réseau / token expiré)
    */
   logout(): Observable<void> {
     this.isLoading.set(true);
     return this.http.post<void>(`${this.baseUrl}/auth/logout`, {}).pipe(
-      catchError(() => of(undefined)), // Nettoie même en cas d'erreur réseau / token expiré
+      catchError(() => of(undefined)),
       tap(() => {
         this.clearSession();
         this.isLoading.set(false);
@@ -89,20 +68,37 @@ export class AuthService {
   }
 
   /**
-   * Charge le profil utilisateur actuel depuis l'API GET /api/user
+   * Charge le profil utilisateur actuel depuis l'API GET /api/user.
+   * Évite les requêtes concurrentes en vol via un partage d'observable.
    */
-  loadCurrentUser(): Observable<User> {
-    return this.http.get<UserResponse>(`${this.baseUrl}/user`).pipe(
+  loadCurrentUser(forceRefresh = false): Observable<User> {
+    if (this.currentUser() && !forceRefresh) {
+      return of(this.currentUser()!);
+    }
+
+    if (this.loadUserRequest$ && !forceRefresh) {
+      return this.loadUserRequest$;
+    }
+
+    this.loadUserRequest$ = this.http.get<UserResponse>(`${this.baseUrl}/user`).pipe(
       map(response => response.data),
       tap(user => {
         this.currentUser.set(user);
         this.isInitialized.set(true);
+        this.loadUserRequest$ = null;
       }),
       catchError(err => {
         this.isInitialized.set(true);
+        this.loadUserRequest$ = null;
+        if (err.status === 401) {
+          this.clearSession();
+        }
         return throwError(() => err);
-      })
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    return this.loadUserRequest$;
   }
 
   /**
@@ -116,10 +112,11 @@ export class AuthService {
   }
 
   /**
-   * Réinitialise les tokens et l'utilisateur en mémoire
+   * Réinitialise les tokens, observables en attente et l'utilisateur en mémoire
    */
   clearSession(): void {
     this.tokenService.clearToken();
     this.currentUser.set(null);
+    this.loadUserRequest$ = null;
   }
 }
