@@ -1,0 +1,236 @@
+<div class="dashboard-container">
+  <!-- Welcome Banner -->
+  <section class="welcome-banner">
+    <div class="welcome-content">
+      <div class="badge-role">ADMINISTRATEUR ACTIF</div>
+      <h1 class="welcome-title">Bienvenue, {{ currentUser()?.prenom }} {{ currentUser()?.nom }}</h1>
+      <p class="welcome-subtitle">
+        Supervision globale de la propreté urbaine et coordination des équipes d'intervention.
+      </p>
+      <div class="admin-meta">
+        <span class="meta-item">
+          <strong>Email :</strong> {{ currentUser()?.email }}
+        </span>
+        <span class="meta-divider">•</span>
+        <span class="meta-item">
+          <strong>Identifiant :</strong> #{{ currentUser()?.id }}
+        </span>
+        <span class="meta-divider">•</span>
+        <span class="meta-item">
+          <strong>Session :</strong> Sanctum Authentifié
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Heatmap KPI Indicators (Derived strictly from GET /api/dashboard/heatmap) -->
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon icon-emerald">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Points d'alerte détectés</span>
+        <h3 class="kpi-value">{{ totalPoints() }}</h3>
+        <span class="kpi-sub">Source : API Heatmap</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon icon-amber">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Poids cumulé d'incidents</span>
+        <h3 class="kpi-value">{{ totalWeight() }}</h3>
+        <span class="kpi-sub">Indice de sévérité cumulatif</span>
+      </div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon icon-blue">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+          <line x1="8" y1="2" x2="8" y2="18"></line>
+          <line x1="16" y1="6" x2="16" y2="22"></line>
+        </svg>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Zones concernées</span>
+        <h3 class="kpi-value">{{ distinctZonesCount() }}</h3>
+        <span class="kpi-sub">Périmètres avec signalements actifs</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Heatmap Real Data Section -->
+  <section class="dashboard-card">
+    <div class="card-header-bar">
+      <div>
+        <h2 class="card-title">Points chauds de signalements (Heatmap)</h2>
+        <p class="card-subtitle">
+          Données en direct fournies par l'endpoint <code>GET /api/dashboard/heatmap</code>
+        </p>
+      </div>
+      <button class="btn btn-secondary btn-sm" (click)="loadHeatmap()" [disabled]="isLoadingHeatmap()">
+        <svg class="refresh-icon" [class.spinning]="isLoadingHeatmap()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoadingHeatmap()) {
+      <div class="state-container">
+        <div class="spinner spinner-dark"></div>
+        <p class="state-text">Chargement des points géographiques depuis l'API...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @else if (heatmapError()) {
+      <div class="state-container state-error">
+        <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p class="error-title">Erreur de récupération</p>
+        <p class="error-desc">{{ heatmapError() }}</p>
+        <button class="btn btn-secondary btn-sm" (click)="loadHeatmap()">Réessayer</button>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @else if (heatmapPoints().length === 0) {
+      <div class="state-container state-empty">
+        <svg class="empty-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M8 12h8"></path>
+        </svg>
+        <p class="empty-title">Aucun point chaud actuellement</p>
+        <p class="empty-desc">Aucun signalement actif nécessitant une agrégation cartographique pour le moment.</p>
+      </div>
+    }
+
+    <!-- Heatmap Table -->
+    @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Zone d'intervention</th>
+              <th>Coordonnées géographiques</th>
+              <th>Poids (Gravité / Répétition)</th>
+              <th>Statut d'intensité</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (point of heatmapPoints(); track $index) {
+              <tr>
+                <td>
+                  <div class="zone-cell">
+                    <span class="zone-name">{{ point.zone_nom || 'Zone non assignée' }}</span>
+                    @if (point.zone_id) {
+                      <span class="zone-id">ID: #{{ point.zone_id }}</span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="coord-badge">
+                    {{ point.latitude.toFixed(5) }}, {{ point.longitude.toFixed(5) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="weight-value">{{ point.weight }}</span>
+                </td>
+                <td>
+                  @switch (getWeightSeverity(point.weight)) {
+                    @case ('high') {
+                      <span class="badge badge-danger">Forte affluence</span>
+                    }
+                    @case ('medium') {
+                      <span class="badge badge-warning">Modérée</span>
+                    }
+                    @case ('low') {
+                      <span class="badge badge-primary">Faible</span>
+                    }
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Quick Access Navigation Cards for Planned Modules -->
+  <section class="modules-overview">
+    <div class="modules-header">
+      <h2 class="section-heading">Modules de Gestion Administrative</h2>
+      <p class="section-subheading">Accès direct aux fonctionnalités de supervision</p>
+    </div>
+
+    <div class="modules-grid">
+      <a routerLink="/admin/signalements" class="module-card">
+        <div class="module-icon icon-signalements">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          </svg>
+        </div>
+        <div class="module-info">
+          <h3>Signalements</h3>
+          <p>Valider, rejeter, prioriser les signalements citoyens</p>
+        </div>
+      </a>
+
+      <a routerLink="/admin/affectations" class="module-card">
+        <div class="module-icon icon-affectations">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="module-info">
+          <h3>Affectations</h3>
+          <p>Assigner et réaffecter les équipes sur le terrain</p>
+        </div>
+      </a>
+
+      <a routerLink="/admin/interventions" class="module-card">
+        <div class="module-icon icon-interventions">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+          </svg>
+        </div>
+        <div class="module-info">
+          <h3>Interventions</h3>
+          <p>Superviser l'avancement et opérer la clôture finale</p>
+        </div>
+      </a>
+
+      <a routerLink="/admin/utilisateurs" class="module-card">
+        <div class="module-icon icon-utilisateurs">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="module-info">
+          <h3>Utilisateurs</h3>
+          <p>Gérer les comptes, les rôles et contraintes d'équipes</p>
+        </div>
+      </a>
+    </div>
+  </section>
+</div>

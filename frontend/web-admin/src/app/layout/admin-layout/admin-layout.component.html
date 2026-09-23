@@ -1,0 +1,18 @@
+<div class="admin-wrapper">
+  <!-- Sidebar -->
+  <app-sidebar [isOpen]="sidebarOpen()" (closeSidebar)="closeSidebar()"></app-sidebar>
+
+  <!-- Overlay sur mobile -->
+  @if (sidebarOpen()) {
+    <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+  }
+
+  <!-- Main Container -->
+  <div class="admin-main">
+    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
+
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+<header class="header">
+  <div class="header-left">
+    <button class="btn-toggle-menu" (click)="toggleSidebar.emit()" aria-label="Menu principal">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <div class="header-title">
+      <span class="portal-badge">PORTAIL ADMINISTRATEUR</span>
+      <h2 class="section-title">Console de Supervision</h2>
+    </div>
+  </div>
+
+  <div class="header-right">
+    @if (currentUser()) {
+      <div class="user-profile-badge">
+        <div class="avatar-circle">
+          {{ (currentUser()?.prenom?.charAt(0) || '') + (currentUser()?.nom?.charAt(0) || 'A') }}
+        </div>
+        <div class="user-details">
+          <span class="user-name">{{ currentUser()?.prenom }} {{ currentUser()?.nom }}</span>
+          <span class="user-role badge badge-primary">{{ currentUser()?.role || 'admin' }}</span>
+        </div>
+      </div>
+    }
+
+    <button
+      id="btn-logout"
+      class="btn btn-secondary btn-logout"
+      (click)="onLogout()"
+      [disabled]="isLoggingOut()"
+      title="Se déconnecter"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      </svg>
+      <span class="logout-text">Déconnexion</span>
+    </button>
+  </div>
+</header>

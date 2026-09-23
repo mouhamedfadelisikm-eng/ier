@@ -1,0 +1,110 @@
+<div class="login-page">
+  <div class="login-container">
+    <div class="login-brand">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12A10 10 0 0 1 12 2z"/>
+          <path d="M7 12l3 3 7-7"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">ISI-Eco Report</h1>
+      <p class="brand-subtitle">Console d'Administration & Supervision</p>
+    </div>
+
+    <div class="login-card">
+      <div class="card-header">
+        <h2>Connexion Administrateur</h2>
+        <p>Veuillez renseigner vos accès sécurisés pour accéder au panneau d'administration.</p>
+      </div>
+
+      <!-- Message d'erreur global -->
+      @if (errorMessage()) {
+        <div class="alert-error" role="alert">
+          <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">Adresse email</label>
+          <div class="input-wrapper">
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-input"
+              [class.is-invalid]="(loginForm.get('email')?.touched && loginForm.get('email')?.invalid) || fieldErrors()['email']"
+              placeholder="admin@isi-ecoreport.sn"
+              autocomplete="email"
+            />
+          </div>
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['required']) {
+            <span class="field-error">L'adresse email est requise.</span>
+          }
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.errors?.['email']) {
+            <span class="field-error">Veuillez saisir une adresse email valide.</span>
+          }
+          @if (fieldErrors()['email']) {
+            @for (err of fieldErrors()['email']; track err) {
+              <span class="field-error">{{ err }}</span>
+            }
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password" class="form-label">Mot de passe</label>
+          <div class="input-wrapper">
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              class="form-input"
+              [class.is-invalid]="(loginForm.get('password')?.touched && loginForm.get('password')?.invalid) || fieldErrors()['password']"
+              placeholder="••••••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['required']) {
+            <span class="field-error">Le mot de passe est requis.</span>
+          }
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.errors?.['minlength']) {
+            <span class="field-error">Le mot de passe doit comporter au moins 6 caractères.</span>
+          }
+          @if (fieldErrors()['password']) {
+            @for (err of fieldErrors()['password']; track err) {
+              <span class="field-error">{{ err }}</span>
+            }
+          }
+        </div>
+
+        <button
+          type="submit"
+          id="btn-login-submit"
+          class="btn btn-primary btn-block"
+          [disabled]="isLoading() || loginForm.invalid"
+        >
+          @if (isLoading()) {
+            <span class="spinner"></span>
+            <span>Vérification des accès...</span>
+          } @else {
+            <span>Se connecter à la console</span>
+          }
+        </button>
+      </form>
+
+      <div class="card-footer">
+        <p class="security-note">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          Session sécurisée via Sanctum Token API
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

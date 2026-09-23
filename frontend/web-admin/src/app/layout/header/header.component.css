@@ -1,0 +1,132 @@
+.header {
+  height: var(--header-height);
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--slate-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-toggle-menu {
+  display: none;
+  background: none;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem;
+  cursor: pointer;
+  color: var(--slate-700);
+}
+
+.btn-toggle-menu svg {
+  width: 20px;
+  height: 20px;
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.portal-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--primary-700);
+  letter-spacing: 0.05em;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--slate-900);
+  line-height: 1.2;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  background-color: var(--slate-50);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--slate-200);
+}
+
+.avatar-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-600), var(--slate-800));
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--slate-800);
+}
+
+.user-role {
+  align-self: flex-start;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.45rem;
+}
+
+.btn-logout {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--slate-600);
+}
+
+.btn-logout:hover {
+  color: var(--danger-600);
+  border-color: #fecaca;
+  background-color: var(--danger-50);
+}
+
+.btn-logout svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 991px) {
+  .btn-toggle-menu {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-details {
+    display: none;
+  }
+  .logout-text {
+    display: none;
+  }
+}
