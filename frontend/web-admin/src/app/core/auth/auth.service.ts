@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of, shareReplay, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginRequest } from '../models/auth.model';
 import { User, UserResponse } from '../models/user.model';
@@ -16,6 +16,7 @@ export class AuthService {
   private readonly tokenService = inject(TokenService);
 
   private readonly baseUrl = environment.apiUrl;
+  private readonly csrfUrl = '/sanctum/csrf-cookie';
 
   readonly currentUser = signal<User | null>(null);
   readonly isInitialized = signal<boolean>(false);
@@ -30,33 +31,38 @@ export class AuthService {
 
   private loadUserRequest$: Observable<User> | null = null;
 
-  /**
-   * Connexion utilisateur
-   */
+  constructor() {
+    this.tokenService.clearLegacyToken();
+  }
+
   login(credentials: LoginRequest): Observable<User> {
     this.isLoading.set(true);
-    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, credentials).pipe(
-      map(response => response.data),
-      tap(data => {
-        this.tokenService.setToken(data.token);
-        this.currentUser.set(data.user);
+
+    return this.http.get<void>(this.csrfUrl).pipe(
+      switchMap(() =>
+        this.http.post<AuthResponse>(
+          this.baseUrl + '/auth/session/login',
+          credentials
+        )
+      ),
+      map(response => response.data.user),
+      tap(user => {
+        this.currentUser.set(user);
         this.isInitialized.set(true);
         this.isLoading.set(false);
       }),
-      map(data => data.user),
       catchError(error => {
         this.isLoading.set(false);
+        this.clearSession();
         return throwError(() => error);
       })
     );
   }
 
-  /**
-   * Déconnexion sécurisée (nettoie la session même en cas d'erreur réseau / token expiré)
-   */
   logout(): Observable<void> {
     this.isLoading.set(true);
-    return this.http.post<void>(`${this.baseUrl}/auth/logout`, {}).pipe(
+
+    return this.http.post<void>(this.baseUrl + '/auth/session/logout', {}).pipe(
       catchError(() => of(undefined)),
       tap(() => {
         this.clearSession();
@@ -67,10 +73,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Charge le profil utilisateur actuel depuis l'API GET /api/user.
-   * Évite les requêtes concurrentes en vol via un partage d'observable.
-   */
   loadCurrentUser(forceRefresh = false): Observable<User> {
     if (this.currentUser() && !forceRefresh) {
       return of(this.currentUser()!);
@@ -80,7 +82,7 @@ export class AuthService {
       return this.loadUserRequest$;
     }
 
-    this.loadUserRequest$ = this.http.get<UserResponse>(`${this.baseUrl}/user`).pipe(
+    this.loadUserRequest$ = this.http.get<UserResponse>(this.baseUrl + '/user').pipe(
       map(response => response.data),
       tap(user => {
         this.currentUser.set(user);
@@ -101,21 +103,15 @@ export class AuthService {
     return this.loadUserRequest$;
   }
 
-  /**
-   * Mise à jour du profil utilisateur connecté (sans altération de rôle)
-   */
   updateProfile(profileData: Partial<Pick<User, 'nom' | 'prenom' | 'email' | 'telephone' | 'adresse'>> & { password?: string; password_confirmation?: string }): Observable<User> {
-    return this.http.put<UserResponse>(`${this.baseUrl}/user`, profileData).pipe(
+    return this.http.put<UserResponse>(this.baseUrl + '/user', profileData).pipe(
       map(response => response.data),
       tap(user => this.currentUser.set(user))
     );
   }
 
-  /**
-   * Réinitialise les tokens, observables en attente et l'utilisateur en mémoire
-   */
   clearSession(): void {
-    this.tokenService.clearToken();
+    this.tokenService.clearLegacyToken();
     this.currentUser.set(null);
     this.loadUserRequest$ = null;
   }
