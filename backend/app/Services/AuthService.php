@@ -61,6 +61,7 @@ final readonly class AuthService
 
         if (
             $user === null ||
+            $user->etat_compte !== 'actif' ||
             ! Hash::check(
                 $dto->password,
                 $user->password
@@ -96,19 +97,28 @@ final readonly class AuthService
 
     public function resetPassword(
         ResetPasswordDTO $dto
-    ): string {
-        return Password::reset(
+    ): void {
+        $status = Password::reset(
             [
                 'email' => $dto->email,
                 'password' => $dto->password,
                 'password_confirmation' => $dto->password,
                 'token' => $dto->token,
             ],
-            function ($user, $password): void {
+            function (User $user, string $password): void {
                 $user->password = $password;
                 $user->save();
+
+                // A password reset invalidates every previously issued API token.
+                $user->tokens()->delete();
             }
         );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'email' => [__($status)],
+            ]);
+        }
     }
 
 }
