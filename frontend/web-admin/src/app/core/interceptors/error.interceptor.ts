@@ -13,8 +13,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error instanceof HttpErrorResponse) {
         switch (error.status) {
           case 401:
-            // Token révoqué ou expiré
-            tokenService.clearToken();
+            tokenService.clearLegacyToken();
             if (!router.url.startsWith('/login')) {
               router.navigate(['/login'], {
                 queryParams: { returnUrl: router.url }
@@ -43,7 +42,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             break;
 
           default:
-            console.error(`Erreur HTTP inattendue (${error.status})`, error);
+            console.error('Erreur HTTP inattendue (' + error.status + ')', error);
         }
       }
 
