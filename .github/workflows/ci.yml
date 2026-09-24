@@ -108,10 +108,12 @@ jobs:
           fi
 
       - name: Validate OpenAPI JSON
-        run: node -e "JSON.parse(require('fs').readFileSync('backend/docs/openapi.json', 'utf8')); console.log('openapi.json: valid JSON')"
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('backend/docs/openapi.json', 'utf8')); console.log('openapi.json: valid JSON')"
 
       - name: Validate OpenAPI YAML
-        run: ruby -e "require 'yaml'; YAML.load_file('backend/docs/openapi.yaml'); puts 'openapi.yaml: valid YAML'"
+        run: |
+          ruby -e "require 'yaml'; YAML.load_file('backend/docs/openapi.yaml'); puts 'openapi.yaml: valid YAML'"
 
       - name: Check whitespace errors
         run: git diff --check HEAD^ HEAD
