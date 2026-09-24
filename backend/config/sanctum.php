@@ -19,7 +19,7 @@ return [
     */
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-        '%s,%s',
+        '%s%s',
         'localhost,localhost:3000,localhost:4200,127.0.0.1,127.0.0.1:8000,127.0.0.1:4200,::1',
         Sanctum::currentApplicationUrlWithPort(),
         // Sanctum::currentRequestHost(),
@@ -61,7 +61,7 @@ return [
     | security scanning initiatives maintained by open source platforms
     | that notify developers if they commit tokens into repositories.
     |
-    | See: https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning
+    | See: https://docs.github.com/en/code-security/secret-scanning/about-github-secret-scanning
     |
     */
 
