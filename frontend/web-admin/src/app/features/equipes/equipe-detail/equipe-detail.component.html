@@ -1,4 +1,83 @@
-<div class="page-shell">@if(isLoading()){<div class="card state"><div class="spinner spinner-dark"></div><p>Chargement...</p></div>}@else{<div class="page-header"><div><h1 class="page-title">{{equipe()?.nom_equipe}}</h1><p class="page-subtitle">Configuration de l’équipe et de ses membres.</p></div><div class="header-actions"><a class="btn btn-secondary" routerLink="/admin/equipes">Retour</a></div></div>@if(successMessage()){<div class="alert alert-success">{{successMessage()}}</div>}@if(errorMessage()){<div class="alert alert-danger">{{errorMessage()}}</div>}
-<div class="grid"><section class="card"><div class="card-header"><h2>Équipe</h2></div><div class="body"><div class="form-group"><label>Nom</label><input class="form-control" [ngModel]="name()" (ngModelChange)="name.set($event)"></div><div class="form-group"><label>Description</label><textarea rows="6" class="form-control" [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea></div><div class="actions-row"><button class="btn btn-primary" (click)="save()" [disabled]="isSaving()">Enregistrer</button><button class="btn btn-danger" (click)="promptDelete()">Supprimer</button></div></div></section>
-<section class="card"><div class="card-header"><h2>Agents actifs</h2><span class="count">{{selectedAgents().length}}</span></div><div class="body agent-list">@if(agents().length===0){<p class="muted">Aucun agent disponible.</p>}@else{@for(agent of agents();track agent.id){<label class="agent-item"><input type="checkbox" [checked]="isSelected(agent.id)" (change)="toggleAgent(agent.id)"><span><strong>{{agent.prenom}} {{agent.nom}}</strong><small>{{agent.email}}</small></span></label>}}</div></section></div>}</div>
-@if(showDelete()){<div class="modal-backdrop" (click)="cancelDelete()"><div class="modal-dialog" (click)="$event.stopPropagation()"><div class="modal-header"><h3>Supprimer l’équipe ?</h3><button class="modal-close" (click)="cancelDelete()">&times;</button></div><div class="modal-body">La suppression de l’équipe est définitive.</div><div class="modal-footer"><button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button><button class="btn btn-danger" (click)="delete()">Supprimer</button></div></div></div>}</div>
+<div class="page-shell">
+  @if (isLoading()) {
+    <div class="card state">
+      <div class="spinner spinner-dark"></div>
+      <p>Chargement...</p>
+    </div>
+  } @else {
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">{{ equipe()?.nom_equipe }}</h1>
+        <p class="page-subtitle">Configuration de l’équipe et de ses membres.</p>
+      </div>
+      <div class="header-actions">
+        <a class="btn btn-secondary" [routerLink]="['/admin/equipes']">Retour</a>
+      </div>
+    </div>
+
+    @if (successMessage()) {
+      <div class="alert alert-success">{{ successMessage() }}</div>
+    }
+    @if (errorMessage()) {
+      <div class="alert alert-danger">{{ errorMessage() }}</div>
+    }
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-header"><h2>Équipe</h2></div>
+        <div class="body">
+          <div class="form-group">
+            <label>Nom</label>
+            <input class="form-control" [ngModel]="name()" (ngModelChange)="name.set($event)">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea rows="6" class="form-control" [ngModel]="description()" (ngModelChange)="description.set($event)"></textarea>
+          </div>
+          <div class="actions-row">
+            <button class="btn btn-primary" (click)="save()" [disabled]="isSaving()">Enregistrer</button>
+            <button class="btn btn-danger" (click)="promptDelete()">Supprimer</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Agents actifs</h2>
+          <span class="count">{{ selectedAgents().length }}</span>
+        </div>
+        <div class="body agent-list">
+          @if (agents().length === 0) {
+            <p class="muted">Aucun agent disponible.</p>
+          } @else {
+            @for (agent of agents(); track agent.id) {
+              <label class="agent-item">
+                <input type="checkbox" [checked]="isSelected(agent.id)" (change)="toggleAgent(agent.id)">
+                <span>
+                  <strong>{{ agent.prenom }} {{ agent.nom }}</strong>
+                  <small>{{ agent.email }}</small>
+                </span>
+              </label>
+            }
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (showDelete()) {
+    <div class="modal-backdrop" (click)="cancelDelete()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Supprimer l’équipe ?</h3>
+          <button class="modal-close" (click)="cancelDelete()">&times;</button>
+        </div>
+        <div class="modal-body">La suppression de l’équipe est définitive.</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button>
+          <button class="btn btn-danger" (click)="delete()">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
