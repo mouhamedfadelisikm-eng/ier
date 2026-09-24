@@ -104,7 +104,7 @@ export class AuthService {
   /**
    * Mise à jour du profil utilisateur connecté (sans altération de rôle)
    */
-  updateProfile(profileData: Partial<Pick<User, 'nom' | 'prenom' | 'telephone' | 'adresse'>>): Observable<User> {
+  updateProfile(profileData: Partial<Pick<User, 'nom' | 'prenom' | 'email' | 'telephone' | 'adresse'>> & { password?: string; password_confirmation?: string }): Observable<User> {
     return this.http.put<UserResponse>(`${this.baseUrl}/user`, profileData).pipe(
       map(response => response.data),
       tap(user => this.currentUser.set(user))
