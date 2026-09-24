@@ -1,0 +1,56 @@
+<div class="page-shell">
+  <div class="page-header">
+    <div><h1 class="page-title">Intervention #{{ intervention()?.id }}</h1><p class="page-subtitle">Détail, compte rendu, statut et preuves photo.</p></div>
+    <div class="header-actions"><a routerLink="/admin/interventions" class="btn btn-secondary">Retour</a></div>
+  </div>
+
+  @if (successMessage()) { <div class="alert alert-success">{{ successMessage() }}</div> }
+  @if (errorMessage()) { <div class="alert alert-danger">{{ errorMessage() }}</div> }
+
+  @if (isLoading()) {
+    <div class="card state"><div class="spinner spinner-dark"></div><p>Chargement...</p></div>
+  } @else if (intervention()) {
+    <div class="grid">
+      <section class="card">
+        <div class="card-header"><h2>Informations</h2><span class="badge" [ngClass]="statusClass(intervention()!.statut)">{{ statusLabel(intervention()!.statut) }}</span></div>
+        <div class="facts">
+          <div><span>ID</span><strong>#{{ intervention()!.id }}</strong></div>
+          <div><span>Début</span><strong>{{ intervention()!.date_heure_debut | date:'dd/MM/yyyy HH:mm:ss' }}</strong></div>
+          <div><span>Fin</span><strong>{{ intervention()!.date_heure_fin ? (intervention()!.date_heure_fin | date:'dd/MM/yyyy HH:mm:ss') : '—' }}</strong></div>
+          <div><span>Équipe</span><strong>{{ intervention()!.affectation?.equipe?.nom_equipe || '—' }}</strong></div>
+          <div><span>Signalement</span><strong>#{{ intervention()!.affectation?.signalement?.id || '—' }}</strong></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header"><h2>Mise à jour</h2></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Statut</label><select class="form-control" [ngModel]="statut()" (ngModelChange)="statut.set($event)"><option value="en_cours">En cours</option><option value="suspendue">Suspendue</option><option value="terminee">Terminée</option></select></div>
+          <div class="form-group"><label>Date/heure de fin</label><input type="datetime-local" class="form-control" [ngModel]="dateFin()" (ngModelChange)="dateFin.set($event)"></div>
+          <div class="form-group full"><label>Compte rendu</label><textarea class="form-control" rows="6" [ngModel]="compteRendu()" (ngModelChange)="compteRendu.set($event)" placeholder="Compte rendu d’intervention"></textarea></div>
+          <div class="form-group full"><label>Observation</label><textarea class="form-control" rows="4" [ngModel]="observation()" (ngModelChange)="observation.set($event)"></textarea></div>
+          <div class="form-group full"><label>Photos d’intervention</label><input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="onFilesSelected($event)"></div>
+        </div>
+        <div class="actions-row"><button class="btn btn-primary" (click)="save()" [disabled]="isSaving()">{{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}</button>
+          @if (intervention()!.statut === 'terminee') { <button class="btn btn-success" (click)="closeIntervention()" [disabled]="isClosing()">Clôturer l’intervention</button> }
+          <button class="btn btn-danger" (click)="promptDelete()">Supprimer</button>
+        </div>
+      </section>
+
+      <section class="card full-width">
+        <div class="card-header"><h2>Photos</h2></div>
+        @if ((intervention()!.photos || []).length === 0) { <p class="muted">Aucune photo.</p> } @else {
+          <div class="photos-grid">@for (photo of intervention()!.photos; track photo.id) { <a [href]="photo.url" target="_blank" rel="noopener"><img [src]="photo.url" alt="Photo intervention #{{ photo.id }}"></a> }</div>
+        }
+      </section>
+    </div>
+  }
+
+  @if (showDelete()) {
+    <div class="modal-backdrop" (click)="cancelDelete()"><div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header"><h3>Confirmer la suppression</h3><button class="modal-close" (click)="cancelDelete()">&times;</button></div>
+      <div class="modal-body">Cette action supprime l’intervention et ses photos.</div>
+      <div class="modal-footer"><button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button><button class="btn btn-danger" (click)="confirmDelete()">Supprimer</button></div>
+    </div></div>
+  }
+</div>

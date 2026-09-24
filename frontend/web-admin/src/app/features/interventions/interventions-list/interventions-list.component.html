@@ -1,0 +1,88 @@
+<div class="page-shell">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Suivi des interventions</h1>
+      <p class="page-subtitle">Pilotage des interventions terrain et de leur état d’avancement.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" (click)="load(meta()?.current_page ?? 1)" [disabled]="isLoading()">Actualiser</button>
+      <button class="btn btn-primary" (click)="openCreate()">Démarrer une intervention</button>
+    </div>
+  </div>
+
+  @if (successMessage()) { <div class="alert alert-success">{{ successMessage() }}</div> }
+  @if (errorMessage()) { <div class="alert alert-danger">{{ errorMessage() }}</div> }
+
+  <div class="filters-card">
+    <div>
+      <label>Recherche</label>
+      <input class="form-control" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Équipe, signalement, compte rendu...">
+    </div>
+    <div>
+      <label>Statut</label>
+      <select class="form-control" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <option value="">Tous</option>
+        <option value="en_cours">En cours</option>
+        <option value="suspendue">Suspendue</option>
+        <option value="terminee">Terminée</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    @if (isLoading()) {
+      <div class="state"><div class="spinner spinner-dark"></div><p>Chargement...</p></div>
+    } @else if (filtered().length === 0) {
+      <div class="state"><strong>Aucune intervention</strong><p>Aucune intervention ne correspond aux critères.</p></div>
+    } @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Début</th><th>Équipe</th><th>Signalement</th><th>Statut</th><th></th></tr></thead>
+          <tbody>
+            @for (item of filtered(); track item.id) {
+              <tr>
+                <td><strong>#{{ item.id }}</strong></td>
+                <td>{{ item.date_heure_debut | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ item.affectation?.equipe?.nom_equipe || '—' }}</td>
+                <td>{{ item.affectation?.signalement?.description || ('Signalement #' + (item.affectation?.signalement?.id || '')) }}</td>
+                <td><span class="badge" [ngClass]="statusClass(item.statut)">{{ statusLabel(item.statut) }}</span></td>
+                <td class="actions"><a class="btn btn-secondary btn-sm" [routerLink]="['/admin/interventions', item.id]">Voir</a></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (meta() && meta()!.last_page > 1) {
+        <div class="pagination-bar">
+          <span>{{ meta()!.from }}–{{ meta()!.to }} sur {{ meta()!.total }}</span>
+          <div>
+            <button class="btn btn-secondary btn-sm" [disabled]="meta()!.current_page===1" (click)="onPageChange(meta()!.current_page-1)">Précédent</button>
+            <span class="page-indicator">Page {{ meta()!.current_page }} / {{ meta()!.last_page }}</span>
+            <button class="btn btn-secondary btn-sm" [disabled]="meta()!.current_page===meta()!.last_page" (click)="onPageChange(meta()!.current_page+1)">Suivant</button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (showCreate()) {
+    <div class="modal-backdrop" (click)="closeCreate()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header"><h3>Nouvelle intervention</h3><button class="modal-close" (click)="closeCreate()">&times;</button></div>
+        <div class="modal-body">
+          @if (createError()) { <div class="alert alert-danger">{{ createError() }}</div> }
+          <div class="form-group"><label>Affectation</label>
+            <select class="form-control" [ngModel]="affectationId()" (ngModelChange)="affectationId.set($event ? +$event : null)">
+              <option [ngValue]="null">Sélectionner</option>
+              @for (item of affectations(); track item.id) {
+                <option [ngValue]="item.id">#{{ item.id }} — {{ item.equipe?.nom_equipe || 'Équipe' }} — signalement #{{ item.signalement?.id }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group"><label>Date/heure de début</label><input class="form-control" [ngModel]="dateDebut()" (ngModelChange)="dateDebut.set($event)"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-secondary" (click)="closeCreate()">Annuler</button><button class="btn btn-primary" (click)="create()" [disabled]="actionInProgress()">Créer</button></div>
+      </div>
+    </div>
+  }
+</div>
