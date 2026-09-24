@@ -12,13 +12,9 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  backend:
-    name: Backend Laravel / PostgreSQL
+  quality:
+    name: Backend + Frontend + Contracts
     runs-on: ubuntu-latest
 
     services:
@@ -51,6 +47,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 2
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -58,9 +56,6 @@ jobs:
           php-version: '8.3'
           extensions: pdo_pgsql, mbstring, bcmath
           coverage: none
-
-      - name: Validate PHP version
-        run: php -v
 
       - name: Install Composer dependencies
         working-directory: backend
@@ -71,22 +66,11 @@ jobs:
         run: |
           cp .env.example .env
           php artisan key:generate --force
-
-      - name: Run migrations
-        working-directory: backend
-        run: php artisan migrate --force
+          php artisan migrate --force
 
       - name: Run backend tests
         working-directory: backend
         run: php artisan test
-
-  frontend:
-    name: Frontend Angular
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
 
       - name: Setup Node
         uses: actions/setup-node@v7.0.0
@@ -107,26 +91,27 @@ jobs:
         working-directory: frontend/web-admin
         run: npm run build
 
-      - name: Reject forbidden dialog APIs in Affectations
+      - name: Verify Web Admin contains no placeholder modules
+        shell: bash
         run: |
-          if grep -RInE '\\balert\\s*\\(|\\bwindow\\.confirm\\s*\\(' frontend/web-admin/src/app/features/affectations; then
-            echo "Forbidden alert/window.confirm usage detected in Affectations."
+          if grep -RIn "ModulePlaceholderComponent" frontend/web-admin/src/app; then
+            echo "Obsolete placeholder reference detected."
             exit 1
           fi
 
-      - name: Check whitespace errors
-        run: git diff --check HEAD^ HEAD
-
-  contracts:
-    name: OpenAPI syntax
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
+      - name: Reject forbidden browser dialogs in Web Admin
+        shell: bash
+        run: |
+          if grep -RInE '\balert\s*\(|\bwindow\.confirm\s*\(' frontend/web-admin/src/app; then
+            echo "Forbidden alert/window.confirm usage detected."
+            exit 1
+          fi
 
       - name: Validate OpenAPI JSON
         run: node -e "JSON.parse(require('fs').readFileSync('backend/docs/openapi.json', 'utf8')); console.log('openapi.json: valid JSON')"
 
       - name: Validate OpenAPI YAML
         run: ruby -e "require 'yaml'; YAML.load_file('backend/docs/openapi.yaml'); puts 'openapi.yaml: valid YAML'"
+
+      - name: Check whitespace errors
+        run: git diff --check HEAD^ HEAD
