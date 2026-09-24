@@ -9,6 +9,7 @@ use Tests\TestCase;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class AuthApiTest extends TestCase
 {
@@ -110,4 +111,74 @@ class AuthApiTest extends TestCase
                      ]
                  ]);
     }
+
+    public function test_inactive_account_cannot_login(): void
+    {
+        $password = 'Password123!';
+        $user = User::factory()->create([
+            'password' => Hash::make($password),
+            'etat_compte' => 'suspendu',
+        ]);
+        $user->assignRole(RoleEnum::CITIZEN->value);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => $user->email,
+            'password' => $password,
+        ]);
+
+        $response->assertStatus(401);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    public function test_login_is_rate_limited(): void
+    {
+        $email = 'rate-limit@example.com';
+
+        for ($attempt = 1; $attempt <= 5; $attempt++) {
+            $response = $this->postJson('/api/auth/login', [
+                'email' => $email,
+                'password' => 'WrongPassword123!',
+            ]);
+
+            $response->assertStatus(401);
+        }
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => $email,
+            'password' => 'WrongPassword123!',
+        ]);
+
+        $response->assertStatus(429);
+    }
+
+    public function test_password_reset_revokes_existing_tokens(): void
+    {
+        $oldPassword = 'OldPassword123!';
+        $newPassword = 'NewPassword123!';
+
+        $user = User::factory()->create([
+            'password' => Hash::make($oldPassword),
+        ]);
+        $user->assignRole(RoleEnum::CITIZEN->value);
+
+        $accessToken = $user->createToken('test-token')->plainTextToken;
+        $resetToken = Password::broker()->createToken($user);
+
+        $response = $this->postJson('/api/auth/reset-password', [
+            'email' => $user->email,
+            'token' => $resetToken,
+            'password' => $newPassword,
+            'password_confirmation' => $newPassword,
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+
+        $this->withToken($accessToken)
+            ->getJson('/api/user')
+            ->assertStatus(401);
+
+        $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
+    }
+
 }

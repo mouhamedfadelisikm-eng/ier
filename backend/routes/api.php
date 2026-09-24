@@ -27,15 +27,19 @@ Route::prefix('auth')
     ->group(function () {
 
         Route::post('/register', [AuthController::class, 'register'])
+            ->middleware('throttle:register')
             ->name('register');
 
         Route::post('/login', [AuthController::class, 'login'])
+            ->middleware('throttle:login')
             ->name('login');
 
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])
+            ->middleware('throttle:password-reset-request')
             ->name('forgot-password');
 
         Route::post('/reset-password', [AuthController::class, 'resetPassword'])
+            ->middleware('throttle:password-reset')
             ->name('reset-password');
     });
 

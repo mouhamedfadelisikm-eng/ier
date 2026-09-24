@@ -7,7 +7,10 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Eloquent\UserRepository;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Cache\RateLimiting\Limit;
 use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
@@ -68,6 +71,32 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('login', function (Request $request): Limit {
+            $email = mb_strtolower(trim((string) $request->input('email')));
+
+            return Limit::perMinute(5)
+                ->by($request->ip() . '|' . $email);
+        });
+
+        RateLimiter::for('register', function (Request $request): Limit {
+            return Limit::perMinute(5)
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('password-reset-request', function (Request $request): Limit {
+            $email = mb_strtolower(trim((string) $request->input('email')));
+
+            return Limit::perMinute(3)
+                ->by($request->ip() . '|' . $email);
+        });
+
+        RateLimiter::for('password-reset', function (Request $request): Limit {
+            $email = mb_strtolower(trim((string) $request->input('email')));
+
+            return Limit::perMinute(5)
+                ->by($request->ip() . '|' . $email);
+        });
+
         ResetPassword::createUrlUsing(function ($notifiable, string $token): string {
             return config('app.frontend_url')
                 . '/reset-password?token='
