@@ -21,6 +21,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             }
             break;
 
+          case 419:
+            tokenService.clearLegacyToken();
+            if (!router.url.startsWith('/login')) {
+              router.navigate(['/login'], {
+                queryParams: { returnUrl: router.url }
+              });
+            }
+            break;
+
           case 403:
             console.error('Accès refusé (403) : permissions insuffisantes', error.error);
             break;
