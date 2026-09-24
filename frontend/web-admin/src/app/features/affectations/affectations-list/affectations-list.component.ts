@@ -142,7 +142,7 @@ export class AffectationsListComponent implements OnInit {
     const dt = this.newDateHeure();
 
     if (!sigId || !eqId || !dt) {
-      alert('Veuillez remplir tous les champs obligatoires (Signalement, Équipe, Date/Heure).');
+      this.errorMessage.set('Veuillez remplir tous les champs obligatoires (Signalement, Équipe, Date/Heure).');
       return;
     }
 

@@ -105,12 +105,12 @@ export class AffectationDetailComponent implements OnInit {
     const dt = this.reassignDateHeure();
 
     if (!item || !newEqId || !dt) {
-      alert('Veuillez sélectionner une nouvelle équipe et renseigner la date/heure.');
+      this.errorMessage.set('Veuillez sélectionner une nouvelle équipe et renseigner la date/heure.');
       return;
     }
 
     if (newEqId === item.equipe?.id) {
-      alert('La nouvelle équipe doit être différente de l\'équipe actuelle.');
+      this.errorMessage.set('La nouvelle équipe doit être différente de l\'équipe actuelle.');
       return;
     }
 

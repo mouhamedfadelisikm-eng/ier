@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend Laravel / PostgreSQL
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: ier_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d ier_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: ier_test
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, mbstring, bcmath
+          coverage: none
+
+      - name: Validate PHP version
+        run: php -v
+
+      - name: Install Composer dependencies
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare Laravel
+        working-directory: backend
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
+      - name: Run migrations
+        working-directory: backend
+        run: php artisan migrate --force
+
+      - name: Run backend tests
+        working-directory: backend
+        run: php artisan test
+
+  frontend:
+    name: Frontend Angular
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '22.22.3'
+          cache: npm
+          cache-dependency-path: frontend/web-admin/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend/web-admin
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: frontend/web-admin
+        run: npm run test -- --watch=false --no-progress
+
+      - name: Build frontend
+        working-directory: frontend/web-admin
+        run: npm run build
+
+      - name: Reject forbidden dialog APIs in Affectations
+        run: |
+          if grep -RInE '\\balert\\s*\\(|\\bwindow\\.confirm\\s*\\(' frontend/web-admin/src/app/features/affectations; then
+            echo "Forbidden alert/window.confirm usage detected in Affectations."
+            exit 1
+          fi
+
+      - name: Check whitespace errors
+        run: git diff --check HEAD^ HEAD
+
+  contracts:
+    name: OpenAPI syntax
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Validate OpenAPI JSON
+        run: node -e "JSON.parse(require('fs').readFileSync('backend/docs/openapi.json', 'utf8')); console.log('openapi.json: valid JSON')"
+
+      - name: Validate OpenAPI YAML
+        run: ruby -e "require 'yaml'; YAML.load_file('backend/docs/openapi.yaml'); puts 'openapi.yaml: valid YAML'"

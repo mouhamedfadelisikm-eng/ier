@@ -142,7 +142,7 @@
 
           <div class="form-group">
             <label for="reassignEquipe">Nouvelle équipe</label>
-            <select id="reassignEquipe" class="form-control" [(ngModel)]="reassignEquipeId">
+            <select id="reassignEquipe" class="form-control" [ngModel]="reassignEquipeId()" (ngModelChange)="reassignEquipeId.set($event)">
               <option [ngValue]="null">-- Sélectionner une nouvelle équipe --</option>
               @for (eq of equipesList(); track eq.id) {
                 <option [ngValue]="eq.id">{{ eq.nom_equipe }}</option>
@@ -152,12 +152,12 @@
 
           <div class="form-group">
             <label for="reassignDate">Date & Heure (Format: Y-m-d H:i:s)</label>
-            <input type="text" id="reassignDate" class="form-control" [(ngModel)]="reassignDateHeure" placeholder="2026-09-24 10:00:00">
+            <input type="text" id="reassignDate" class="form-control" [ngModel]="reassignDateHeure()" (ngModelChange)="reassignDateHeure.set($event)" placeholder="2026-09-24 10:00:00">
           </div>
 
           <div class="form-group">
             <label for="reassignObs">Observation / Motif</label>
-            <textarea id="reassignObs" class="form-control" rows="3" [(ngModel)]="reassignObservation" placeholder="Motif de réaffectation..."></textarea>
+            <textarea id="reassignObs" class="form-control" rows="3" [ngModel]="reassignObservation()" (ngModelChange)="reassignObservation.set($event)" placeholder="Motif de réaffectation..."></textarea>
           </div>
         </div>
         <div class="modal-footer">

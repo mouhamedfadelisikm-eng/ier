@@ -45,13 +45,13 @@
         id="searchQuery"
         class="form-control"
         placeholder="Rechercher par équipe, signalement, zone..."
-        [(ngModel)]="searchQuery"
+        [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
       >
     </div>
 
     <div class="filter-group">
       <label for="filterStatus">Filtrer par Statut Signalement</label>
-      <select id="filterStatus" class="form-control" [(ngModel)]="filterStatus">
+      <select id="filterStatus" class="form-control" [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
         <option value="">Tous les statuts</option>
         <option value="priorise">Priorisé</option>
         <option value="affecte">Affecté</option>
@@ -196,7 +196,7 @@
         <div class="modal-body">
           <div class="form-group">
             <label for="createSignalement">Signalement éligible (Priorisé)</label>
-            <select id="createSignalement" class="form-control" [(ngModel)]="newSignalementId">
+            <select id="createSignalement" class="form-control" [ngModel]="newSignalementId()" (ngModelChange)="newSignalementId.set($event)">
               <option [ngValue]="null">-- Sélectionner un signalement priorisé --</option>
               @for (sig of eligibleSignalements(); track sig.id) {
                 <option [ngValue]="sig.id">#{{ sig.id }} - {{ sig.zone?.nom_zone || 'Zone non spécifiée' }} ({{ sig.description | slice:0:50 }}...)</option>
@@ -206,7 +206,7 @@
 
           <div class="form-group">
             <label for="createEquipe">Équipe d'intervention</label>
-            <select id="createEquipe" class="form-control" [(ngModel)]="newEquipeId">
+            <select id="createEquipe" class="form-control" [ngModel]="newEquipeId()" (ngModelChange)="newEquipeId.set($event)">
               <option [ngValue]="null">-- Sélectionner une équipe --</option>
               @for (eq of equipesList(); track eq.id) {
                 <option [ngValue]="eq.id">{{ eq.nom_equipe }}</option>
@@ -216,12 +216,12 @@
 
           <div class="form-group">
             <label for="createDate">Date & Heure (Format: Y-m-d H:i:s)</label>
-            <input type="text" id="createDate" class="form-control" [(ngModel)]="newDateHeure" placeholder="2026-09-24 10:00:00">
+            <input type="text" id="createDate" class="form-control" [ngModel]="newDateHeure()" (ngModelChange)="newDateHeure.set($event)" placeholder="2026-09-24 10:00:00">
           </div>
 
           <div class="form-group">
             <label for="createObs">Observation (facultative)</label>
-            <textarea id="createObs" class="form-control" rows="3" [(ngModel)]="newObservation" placeholder="Instructions pour l'équipe..."></textarea>
+            <textarea id="createObs" class="form-control" rows="3" [ngModel]="newObservation()" (ngModelChange)="newObservation.set($event)" placeholder="Instructions pour l'équipe..."></textarea>
           </div>
         </div>
         <div class="modal-footer">
