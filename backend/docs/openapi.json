@@ -212,8 +212,8 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "D\u00e9tails utilisateur",
-                "operationId": "74dcf73663678fb778b868e82ef6f827",
+                "summary": "D\u00e9tails utilisateur (ADMIN)",
+                "operationId": "28c8679c3bcc7f7e2469e732ce035974",
                 "parameters": [
                     {
                         "name": "id",
@@ -246,7 +246,7 @@
                     "Administration"
                 ],
                 "summary": "Modifier utilisateur (ADMIN)",
-                "operationId": "a84c7820ab0e37bc902c3ef3393b3f20",
+                "operationId": "165a4ede0a0ecfc2bb8a11f6046ae366",
                 "parameters": [
                     {
                         "name": "id",
@@ -260,6 +260,9 @@
                 "responses": {
                     "200": {
                         "description": "Mis \u00e0 jour"
+                    },
+                    "409": {
+                        "description": "Conflit r\u00f4le/\u00e9quipe"
                     }
                 },
                 "security": [
@@ -279,7 +282,7 @@
                     "Administration"
                 ],
                 "summary": "Supprimer utilisateur (ADMIN)",
-                "operationId": "66e8574d6bba78eb8682a3d0774dfd38",
+                "operationId": "fe34178197b07119bd2b397f3b281e90",
                 "parameters": [
                     {
                         "name": "id",
@@ -313,8 +316,8 @@
                 "tags": [
                     "Types D\u00e9chets"
                 ],
-                "summary": "Lister les types de d\u00e9chets",
-                "operationId": "04e30ef480be2e8f19da5c0667ea5565",
+                "summary": "Lister types d\u00e9chets",
+                "operationId": "81d461921ba08e277cdba92f2b421dd1",
                 "responses": {
                     "200": {
                         "description": "Liste"
@@ -336,8 +339,8 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Cr\u00e9er un type de d\u00e9chet (ADMIN)",
-                "operationId": "4402a3a5f45037d04bc5f22e70e5dfbf",
+                "summary": "Cr\u00e9er type d\u00e9chet (ADMIN)",
+                "operationId": "da2aacb24995403be3499cfb9a9c4d0e",
                 "responses": {
                     "201": {
                         "description": "Cr\u00e9\u00e9"
@@ -356,16 +359,16 @@
                 ]
             }
         },
-        "/types-dechets/{typesDechet}": {
+        "/types-dechets/{id}": {
             "get": {
                 "tags": [
                     "Types D\u00e9chets"
                 ],
-                "summary": "D\u00e9tails type de d\u00e9chet",
-                "operationId": "44cf882f04e1bc58b29c9c104aa5bfb3",
+                "summary": "D\u00e9tails type d\u00e9chet",
+                "operationId": "1a4d2b3dc98156ee1ad71bc6067e7ce5",
                 "parameters": [
                     {
-                        "name": "typesDechet",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -394,11 +397,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Modifier type de d\u00e9chet (ADMIN)",
-                "operationId": "a8b387e6fa0061e3d06fb6b3b5ca5280",
+                "summary": "Modifier type d\u00e9chet (ADMIN)",
+                "operationId": "e4c35c0cff812efa9e5f519f67a4e334",
                 "parameters": [
                     {
-                        "name": "typesDechet",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -427,11 +430,11 @@
                 "tags": [
                     "Administration"
                 ],
-                "summary": "Supprimer type de d\u00e9chet (ADMIN)",
-                "operationId": "f39b56f849ee1ff4c6c2b186b5bcf3a1",
+                "summary": "Supprimer type d\u00e9chet (ADMIN)",
+                "operationId": "365d1d55fae47948d2970f76ab22c2ed",
                 "parameters": [
                     {
-                        "name": "typesDechet",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -463,7 +466,7 @@
                     "Zones"
                 ],
                 "summary": "Lister les zones",
-                "operationId": "c9bba5181794b154df2c55b66d790ff4",
+                "operationId": "a404b51a66ffd4c8b6607ce778ee734d",
                 "responses": {
                     "200": {
                         "description": "Liste"
@@ -486,7 +489,7 @@
                     "Administration"
                 ],
                 "summary": "Cr\u00e9er une zone (ADMIN)",
-                "operationId": "902df351540a87a2750e322efcb409c9",
+                "operationId": "21064b79efb997c3576162bb0f582e9e",
                 "responses": {
                     "201": {
                         "description": "Cr\u00e9\u00e9e"
@@ -505,16 +508,16 @@
                 ]
             }
         },
-        "/zones/{zone}": {
+        "/zones/{id}": {
             "get": {
                 "tags": [
                     "Zones"
                 ],
                 "summary": "D\u00e9tails zone",
-                "operationId": "87807df529d2f6277265538e3e4a2bc0",
+                "operationId": "58e15fd4bd62362469f8a1e69b2fe441",
                 "parameters": [
                     {
-                        "name": "zone",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -544,10 +547,10 @@
                     "Administration"
                 ],
                 "summary": "Modifier zone (ADMIN)",
-                "operationId": "bd8a0b0f0270a6c0ea4dc4b84c8cf7da",
+                "operationId": "adadb37c2955486617b51cead4ae93e7",
                 "parameters": [
                     {
-                        "name": "zone",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -557,7 +560,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mis \u00e0 jour"
+                        "description": "Mise \u00e0 jour"
                     }
                 },
                 "security": [
@@ -577,10 +580,10 @@
                     "Administration"
                 ],
                 "summary": "Supprimer zone (ADMIN)",
-                "operationId": "eb52865be9f97204f1416e3797072cc2",
+                "operationId": "822e7cfe81089a777d23f6e37f3c6503",
                 "parameters": [
                     {
-                        "name": "zone",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -612,7 +615,7 @@
                     "\u00c9quipes"
                 ],
                 "summary": "Lister les \u00e9quipes",
-                "operationId": "a5a40bb56db5678120b60e6bb60f06e0",
+                "operationId": "d1b6aaa538683f55cf8bd02c714391e8",
                 "responses": {
                     "200": {
                         "description": "Liste"
@@ -635,7 +638,7 @@
                     "Administration"
                 ],
                 "summary": "Cr\u00e9er une \u00e9quipe (ADMIN)",
-                "operationId": "3d5082f057864f7df5d4a13f28cf01b1",
+                "operationId": "4a3073b804dfb5ed065b9173f76457fc",
                 "responses": {
                     "201": {
                         "description": "Cr\u00e9\u00e9e"
@@ -654,16 +657,16 @@
                 ]
             }
         },
-        "/equipes/{equipe}": {
+        "/equipes/{id}": {
             "get": {
                 "tags": [
                     "\u00c9quipes"
                 ],
                 "summary": "D\u00e9tails \u00e9quipe",
-                "operationId": "e14741369fbc81ffcaae4bb94e6378ef",
+                "operationId": "13258af909d3cf86203280d60158bdb6",
                 "parameters": [
                     {
-                        "name": "equipe",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -693,10 +696,10 @@
                     "Administration"
                 ],
                 "summary": "Modifier \u00e9quipe (ADMIN)",
-                "operationId": "daa9dd701f2f87a8bdfdff012bb2a67e",
+                "operationId": "5dcb932472a5703e322d88285e93a360",
                 "parameters": [
                     {
-                        "name": "equipe",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -706,7 +709,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Mis \u00e0 jour"
+                        "description": "Mise \u00e0 jour"
                     }
                 },
                 "security": [
@@ -726,10 +729,10 @@
                     "Administration"
                 ],
                 "summary": "Supprimer \u00e9quipe (ADMIN)",
-                "operationId": "31f822830232230da37190b65ffcb3a7",
+                "operationId": "579b48540ee5aa72890e57cc343ba688",
                 "parameters": [
                     {
-                        "name": "equipe",
+                        "name": "id",
                         "in": "path",
                         "required": true,
                         "schema": {
