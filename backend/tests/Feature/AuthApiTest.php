@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use App\Enums\RoleEnum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Tests\TestCase;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
@@ -110,6 +111,59 @@ class AuthApiTest extends TestCase
                          'user'
                      ]
                  ]);
+    }
+
+    public function test_spa_login_uses_session_without_creating_token(): void
+    {
+        $this->withoutMiddleware(ValidateCsrfToken::class);
+
+        $password = 'Password123!';
+        $user = User::factory()->create([
+            'password' => Hash::make($password)
+        ]);
+        $user->assignRole(RoleEnum::CITIZEN->value);
+
+        $response = $this->withHeader('Origin', 'http://localhost:4200')
+            ->postJson('/api/auth/session/login', [
+                'email' => $user->email,
+                'password' => $password,
+            ]);
+
+        $response->assertStatus(200)
+                 ->assertJsonPath('data.user.email', $user->email);
+
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->getJson('/api/user')
+            ->assertStatus(200)
+            ->assertJsonPath('data.email', $user->email);
+    }
+
+    public function test_spa_logout_invalidates_session(): void
+    {
+        $this->withoutMiddleware(ValidateCsrfToken::class);
+
+        $password = 'Password123!';
+        $user = User::factory()->create([
+            'password' => Hash::make($password)
+        ]);
+        $user->assignRole(RoleEnum::CITIZEN->value);
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->postJson('/api/auth/session/login', [
+                'email' => $user->email,
+                'password' => $password,
+            ])
+            ->assertStatus(200);
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->postJson('/api/auth/session/logout')
+            ->assertNoContent();
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->getJson('/api/user')
+            ->assertStatus(401);
     }
 
     public function test_inactive_account_cannot_login(): void

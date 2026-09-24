@@ -10,9 +10,11 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\AuthResource;
+use App\Http\Resources\SessionAuthResource;
 use App\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 final class AuthController extends Controller
 {
@@ -44,6 +46,20 @@ final class AuthController extends Controller
             ->response();
     }
 
+    public function loginSession(
+        LoginRequest $request
+    ): JsonResponse {
+        $user = $this->authService->loginSession(
+            $request->toDTO()
+        );
+
+        Auth::guard('web')->login($user);
+        $request->session()->regenerate();
+
+        return new SessionAuthResource($user)
+            ->response();
+    }
+
     public function logout(Request $request): \Illuminate\Http\Response
     {
         $user = $request->user();
@@ -52,6 +68,15 @@ final class AuthController extends Controller
             $user,
             (string) $user->currentAccessToken()->id
         );
+
+        return response()->noContent();
+    }
+
+    public function logoutSession(Request $request): \Illuminate\Http\Response
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->noContent();
     }

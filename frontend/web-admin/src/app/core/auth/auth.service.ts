@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of, shareReplay, tap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginRequest } from '../models/auth.model';
 import { User, UserResponse } from '../models/user.model';
@@ -35,10 +35,13 @@ export class AuthService {
    */
   login(credentials: LoginRequest): Observable<User> {
     this.isLoading.set(true);
-    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, credentials).pipe(
+
+    return this.http.get<void>('/sanctum/csrf-cookie').pipe(
+      switchMap(() =>
+        this.http.post<AuthResponse>(`${this.baseUrl}/auth/session/login`, credentials)
+      ),
       map(response => response.data),
       tap(data => {
-        this.tokenService.setToken(data.token);
         this.currentUser.set(data.user);
         this.isInitialized.set(true);
         this.isLoading.set(false);
@@ -46,6 +49,7 @@ export class AuthService {
       map(data => data.user),
       catchError(error => {
         this.isLoading.set(false);
+        this.clearSession();
         return throwError(() => error);
       })
     );
@@ -56,7 +60,7 @@ export class AuthService {
    */
   logout(): Observable<void> {
     this.isLoading.set(true);
-    return this.http.post<void>(`${this.baseUrl}/auth/logout`, {}).pipe(
+    return this.http.post<void>(`${this.baseUrl}/auth/session/logout`, {}).pipe(
       catchError(() => of(undefined)),
       tap(() => {
         this.clearSession();
@@ -115,7 +119,7 @@ export class AuthService {
    * Réinitialise les tokens, observables en attente et l'utilisateur en mémoire
    */
   clearSession(): void {
-    this.tokenService.clearToken();
+    this.tokenService.clearLegacyToken();
     this.currentUser.set(null);
     this.loadUserRequest$ = null;
   }
