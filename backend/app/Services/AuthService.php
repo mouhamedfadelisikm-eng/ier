@@ -17,12 +17,16 @@ use Illuminate\Support\Facades\Password;
 final readonly class AuthService
 {
     private const string TOKEN_NAME = 'auth_token';
-
     public function __construct(
         private UserService $userService,
     ) {
     }
 
+    /**
+     * Register a new user and create a Sanctum token.
+     *
+     * @return array{user: User, token: string}
+     */
     public function register(RegisterDTO $dto): array
     {
         return DB::transaction(function () use ($dto): array {
@@ -61,6 +65,8 @@ final readonly class AuthService
     }
 
     /**
+     * Authenticate first-party SPA credentials without issuing an API token.
+     *
      * @throws InvalidCredentialsException
      */
     public function loginSession(LoginDTO $dto): User
@@ -70,12 +76,17 @@ final readonly class AuthService
 
     private function authenticateCredentials(LoginDTO $dto): User
     {
-        $user = $this->userService->findByEmail($dto->email);
+        $user = $this->userService->findByEmail(
+            $dto->email
+        );
 
         if (
             $user === null ||
             $user->etat_compte !== 'actif' ||
-            ! Hash::check($dto->password, $user->password)
+            ! Hash::check(
+                $dto->password,
+                $user->password
+            )
         ) {
             throw new InvalidCredentialsException();
         }
@@ -83,22 +94,26 @@ final readonly class AuthService
         return $user;
     }
 
-    public function logout(User $user, string $tokenId): void
-    {
+    public function logout(
+        User $user,
+        string $tokenId
+    ): void {
         $user->tokens()
             ->where('id', $tokenId)
             ->delete();
     }
 
-    public function sendResetLink(ForgotPasswordDTO $dto): string
-    {
+    public function sendResetLink(
+        ForgotPasswordDTO $dto
+    ): string {
         return Password::sendResetLink([
             'email' => $dto->email,
         ]);
     }
 
-    public function resetPassword(ResetPasswordDTO $dto): void
-    {
+    public function resetPassword(
+        ResetPasswordDTO $dto
+    ): void {
         $status = Password::reset(
             [
                 'email' => $dto->email,
@@ -109,6 +124,8 @@ final readonly class AuthService
             function (User $user, string $password): void {
                 $user->password = $password;
                 $user->save();
+
+                // A password reset invalidates every previously issued API token.
                 $user->tokens()->delete();
             }
         );
@@ -119,4 +136,5 @@ final readonly class AuthService
             ]);
         }
     }
+
 }
