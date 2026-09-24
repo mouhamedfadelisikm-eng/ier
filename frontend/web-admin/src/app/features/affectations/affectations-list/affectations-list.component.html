@@ -1,0 +1,253 @@
+<div class="affectations-container">
+  <!-- Header Title & Action -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Gestion des Affectations</h1>
+      <p class="page-subtitle">Coordination des équipes sur le terrain et assignation des signalements priorisés</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary btn-sm" (click)="openCreateModal()" [disabled]="isLoading()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        Nouvelle Affectation
+      </button>
+      <button class="btn btn-secondary btn-sm" (click)="loadAffectations(currentPage())" [disabled]="isLoading()">
+        <svg class="refresh-icon" [class.spinning]="isLoading()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Notification Banners -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <span>{{ successMessage() }}</span>
+      <button class="alert-close" (click)="successMessage.set(null)">&times;</button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">
+      <span>{{ errorMessage() }}</span>
+      <button class="alert-close" (click)="errorMessage.set(null)">&times;</button>
+    </div>
+  }
+
+  <!-- Filters Bar -->
+  <div class="filters-card">
+    <div class="filter-group">
+      <label for="searchQuery">Recherche</label>
+      <input
+        type="text"
+        id="searchQuery"
+        class="form-control"
+        placeholder="Rechercher par équipe, signalement, zone..."
+        [(ngModel)]="searchQuery"
+      >
+    </div>
+
+    <div class="filter-group">
+      <label for="filterStatus">Filtrer par Statut Signalement</label>
+      <select id="filterStatus" class="form-control" [(ngModel)]="filterStatus">
+        <option value="">Tous les statuts</option>
+        <option value="priorise">Priorisé</option>
+        <option value="affecte">Affecté</option>
+        <option value="en_intervention">En intervention</option>
+        <option value="termine">Terminé</option>
+        <option value="cloture">Clôturé</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="dashboard-card">
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="state-container">
+        <div class="spinner spinner-dark"></div>
+        <p class="state-text">Chargement des affectations depuis l'API...</p>
+      </div>
+    }
+
+    <!-- Empty State -->
+    @else if (filteredAffectations().length === 0) {
+      <div class="state-container state-empty">
+        <svg class="empty-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M8 12h8"></path>
+        </svg>
+        <p class="empty-title">Aucune affectation trouvée</p>
+        <p class="empty-desc">Aucune affectation ne correspond aux critères de recherche ou la liste est vide.</p>
+      </div>
+    }
+
+    <!-- Table -->
+    @else {
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date & Heure</th>
+              <th>Équipe</th>
+              <th>Signalement</th>
+              <th>Statut Signalement</th>
+              <th>Priorité</th>
+              <th>Observation</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of filteredAffectations(); track item.id) {
+              <tr class="clickable-row" [routerLink]="['/admin/affectations', item.id]">
+                <td><strong>#{{ item.id }}</strong></td>
+                <td>
+                  <span class="date-text">{{ item.date_heure_affectation }}</span>
+                </td>
+                <td>
+                  <span class="team-badge">{{ item.equipe?.nom_equipe || 'Équipe #' + item.id }}</span>
+                </td>
+                <td>
+                  <a [routerLink]="['/admin/signalements', item.signalement?.id]" class="sig-link" (click)="$event.stopPropagation()">
+                    #{{ item.signalement?.id }} - {{ item.signalement?.zone?.nom_zone || 'Zone non spécifiée' }}
+                  </a>
+                </td>
+                <td>
+                  @if (item.signalement) {
+                    <span class="badge" [ngClass]="getStatutBadgeClass(item.signalement.statut)">
+                      {{ formatStatut(item.signalement.statut) }}
+                    </span>
+                  } @else {
+                    <span class="badge badge-secondary">-</span>
+                  }
+                </td>
+                <td>
+                  <span class="priority-text">{{ formatPriorite(item.signalement?.priorite) }}</span>
+                </td>
+                <td>
+                  <span class="obs-text" [title]="item.observation || ''">{{ item.observation || '-' }}</span>
+                </td>
+                <td class="text-right actions-cell" (click)="$event.stopPropagation()">
+                  <div class="action-buttons">
+                    <!-- View detail -->
+                    <a [routerLink]="['/admin/affectations', item.id]" class="btn-icon btn-icon-view" title="Voir le détail">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </a>
+
+                    <!-- Delete -->
+                    <button
+                      class="btn-icon btn-icon-delete"
+                      (click)="promptDelete(item, $event)"
+                      [disabled]="actionInProgress()"
+                      title="Supprimer">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination bar -->
+      @if (meta() && meta()!.last_page > 1) {
+        <div class="pagination-bar">
+          <span class="pagination-info">
+            Affichage de {{ meta()!.from }} à {{ meta()!.to }} sur {{ meta()!.total }} affectations
+          </span>
+          <div class="pagination-buttons">
+            <button
+              class="btn btn-secondary btn-sm"
+              [disabled]="meta()!.current_page === 1 || isLoading()"
+              (click)="onPageChange(meta()!.current_page - 1)">
+              Précédent
+            </button>
+            <span class="page-indicator">Page {{ meta()!.current_page }} / {{ meta()!.last_page }}</span>
+            <button
+              class="btn btn-secondary btn-sm"
+              [disabled]="meta()!.current_page === meta()!.last_page || isLoading()"
+              (click)="onPageChange(meta()!.current_page + 1)">
+              Suivant
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Create Affectation Modal -->
+  @if (showCreateModal()) {
+    <div class="modal-backdrop" (click)="closeCreateModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Nouvelle Affectation d'Équipe</h3>
+          <button class="modal-close" (click)="closeCreateModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="createSignalement">Signalement éligible (Priorisé)</label>
+            <select id="createSignalement" class="form-control" [(ngModel)]="newSignalementId">
+              <option [ngValue]="null">-- Sélectionner un signalement priorisé --</option>
+              @for (sig of eligibleSignalements(); track sig.id) {
+                <option [ngValue]="sig.id">#{{ sig.id }} - {{ sig.zone?.nom_zone || 'Zone non spécifiée' }} ({{ sig.description | slice:0:50 }}...)</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="createEquipe">Équipe d'intervention</label>
+            <select id="createEquipe" class="form-control" [(ngModel)]="newEquipeId">
+              <option [ngValue]="null">-- Sélectionner une équipe --</option>
+              @for (eq of equipesList(); track eq.id) {
+                <option [ngValue]="eq.id">{{ eq.nom_equipe }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="createDate">Date & Heure (Format: Y-m-d H:i:s)</label>
+            <input type="text" id="createDate" class="form-control" [(ngModel)]="newDateHeure" placeholder="2026-09-24 10:00:00">
+          </div>
+
+          <div class="form-group">
+            <label for="createObs">Observation (facultative)</label>
+            <textarea id="createObs" class="form-control" rows="3" [(ngModel)]="newObservation" placeholder="Instructions pour l'équipe..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeCreateModal()">Annuler</button>
+          <button class="btn btn-primary" (click)="confirmCreate()" [disabled]="actionInProgress()">Créer l'affectation</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteModal()) {
+    <div class="modal-backdrop" (click)="closeDeleteModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Confirmer la suppression</h3>
+          <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Êtes-vous sûr de vouloir supprimer l'affectation #{{ selectedAffectationForDelete()?.id }} ?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+          <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="actionInProgress()">Supprimer définitivement</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

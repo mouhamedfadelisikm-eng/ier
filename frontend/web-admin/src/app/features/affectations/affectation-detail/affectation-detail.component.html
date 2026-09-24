@@ -1,0 +1,189 @@
+<div class="affectation-detail-container">
+  <!-- Top Navigation & Actions Bar -->
+  <div class="detail-header-bar">
+    <a routerLink="/admin/affectations" class="back-link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Retour à la liste
+    </a>
+
+    @if (affectation() && !isLoading()) {
+      <div class="header-action-group">
+        <button class="btn btn-primary btn-sm" (click)="openReassignModal()" [disabled]="actionInProgress()">
+          Réaffecter à une autre équipe
+        </button>
+        <button class="btn btn-danger btn-sm" (click)="promptDelete()" [disabled]="actionInProgress()">
+          Supprimer
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Notification Banners -->
+  @if (successMessage()) {
+    <div class="alert alert-success">
+      <span>{{ successMessage() }}</span>
+      <button class="alert-close" (click)="successMessage.set(null)">&times;</button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="alert alert-danger">
+      <span>{{ errorMessage() }}</span>
+      <button class="alert-close" (click)="errorMessage.set(null)">&times;</button>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="state-container">
+      <div class="spinner spinner-dark"></div>
+      <p class="state-text">Chargement des détails de l'affectation...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @else if (errorMessage() && !affectation()) {
+    <div class="state-container state-error">
+      <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p class="error-title">Erreur</p>
+      <p class="error-desc">{{ errorMessage() }}</p>
+      <a routerLink="/admin/affectations" class="btn btn-secondary btn-sm">Retour à la liste</a>
+    </div>
+  }
+
+  <!-- Content Details -->
+  @else if (affectation(); as item) {
+    <div class="detail-grid">
+      <!-- Main Info Card -->
+      <div class="dashboard-card main-info-card">
+        <div class="card-title-bar">
+          <div>
+            <span class="affectation-id">Affectation #{{ item.id }}</span>
+            <h2 class="section-title">Détails de l'Assignation</h2>
+          </div>
+          @if (item.signalement) {
+            <div class="badges-row">
+              <span class="badge" [ngClass]="getStatutBadgeClass(item.signalement.statut)">
+                {{ formatStatut(item.signalement.statut) }}
+              </span>
+              <span class="badge badge-primary">
+                Priorité : {{ formatPriorite(item.signalement.priorite) }}
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="info-block">
+          <h3 class="block-label">Observation / Instructions</h3>
+          <p class="description-text">{{ item.observation || 'Aucune observation particulière.' }}</p>
+        </div>
+
+        <div class="meta-details-grid">
+          <div class="meta-item">
+            <span class="meta-label">Date & Heure d'affectation</span>
+            <span class="meta-value">{{ item.date_heure_affectation }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Équipe affectée</span>
+            <span class="meta-value">{{ item.equipe?.nom_equipe || 'Équipe #' + item.id }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Date de création</span>
+            <span class="meta-value">{{ item.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Dernière mise à jour</span>
+            <span class="meta-value">{{ item.updated_at | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Signalement Card -->
+      <div class="sidebar-cards">
+        <div class="dashboard-card sidebar-card">
+          <h3 class="card-subtitle-heading">Signalement Lié</h3>
+          @if (item.signalement) {
+            <div class="linked-signalement-info">
+              <strong>Signalement #{{ item.signalement.id }}</strong>
+              <p class="sig-desc">{{ item.signalement.description || 'Sans description' }}</p>
+              <div class="sig-meta">
+                <span><strong>Zone :</strong> {{ item.signalement.zone?.nom_zone || 'Non assignée' }}</span>
+                <span><strong>GPS :</strong> {{ item.signalement.latitude }}, {{ item.signalement.longitude }}</span>
+              </div>
+              <a [routerLink]="['/admin/signalements', item.signalement.id]" class="btn btn-secondary btn-sm sig-detail-btn">
+                Voir le signalement complet
+              </a>
+            </div>
+          } @else {
+            <p class="muted-text">Signalement non disponible.</p>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Reassign Modal -->
+  @if (showReassignModal()) {
+    <div class="modal-backdrop" (click)="closeReassignModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Réaffecter le Signalement à une Nouvelle Équipe</h3>
+          <button class="modal-close" (click)="closeReassignModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Équipe actuelle : <strong>{{ affectation()?.equipe?.nom_equipe }}</strong></p>
+
+          <div class="form-group">
+            <label for="reassignEquipe">Nouvelle équipe</label>
+            <select id="reassignEquipe" class="form-control" [(ngModel)]="reassignEquipeId">
+              <option [ngValue]="null">-- Sélectionner une nouvelle équipe --</option>
+              @for (eq of equipesList(); track eq.id) {
+                <option [ngValue]="eq.id">{{ eq.nom_equipe }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="reassignDate">Date & Heure (Format: Y-m-d H:i:s)</label>
+            <input type="text" id="reassignDate" class="form-control" [(ngModel)]="reassignDateHeure" placeholder="2026-09-24 10:00:00">
+          </div>
+
+          <div class="form-group">
+            <label for="reassignObs">Observation / Motif</label>
+            <textarea id="reassignObs" class="form-control" rows="3" [(ngModel)]="reassignObservation" placeholder="Motif de réaffectation..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeReassignModal()">Annuler</button>
+          <button class="btn btn-primary" (click)="confirmReassign()" [disabled]="actionInProgress()">Confirmer la réaffectation</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteModal()) {
+    <div class="modal-backdrop" (click)="closeDeleteModal()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Confirmer la suppression</h3>
+          <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Êtes-vous sûr de vouloir supprimer définitivement l'affectation #{{ affectation()?.id }} ?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
+          <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="actionInProgress()">Supprimer définitivement</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

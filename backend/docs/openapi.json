@@ -1146,7 +1146,28 @@
                 "operationId": "65be21fd7b38a706a1dc7d863b94aaf9",
                 "responses": {
                     "200": {
-                        "description": "Liste"
+                        "description": "Liste",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Affectation"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1167,9 +1188,30 @@
                 ],
                 "summary": "Affecter une \u00e9quipe (ADMIN)",
                 "operationId": "8fe33bbb6975163ce017e6b918b915bc",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAffectationRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
-                        "description": "Affect\u00e9"
+                        "description": "Affect\u00e9",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Affectation"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1204,7 +1246,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "D\u00e9tails"
+                        "description": "D\u00e9tails",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Affectation"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1270,9 +1324,30 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReassignAffectationRequest"
+                            }
+                        }
+                    }
+                },
                 "responses": {
-                    "200": {
-                        "description": "R\u00e9affect\u00e9"
+                    "201": {
+                        "description": "R\u00e9affect\u00e9",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Affectation"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1909,6 +1984,79 @@
                             "haute",
                             "urgente"
                         ]
+                    }
+                }
+            },
+            "Affectation": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "date_heure_affectation": {
+                        "type": "string"
+                    },
+                    "observation": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "equipe": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "signalement": {
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "CreateAffectationRequest": {
+                "type": "object",
+                "required": [
+                    "date_heure_affectation",
+                    "equipe_id",
+                    "signalement_id"
+                ],
+                "properties": {
+                    "date_heure_affectation": {
+                        "type": "string"
+                    },
+                    "equipe_id": {
+                        "type": "integer"
+                    },
+                    "signalement_id": {
+                        "type": "integer"
+                    },
+                    "observation": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "ReassignAffectationRequest": {
+                "type": "object",
+                "required": [
+                    "date_heure_affectation",
+                    "equipe_id"
+                ],
+                "properties": {
+                    "date_heure_affectation": {
+                        "type": "string"
+                    },
+                    "equipe_id": {
+                        "type": "integer"
+                    },
+                    "observation": {
+                        "type": "string",
+                        "nullable": true
                     }
                 }
             }

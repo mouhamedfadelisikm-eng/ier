@@ -712,6 +712,19 @@ paths:
       responses:
         200:
           description: Liste
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Affectation'
+                  links:
+                    type: object
+                  meta:
+                    type: object
       security:
         -
           bearerAuth: []
@@ -723,9 +736,21 @@ paths:
         - Administration
       summary: 'Affecter une équipe (ADMIN)'
       operationId: 8fe33bbb6975163ce017e6b918b915bc
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAffectationRequest'
       responses:
         201:
           description: Affecté
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Affectation'
       security:
         -
           bearerAuth: []
@@ -748,6 +773,13 @@ paths:
       responses:
         200:
           description: Détails
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Affectation'
       security:
         -
           bearerAuth: []
@@ -788,9 +820,21 @@ paths:
           required: true
           schema:
             type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReassignAffectationRequest'
       responses:
-        200:
+        201:
           description: Réaffecté
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Affectation'
       security:
         -
           bearerAuth: []
@@ -1189,6 +1233,60 @@ components:
         priorite:
           type: string
           enum: [faible, normale, haute, urgente]
+
+    Affectation:
+      type: object
+      properties:
+        id:
+          type: integer
+        date_heure_affectation:
+          type: string
+        observation:
+          type: string
+          nullable: true
+        equipe:
+          type: object
+          nullable: true
+        signalement:
+          type: object
+          nullable: true
+        created_at:
+          type: string
+          nullable: true
+        updated_at:
+          type: string
+          nullable: true
+
+    CreateAffectationRequest:
+      type: object
+      required:
+        - date_heure_affectation
+        - equipe_id
+        - signalement_id
+      properties:
+        date_heure_affectation:
+          type: string
+        equipe_id:
+          type: integer
+        signalement_id:
+          type: integer
+        observation:
+          type: string
+          nullable: true
+
+    ReassignAffectationRequest:
+      type: object
+      required:
+        - date_heure_affectation
+        - equipe_id
+      properties:
+        date_heure_affectation:
+          type: string
+        equipe_id:
+          type: integer
+        observation:
+          type: string
+          nullable: true
 tags:
   - name: Authentification
     description: Authentification

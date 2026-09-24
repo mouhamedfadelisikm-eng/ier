@@ -7,6 +7,8 @@ import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.compone
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { SignalementsListComponent } from './features/signalements/signalements-list/signalements-list.component';
 import { SignalementDetailComponent } from './features/signalements/signalement-detail/signalement-detail.component';
+import { AffectationsListComponent } from './features/affectations/affectations-list/affectations-list.component';
+import { AffectationDetailComponent } from './features/affectations/affectation-detail/affectation-detail.component';
 import { ModulePlaceholderComponent } from './shared/components/module-placeholder/module-placeholder.component';
 
 export const routes: Routes = [
@@ -52,12 +54,12 @@ export const routes: Routes = [
       },
       {
         path: 'affectations',
-        component: ModulePlaceholderComponent,
+        component: AffectationsListComponent,
         data: { title: 'Gestion des Affectations' }
       },
       {
         path: 'affectations/:id',
-        component: ModulePlaceholderComponent,
+        component: AffectationDetailComponent,
         data: { title: 'Détail de l\'Affectation' }
       },
       {
