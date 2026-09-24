@@ -47,7 +47,7 @@ final class AuthController extends Controller
     }
 
     public function loginSession(
-        \App\Http\Requests\Auth\LoginRequest $request
+        LoginRequest $request
     ): JsonResponse {
         $user = $this->authService->loginSession(
             $request->toDTO()
