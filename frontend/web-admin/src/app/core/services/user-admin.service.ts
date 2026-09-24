@@ -1,0 +1,15 @@
+import {Injectable,inject} from '@angular/core';
+import {HttpClient,HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {environment} from '../../../environments/environment';
+import {User} from '../models/user.model';
+import {PaginatedResponse} from './affectation.service';
+@Injectable({providedIn:'root'})
+export class UserAdminService{
+ private readonly http=inject(HttpClient);private readonly baseUrl=environment.apiUrl;
+ getAll(page=1,filters:{nom?:string;email?:string;role?:string}={}):Observable<PaginatedResponse<User>>{let p=new HttpParams().set('page',page).set('per_page',15);Object.entries(filters).forEach(([k,v])=>{if(v)p=p.set(k,v)});return this.http.get<PaginatedResponse<User>>(`${this.baseUrl}/users`,{params:p});}
+ getById(id:number):Observable<{data:User}>{return this.http.get<{data:User}>(`${this.baseUrl}/users/${id}`)}
+ create(payload:any):Observable<{data:User}>{return this.http.post<{data:User}>(`${this.baseUrl}/users`,payload)}
+ update(id:number,payload:any):Observable<{data:User}>{return this.http.put<{data:User}>(`${this.baseUrl}/users/${id}`,payload)}
+ delete(id:number):Observable<void>{return this.http.delete<void>(`${this.baseUrl}/users/${id}`)}
+}
