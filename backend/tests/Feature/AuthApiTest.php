@@ -2,20 +2,20 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Enums\RoleEnum;
+use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Spatie\Permission\Models\Role;
+use Tests\TestCase;
 
 class AuthApiTest extends TestCase
 {
-    /**
-     * RG1: Chaque utilisateur est identifié de manière unique dans le système (ID + Email unique).
-     */
+    use RefreshDatabase;
+
     public function test_rg1_user_identification_is_unique(): void
     {
         $email = 'test@example.com';
@@ -26,9 +26,6 @@ class AuthApiTest extends TestCase
         User::factory()->create(['email' => $email]);
     }
 
-    /**
-     * RG2: Un utilisateur possède exactement un seul rôle.
-     */
     public function test_rg2_user_has_exactly_one_role(): void
     {
         $user = User::factory()->create();
@@ -37,16 +34,18 @@ class AuthApiTest extends TestCase
         $this->assertTrue($user->hasRole(RoleEnum::CITIZEN->value));
         $this->assertCount(1, $user->roles);
 
-        // Tentative d'ajouter un deuxième rôle (doit échouer à cause de la contrainte unique en DB)
         try {
             DB::table('model_has_roles')->insert([
                 'role_id' => Role::findByName(RoleEnum::AGENT->value)->id,
                 'model_type' => User::class,
                 'model_id' => $user->id,
             ]);
-            $this->fail("La contrainte d'unicité sur le rôle n'a pas fonctionné.");
+            $this->fail('La contrainte d\'unicité sur le rôle n\'a pas fonctionné.');
         } catch (\Illuminate\Database\QueryException $e) {
-            $this->assertStringContainsString('model_has_roles_single_role_unique', $e->getMessage());
+            $this->assertStringContainsString(
+                'model_has_roles_single_role_unique',
+                $e->getMessage()
+            );
         }
     }
 
@@ -64,7 +63,7 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/auth/register', $data);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('data.user.email', 'john@example.com');
+            ->assertJsonPath('data.user.email', 'john@example.com');
 
         $user = User::where('email', 'john@example.com')->first();
         $this->assertTrue($user->hasRole(RoleEnum::CITIZEN->value));
@@ -87,14 +86,14 @@ class AuthApiTest extends TestCase
         $response = $this->postJson('/api/auth/register', $data);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email']);
     }
 
     public function test_user_login_returns_token(): void
     {
         $password = 'Password123!';
         $user = User::factory()->create([
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
         $user->assignRole(RoleEnum::CITIZEN->value);
 
@@ -104,12 +103,65 @@ class AuthApiTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'data' => [
-                         'token',
-                         'user'
-                     ]
-                 ]);
+            ->assertJsonStructure([
+                'data' => [
+                    'token',
+                    'user',
+                ],
+            ]);
+    }
+
+    public function test_spa_login_uses_session_without_creating_token(): void
+    {
+        $this->withoutMiddleware(ValidateCsrfToken::class);
+
+        $password = 'Password123!';
+        $user = User::factory()->create([
+            'password' => Hash::make($password),
+        ]);
+        $user->assignRole(RoleEnum::CITIZEN->value);
+
+        $response = $this->withHeader('Origin', 'http://localhost:4200')
+            ->postJson('/api/auth/session/login', [
+                'email' => $user->email,
+                'password' => $password,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.user.email', $user->email);
+
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->getJson('/api/user')
+            ->assertStatus(200)
+            ->assertJsonPath('data.email', $user->email);
+    }
+
+    public function test_spa_logout_invalidates_session(): void
+    {
+        $this->withoutMiddleware(ValidateCsrfToken::class);
+
+        $password = 'Password123!';
+        $user = User::factory()->create([
+            'password' => Hash::make($password),
+        ]);
+        $user->assignRole(RoleEnum::CITIZEN->value);
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->postJson('/api/auth/session/login', [
+                'email' => $user->email,
+                'password' => $password,
+            ])
+            ->assertStatus(200);
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->postJson('/api/auth/session/logout')
+            ->assertNoContent();
+
+        $this->withHeader('Origin', 'http://localhost:4200')
+            ->getJson('/api/user')
+            ->assertStatus(401);
     }
 
     public function test_inactive_account_cannot_login(): void
@@ -180,5 +232,4 @@ class AuthApiTest extends TestCase
 
         $this->assertTrue(Hash::check($newPassword, $user->fresh()->password));
     }
-
 }
