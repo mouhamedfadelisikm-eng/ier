@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { InterventionService } from '../../../core/services/intervention.service';
 import { Affectation } from '../../../core/models/affectation.model';
-import { Intervention, InterventionStatut } from '../../../core/models/intervention.model';
+import { Intervention, InterventionStatut, InterventionPage } from '../../../core/models/intervention.model';
 
 @Component({
   selector: 'app-interventions-list',
@@ -61,7 +61,7 @@ export class InterventionsListComponent implements OnInit {
     this.service.getAll(page).subscribe({
       next: response => {
         this.interventions.set(response.data ?? []);
-        this.meta.set(response.meta as never);
+        this.meta.set(response.meta);
         this.isLoading.set(false);
       },
       error: () => {
