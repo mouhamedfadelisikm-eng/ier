@@ -117,3 +117,5 @@ jobs:
 
       - name: Check whitespace errors
         run: git diff --check HEAD^ HEAD
+
+# Web Admin certification workflow
