@@ -17,16 +17,12 @@ use Illuminate\Support\Facades\Password;
 final readonly class AuthService
 {
     private const string TOKEN_NAME = 'auth_token';
+
     public function __construct(
         private UserService $userService,
     ) {
     }
 
-    /**
-     * Register a new user and create a Sanctum token.
-     *
-     * @return array{user: User, token: string}
-     */
     public function register(RegisterDTO $dto): array
     {
         return DB::transaction(function () use ($dto): array {
@@ -55,21 +51,7 @@ final readonly class AuthService
      */
     public function login(LoginDTO $dto): array
     {
-        $user = $this->userService->findByEmail(
-            $dto->email
-        );
-
-        if (
-            $user === null ||
-            $user->etat_compte !== 'actif' ||
-            ! Hash::check(
-                $dto->password,
-                $user->password
-            )
-        ) {
-            throw new InvalidCredentialsException();
-        }
-
+        $user = $this->authenticateCredentials($dto);
         $token = $this->createToken($user);
 
         return [
@@ -78,26 +60,45 @@ final readonly class AuthService
         ];
     }
 
-    public function logout(
-        User $user,
-        string $tokenId
-    ): void {
+    /**
+     * @throws InvalidCredentialsException
+     */
+    public function loginSession(LoginDTO $dto): User
+    {
+        return $this->authenticateCredentials($dto);
+    }
+
+    private function authenticateCredentials(LoginDTO $dto): User
+    {
+        $user = $this->userService->findByEmail($dto->email);
+
+        if (
+            $user === null ||
+            $user->etat_compte !== 'actif' ||
+            ! Hash::check($dto->password, $user->password)
+        ) {
+            throw new InvalidCredentialsException();
+        }
+
+        return $user;
+    }
+
+    public function logout(User $user, string $tokenId): void
+    {
         $user->tokens()
             ->where('id', $tokenId)
             ->delete();
     }
 
-    public function sendResetLink(
-        ForgotPasswordDTO $dto
-    ): string {
+    public function sendResetLink(ForgotPasswordDTO $dto): string
+    {
         return Password::sendResetLink([
             'email' => $dto->email,
         ]);
     }
 
-    public function resetPassword(
-        ResetPasswordDTO $dto
-    ): void {
+    public function resetPassword(ResetPasswordDTO $dto): void
+    {
         $status = Password::reset(
             [
                 'email' => $dto->email,
@@ -108,8 +109,6 @@ final readonly class AuthService
             function (User $user, string $password): void {
                 $user->password = $password;
                 $user->save();
-
-                // A password reset invalidates every previously issued API token.
                 $user->tokens()->delete();
             }
         );
@@ -120,5 +119,4 @@ final readonly class AuthService
             ]);
         }
     }
-
 }
