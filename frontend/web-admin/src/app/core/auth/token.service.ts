@@ -6,31 +6,15 @@ import { Injectable } from '@angular/core';
 export class TokenService {
   private readonly TOKEN_KEY = 'ier_admin_token';
 
-  getToken(): string | null {
-    try {
-      return localStorage.getItem(this.TOKEN_KEY);
-    } catch {
-      return null;
-    }
-  }
-
-  setToken(token: string): void {
-    try {
-      localStorage.setItem(this.TOKEN_KEY, token);
-    } catch (e) {
-      console.error('Erreur lors de la sauvegarde du token', e);
-    }
-  }
-
-  clearToken(): void {
+  /**
+   * One-time cleanup for tokens issued by the legacy localStorage flow.
+   * Session authentication must never read or write this value.
+   */
+  clearLegacyToken(): void {
     try {
       localStorage.removeItem(this.TOKEN_KEY);
-    } catch (e) {
-      console.error('Erreur lors de la suppression du token', e);
+    } catch {
+      // localStorage may be unavailable in restricted browser contexts.
     }
-  }
-
-  hasToken(): boolean {
-    return !!this.getToken();
   }
 }

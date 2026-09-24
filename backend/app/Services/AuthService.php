@@ -55,6 +55,27 @@ final readonly class AuthService
      */
     public function login(LoginDTO $dto): array
     {
+        $user = $this->authenticateCredentials($dto);
+        $token = $this->createToken($user);
+
+        return [
+            'user' => $user,
+            'token' => $token,
+        ];
+    }
+
+    /**
+     * Authenticate first-party SPA credentials without issuing an API token.
+     *
+     * @throws InvalidCredentialsException
+     */
+    public function loginSession(LoginDTO $dto): User
+    {
+        return $this->authenticateCredentials($dto);
+    }
+
+    private function authenticateCredentials(LoginDTO $dto): User
+    {
         $user = $this->userService->findByEmail(
             $dto->email
         );
@@ -70,12 +91,7 @@ final readonly class AuthService
             throw new InvalidCredentialsException();
         }
 
-        $token = $this->createToken($user);
-
-        return [
-            'user' => $user,
-            'token' => $token,
-        ];
+        return $user;
     }
 
     public function logout(
