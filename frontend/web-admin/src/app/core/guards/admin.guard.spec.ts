@@ -11,7 +11,6 @@ import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 
 describe('adminGuard', () => {
-  let tokenService: TokenService;
   let authService: AuthService;
   let router: Router;
   let httpMock: HttpTestingController;
@@ -44,8 +43,6 @@ describe('adminGuard', () => {
   };
 
   beforeEach(() => {
-    localStorage.clear();
-
     TestBed.configureTestingModule({
       providers: [
         AuthService,
@@ -56,7 +53,6 @@ describe('adminGuard', () => {
       ]
     });
 
-    tokenService = TestBed.inject(TokenService);
     authService = TestBed.inject(AuthService);
     router = TestBed.inject(Router);
     httpMock = TestBed.inject(HttpTestingController);
@@ -64,12 +60,9 @@ describe('adminGuard', () => {
 
   afterEach(() => {
     httpMock.verify();
-    localStorage.clear();
   });
 
-  // 1. admin → autorisé
   it('should allow navigation when role is admin', () => {
-    tokenService.setToken('sample-token');
     authService.currentUser.set(mockAdminUser);
 
     const result = TestBed.runInInjectionContext(() =>
@@ -79,9 +72,7 @@ describe('adminGuard', () => {
     expect(result).toBe(true);
   });
 
-  // 2. agent → refusé
-  it('should refuse access when role is agent and redirect to /login with forbidden_role', () => {
-    tokenService.setToken('sample-token');
+  it('should refuse access when role is agent and redirect with forbidden_role', () => {
     authService.currentUser.set(mockAgentUser);
 
     const result = TestBed.runInInjectionContext(() =>
@@ -94,9 +85,7 @@ describe('adminGuard', () => {
     expect(tree.queryParams['error']).toBe('forbidden_role');
   });
 
-  // 3. citizen → refusé
-  it('should refuse access when role is citizen and redirect to /login with forbidden_role', () => {
-    tokenService.setToken('sample-token');
+  it('should refuse access when role is citizen and redirect with forbidden_role', () => {
     authService.currentUser.set(mockCitizenUser);
 
     const result = TestBed.runInInjectionContext(() =>
@@ -109,9 +98,7 @@ describe('adminGuard', () => {
     expect(tree.queryParams['error']).toBe('forbidden_role');
   });
 
-  it('should load user from API if not yet loaded and allow if admin', () => {
-    tokenService.setToken('sample-token');
-
+  it('should load the current session and allow navigation when the user is an admin', () => {
     const result = TestBed.runInInjectionContext(() =>
       adminGuard({} as any, { url: '/admin/dashboard' } as any)
     );
@@ -123,11 +110,35 @@ describe('adminGuard', () => {
       });
     }
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    req.flush({ data: mockAdminUser });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    request.flush({ data: mockAdminUser });
   });
 
-  it('should redirect to /login if token is absent', () => {
+  it('should redirect to /login when the session is unauthenticated', () => {
+    const result = TestBed.runInInjectionContext(() =>
+      adminGuard({} as any, { url: '/admin/dashboard' } as any)
+    );
+
+    expect(isObservable(result)).toBe(true);
+    if (isObservable(result)) {
+      result.subscribe((res) => {
+        expect(res instanceof UrlTree).toBe(true);
+        const tree = res as UrlTree;
+        expect(router.serializeUrl(tree)).toContain('/login');
+        expect(tree.queryParams['returnUrl']).toBe('/admin/dashboard');
+      });
+    }
+
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    request.flush(
+      { message: 'Unauthenticated.' },
+      { status: 401, statusText: 'Unauthorized' }
+    );
+  });
+
+  it('should redirect to /login when authentication was initialized without a user', () => {
+    authService.isInitialized.set(true);
+
     const result = TestBed.runInInjectionContext(() =>
       adminGuard({} as any, { url: '/admin/dashboard' } as any)
     );
@@ -135,5 +146,6 @@ describe('adminGuard', () => {
     expect(result instanceof UrlTree).toBe(true);
     const tree = result as UrlTree;
     expect(router.serializeUrl(tree)).toContain('/login');
+    expect(tree.queryParams['returnUrl']).toBe('/admin/dashboard');
   });
 });

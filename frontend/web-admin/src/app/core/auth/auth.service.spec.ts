@@ -10,7 +10,6 @@ import { User } from '../models/user.model';
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
-  let tokenService: TokenService;
 
   const mockAdminUser: User = {
     id: 1,
@@ -37,7 +36,6 @@ describe('AuthService', () => {
 
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
-    tokenService = TestBed.inject(TokenService);
   });
 
   afterEach(() => {
@@ -49,32 +47,32 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
-  // 1. login admin réussi
-  it('should handle login admin réussi', () => {
+  it('should handle session login successfully', () => {
     service.login({ email: 'admin@isi-ecoreport.sn', password: 'Password123!' }).subscribe({
       next: (user) => {
         expect(user).toEqual(mockAdminUser);
         expect(service.currentUser()).toEqual(mockAdminUser);
         expect(service.isAuthenticated()).toBe(true);
         expect(service.isAdmin()).toBe(true);
-        expect(tokenService.getToken()).toBe('valid-token-123');
+        expect(localStorage.getItem('ier_admin_token')).toBeNull();
         expect(service.isLoading()).toBe(false);
       }
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ email: 'admin@isi-ecoreport.sn', password: 'Password123!' });
-    req.flush({
-      data: {
-        token: 'valid-token-123',
-        user: mockAdminUser
-      }
+    const csrfRequest = httpMock.expectOne('/sanctum/csrf-cookie');
+    expect(csrfRequest.request.method).toBe('GET');
+    csrfRequest.flush(null);
+
+    const loginRequest = httpMock.expectOne(`${environment.apiUrl}/auth/session/login`);
+    expect(loginRequest.request.method).toBe('POST');
+    expect(loginRequest.request.body).toEqual({
+      email: 'admin@isi-ecoreport.sn',
+      password: 'Password123!'
     });
+    loginRequest.flush({ data: { user: mockAdminUser } });
   });
 
-  // 2. login échoué 401
-  it('should handle login échoué 401', () => {
+  it('should handle session login failure with 401', () => {
     let errorResponse: any;
 
     service.login({ email: 'admin@isi-ecoreport.sn', password: 'WrongPassword' }).subscribe({
@@ -86,20 +84,23 @@ describe('AuthService', () => {
       }
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/auth/login`);
-    req.flush({ message: 'Identifiants incorrects' }, { status: 401, statusText: 'Unauthorized' });
+    const csrfRequest = httpMock.expectOne('/sanctum/csrf-cookie');
+    csrfRequest.flush(null);
+
+    const loginRequest = httpMock.expectOne(`${environment.apiUrl}/auth/session/login`);
+    loginRequest.flush(
+      { message: 'Identifiants incorrects' },
+      { status: 401, statusText: 'Unauthorized' }
+    );
 
     expect(errorResponse.status).toBe(401);
     expect(service.currentUser()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
-    expect(tokenService.hasToken()).toBe(false);
+    expect(localStorage.getItem('ier_admin_token')).toBeNull();
     expect(service.isLoading()).toBe(false);
   });
 
-  // 3. loadCurrentUser réussi
-  it('should handle loadCurrentUser réussi', () => {
-    tokenService.setToken('valid-token-123');
-
+  it('should load the current user from the authenticated session', () => {
     service.loadCurrentUser().subscribe({
       next: (user) => {
         expect(user).toEqual(mockAdminUser);
@@ -108,14 +109,12 @@ describe('AuthService', () => {
       }
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    expect(req.request.method).toBe('GET');
-    req.flush({ data: mockAdminUser });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    expect(request.request.method).toBe('GET');
+    request.flush({ data: mockAdminUser });
   });
 
-  // 4. loadCurrentUser 401
-  it('should handle loadCurrentUser 401 and clear session', () => {
-    tokenService.setToken('expired-token');
+  it('should clear the session when loadCurrentUser returns 401', () => {
     let errorCaught: any;
 
     service.loadCurrentUser().subscribe({
@@ -127,59 +126,55 @@ describe('AuthService', () => {
       }
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    req.flush({ message: 'Unauthenticated.' }, { status: 401, statusText: 'Unauthorized' });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    request.flush(
+      { message: 'Unauthenticated.' },
+      { status: 401, statusText: 'Unauthorized' }
+    );
 
     expect(errorCaught.status).toBe(401);
-    expect(tokenService.hasToken()).toBe(false);
     expect(service.currentUser()).toBeNull();
+    expect(service.isAuthenticated()).toBe(false);
   });
 
-  // 5. logout réussi
-  it('should handle logout réussi', () => {
-    tokenService.setToken('active-token');
+  it('should handle session logout successfully', () => {
     service.currentUser.set(mockAdminUser);
 
     service.logout().subscribe({
       next: () => {
-        expect(tokenService.hasToken()).toBe(false);
         expect(service.currentUser()).toBeNull();
         expect(service.isAuthenticated()).toBe(false);
         expect(service.isLoading()).toBe(false);
       }
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);
-    expect(req.request.method).toBe('POST');
-    req.flush(null, { status: 204, statusText: 'No Content' });
+    const request = httpMock.expectOne(`${environment.apiUrl}/auth/session/logout`);
+    expect(request.request.method).toBe('POST');
+    request.flush(null, { status: 204, statusText: 'No Content' });
   });
 
-  // 6. logout avec erreur réseau
-  it('should handle logout avec erreur réseau and still clear session', () => {
-    tokenService.setToken('active-token');
+  it('should clear the local session state even when logout fails', () => {
     service.currentUser.set(mockAdminUser);
 
     service.logout().subscribe({
       next: () => {
-        expect(tokenService.hasToken()).toBe(false);
         expect(service.currentUser()).toBeNull();
         expect(service.isAuthenticated()).toBe(false);
         expect(service.isLoading()).toBe(false);
       }
     });
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/auth/logout`);
-    req.error(new ProgressEvent('Network error'));
+    const request = httpMock.expectOne(`${environment.apiUrl}/auth/session/logout`);
+    request.error(new ProgressEvent('Network error'));
   });
 
-  // 7. clearSession
-  it('should clearSession properly', () => {
-    tokenService.setToken('active-token');
+  it('should clear the session state and remove the legacy token', () => {
+    localStorage.setItem('ier_admin_token', 'legacy-token');
     service.currentUser.set(mockAdminUser);
 
     service.clearSession();
 
-    expect(tokenService.hasToken()).toBe(false);
+    expect(localStorage.getItem('ier_admin_token')).toBeNull();
     expect(service.currentUser()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
   });
