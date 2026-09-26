@@ -1,0 +1,62 @@
+<div class="carte-page">
+  <app-map-shell [points]="mapPoints()" (pointSelected)="selectPoint($event)">
+    <div map-top-left class="map-status-card">
+      <div class="map-status-card__eyebrow">SUPERVISION EN DIRECT</div>
+      <strong>{{ signalements().length }} signalements visibles</strong>
+      @if (newCount() > 0) {
+        <span class="map-live-pill">{{ newCount() }} nouveau{{ newCount() > 1 ? 'x' : '' }}</span>
+      }
+      <p>Actualisation automatique toutes les 15 secondes.</p>
+    </div>
+
+    <div map-top-right class="map-action-stack">
+      <button type="button" class="floating-action" (click)="refresh()" [disabled]="isLoading()">
+        {{ isLoading() ? 'Synchronisation…' : 'Actualiser' }}
+      </button>
+      <a routerLink="/admin/signalements" class="floating-action floating-action--secondary">
+        Ouvrir la liste
+      </a>
+    </div>
+
+    @if (selectedSignalement(); as item) {
+      <aside map-right-panel class="map-detail-card">
+        <div class="map-detail-card__header">
+          <div>
+            <span class="map-detail-card__eyebrow">Signalement #{{ item.id }}</span>
+            <h2>{{ item.description || 'Signalement sans description' }}</h2>
+          </div>
+          <button type="button" class="map-detail-close" (click)="selectedSignalement.set(null)" aria-label="Fermer">×</button>
+        </div>
+
+        <div class="map-detail-grid">
+          <div>
+            <span>Statut</span>
+            <strong>{{ formatStatus(item.statut) }}</strong>
+          </div>
+          <div>
+            <span>Priorité</span>
+            <strong>{{ formatPriority(item.priorite) }}</strong>
+          </div>
+          <div>
+            <span>Zone</span>
+            <strong>{{ item.zone?.nom_zone || 'Non assignée' }}</strong>
+          </div>
+          <div>
+            <span>Coordonnées</span>
+            <strong>{{ item.latitude | number:'1.4-4' }}, {{ item.longitude | number:'1.4-4' }}</strong>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary map-detail-button" (click)="openDetail()">
+          Voir le signalement
+        </button>
+      </aside>
+    }
+  </app-map-shell>
+
+  @if (errorMessage()) {
+    <div class="carte-error">
+      {{ errorMessage() }}
+    </div>
+  }
+</div>
