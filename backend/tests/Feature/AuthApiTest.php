@@ -144,26 +144,16 @@ class AuthApiTest extends TestCase
     {
         $this->withoutMiddleware(ValidateCsrfToken::class);
 
-        $password = 'Password123!';
-        $user = User::factory()->create([
-            'password' => Hash::make($password)
-        ]);
+        $user = User::factory()->create();
         $user->assignRole(RoleEnum::CITIZEN->value);
 
-        $this->withHeader('Origin', 'http://localhost:4200')
-            ->postJson('/api/auth/session/login', [
-                'email' => $user->email,
-                'password' => $password,
-            ])
-            ->assertStatus(200);
-
-        $this->withHeader('Origin', 'http://localhost:4200')
+        $this->actingAs($user, 'web')
+            ->withHeader('Origin', 'http://localhost:4200')
             ->postJson('/api/auth/session/logout')
             ->assertNoContent();
 
-        $this->withHeader('Origin', 'http://localhost:4200')
-            ->getJson('/api/user')
-            ->assertStatus(401);
+        $this->assertGuest('web');
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 
     public function test_inactive_account_cannot_login(): void
