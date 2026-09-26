@@ -29,8 +29,8 @@ export class MapShellComponent implements AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('mapHost', { static: true })
   private readonly mapHost?: ElementRef<HTMLDivElement>;
 
-  private map?: L.Map;
-  private markerLayer?: L.LayerGroup;
+  private map?: any;
+  private markerLayer?: any;
   private hasFittedInitialPoints = false;
 
   ngAfterViewInit(): void {
@@ -128,7 +128,7 @@ export class MapShellComponent implements AfterViewInit, OnChanges, OnDestroy {
     });
   }
 
-  private createPointIcon(point: MapPoint): L.DivIcon {
+  private createPointIcon(point: MapPoint): any {
     const emphasisClass = point.isNew
       ? 'ier-map-marker--new'
       : 'ier-map-marker--' + point.kind;
