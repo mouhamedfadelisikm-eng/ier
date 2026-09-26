@@ -1,0 +1,25 @@
+<section class="map-shell" aria-label="Carte interactive">
+  <div #mapHost class="map-canvas"></div>
+
+  <div class="map-overlay map-overlay--top-left">
+    <ng-content select="[map-top-left]"></ng-content>
+  </div>
+
+  <div class="map-overlay map-overlay--top-right">
+    <ng-content select="[map-top-right]"></ng-content>
+  </div>
+
+  <div class="map-overlay map-overlay--bottom-left">
+    <ng-content select="[map-bottom-left]"></ng-content>
+  </div>
+
+  <div class="map-overlay map-overlay--right-center">
+    <ng-content select="[map-right-panel]"></ng-content>
+  </div>
+
+  <div class="map-toolbar" aria-label="Contrôles de la carte">
+    <button type="button" class="map-tool-button" (click)="zoomIn()" aria-label="Zoom avant" title="Zoom avant">+</button>
+    <button type="button" class="map-tool-button" (click)="zoomOut()" aria-label="Zoom arrière" title="Zoom arrière">−</button>
+    <button type="button" class="map-tool-button" (click)="resetView()" aria-label="Recentrer la carte" title="Recentrer la carte">⌖</button>
+  </div>
+</section>
