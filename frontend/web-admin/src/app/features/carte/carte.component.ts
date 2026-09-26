@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription, timer } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { EMPTY, Subscription, timer } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SignalementService } from '../../core/services/signalement.service';
 import { Signalement } from '../../core/models/signalement.model';
@@ -49,17 +49,26 @@ export class CarteComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.pollingSubscription = timer(0, 15000)
-      .pipe(switchMap(() => this.signalementService.getAll(1)))
+      .pipe(
+        switchMap(() =>
+          this.signalementService.getAll(1).pipe(
+            catchError((err: HttpErrorResponse) => {
+              this.errorMessage.set(
+                err.status === 403
+                  ? 'Accès refusé pour la supervision des signalements.'
+                  : 'Impossible de récupérer les signalements.'
+              );
+              this.isLoading.set(false);
+              return EMPTY;
+            })
+          )
+        )
+      )
       .subscribe({
-        next: response => this.handleSignalements(response.data || []),
-        error: (err: HttpErrorResponse) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(
-            err.status === 403
-              ? 'Accès refusé pour la supervision des signalements.'
-              : 'Impossible de récupérer les signalements.'
-          );
-        }
+        next: response => {
+        this.errorMessage.set(null);
+        this.handleSignalements(response.data || []);
+      }
       });
   }
 
