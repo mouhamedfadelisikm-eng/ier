@@ -11,7 +11,6 @@ import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 
 describe('authGuard', () => {
-  let tokenService: TokenService;
   let authService: AuthService;
   let router: Router;
   let httpMock: HttpTestingController;
@@ -26,8 +25,6 @@ describe('authGuard', () => {
   };
 
   beforeEach(() => {
-    localStorage.clear();
-
     TestBed.configureTestingModule({
       providers: [
         AuthService,
@@ -38,7 +35,6 @@ describe('authGuard', () => {
       ]
     });
 
-    tokenService = TestBed.inject(TokenService);
     authService = TestBed.inject(AuthService);
     router = TestBed.inject(Router);
     httpMock = TestBed.inject(HttpTestingController);
@@ -46,24 +42,9 @@ describe('authGuard', () => {
 
   afterEach(() => {
     httpMock.verify();
-    localStorage.clear();
   });
 
-  // 1. sans token → /login
-  it('should redirect to /login when sans token', () => {
-    const result = TestBed.runInInjectionContext(() =>
-      authGuard({} as any, { url: '/admin/dashboard' } as any)
-    );
-
-    expect(result instanceof UrlTree).toBe(true);
-    const tree = result as UrlTree;
-    expect(router.serializeUrl(tree)).toContain('/login');
-    expect(tree.queryParams['returnUrl']).toBe('/admin/dashboard');
-  });
-
-  // 2. avec session admin → autorisé
-  it('should allow navigation when avec session admin', () => {
-    tokenService.setToken('sample-token');
+  it('should allow navigation when an authenticated user is already loaded', () => {
     authService.currentUser.set(mockAdminUser);
 
     const result = TestBed.runInInjectionContext(() =>
@@ -73,10 +54,7 @@ describe('authGuard', () => {
     expect(result).toBe(true);
   });
 
-  // 3. token valide mais utilisateur à charger → GET /api/user puis autorisé
-  it('should fetch user via GET /api/user and allow navigation when token is present but user not loaded', () => {
-    tokenService.setToken('valid-token');
-
+  it('should load the authenticated user and allow navigation when the session is valid', () => {
     const result = TestBed.runInInjectionContext(() =>
       authGuard({} as any, { url: '/admin/dashboard' } as any)
     );
@@ -88,15 +66,12 @@ describe('authGuard', () => {
       });
     }
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    expect(req.request.method).toBe('GET');
-    req.flush({ data: mockAdminUser });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    expect(request.request.method).toBe('GET');
+    request.flush({ data: mockAdminUser });
   });
 
-  // 4. GET /api/user retourne 401 → /login
-  it('should clear session and redirect to /login when GET /api/user retourne 401', () => {
-    tokenService.setToken('invalid-token');
-
+  it('should redirect to /login when the session is unauthenticated', () => {
     const result = TestBed.runInInjectionContext(() =>
       authGuard({} as any, { url: '/admin/dashboard' } as any)
     );
@@ -107,11 +82,14 @@ describe('authGuard', () => {
         expect(res instanceof UrlTree).toBe(true);
         const tree = res as UrlTree;
         expect(router.serializeUrl(tree)).toContain('/login');
-        expect(tokenService.hasToken()).toBe(false);
+        expect(tree.queryParams['returnUrl']).toBe('/admin/dashboard');
       });
     }
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    req.flush({ message: 'Unauthenticated.' }, { status: 401, statusText: 'Unauthorized' });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    request.flush(
+      { message: 'Unauthenticated.' },
+      { status: 401, statusText: 'Unauthorized' }
+    );
   });
 });

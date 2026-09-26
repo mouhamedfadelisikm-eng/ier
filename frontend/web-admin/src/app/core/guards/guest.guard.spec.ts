@@ -11,7 +11,6 @@ import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
 
 describe('guestGuard', () => {
-  let tokenService: TokenService;
   let authService: AuthService;
   let router: Router;
   let httpMock: HttpTestingController;
@@ -35,8 +34,6 @@ describe('guestGuard', () => {
   };
 
   beforeEach(() => {
-    localStorage.clear();
-
     TestBed.configureTestingModule({
       providers: [
         AuthService,
@@ -50,7 +47,6 @@ describe('guestGuard', () => {
       ]
     });
 
-    tokenService = TestBed.inject(TokenService);
     authService = TestBed.inject(AuthService);
     router = TestBed.inject(Router);
     httpMock = TestBed.inject(HttpTestingController);
@@ -58,21 +54,9 @@ describe('guestGuard', () => {
 
   afterEach(() => {
     httpMock.verify();
-    localStorage.clear();
   });
 
-  // 1. token absent
-  it('should allow /login when token is absent', () => {
-    const result = TestBed.runInInjectionContext(() =>
-      guestGuard({} as any, { url: '/login' } as any)
-    );
-
-    expect(result).toBe(true);
-  });
-
-  // 2. token + admin déjà chargé
-  it('should redirect to /admin/dashboard when token is present and admin is already loaded', () => {
-    tokenService.setToken('sample-token');
+  it('should redirect an authenticated admin to the dashboard', () => {
     authService.currentUser.set(mockAdminUser);
 
     const result = TestBed.runInInjectionContext(() =>
@@ -84,10 +68,20 @@ describe('guestGuard', () => {
     expect(router.serializeUrl(tree)).toContain('/admin/dashboard');
   });
 
-  // 3. token + utilisateur non chargé (chargement API retourne admin)
-  it('should call GET /api/user and redirect to /admin/dashboard when user is not loaded but turns out to be admin', () => {
-    tokenService.setToken('valid-token');
+  it('should redirect an authenticated non-admin with forbidden_role', () => {
+    authService.currentUser.set(mockAgentUser);
 
+    const result = TestBed.runInInjectionContext(() =>
+      guestGuard({} as any, { url: '/login' } as any)
+    );
+
+    expect(result instanceof UrlTree).toBe(true);
+    const tree = result as UrlTree;
+    expect(router.serializeUrl(tree)).toContain('/login');
+    expect(tree.queryParams['error']).toBe('forbidden_role');
+  });
+
+  it('should load the authenticated admin session and redirect to the dashboard', () => {
     const result = TestBed.runInInjectionContext(() =>
       guestGuard({} as any, { url: '/login' } as any)
     );
@@ -101,15 +95,12 @@ describe('guestGuard', () => {
       });
     }
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    expect(req.request.method).toBe('GET');
-    req.flush({ data: mockAdminUser });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    expect(request.request.method).toBe('GET');
+    request.flush({ data: mockAdminUser });
   });
 
-  // 4. token + utilisateur agent
-  it('should redirect to /login with error=forbidden_role when user loaded from API is agent', () => {
-    tokenService.setToken('agent-token');
-
+  it('should load the authenticated non-admin session and redirect with forbidden_role', () => {
     const result = TestBed.runInInjectionContext(() =>
       guestGuard({} as any, { url: '/login' } as any)
     );
@@ -124,14 +115,11 @@ describe('guestGuard', () => {
       });
     }
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    req.flush({ data: mockAgentUser });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    request.flush({ data: mockAgentUser });
   });
 
-  // 5. token + API /user → 401
-  it('should clear session and allow /login when API /user returns 401', () => {
-    tokenService.setToken('expired-token');
-
+  it('should allow /login when the session is unauthenticated', () => {
     const result = TestBed.runInInjectionContext(() =>
       guestGuard({} as any, { url: '/login' } as any)
     );
@@ -140,11 +128,25 @@ describe('guestGuard', () => {
     if (isObservable(result)) {
       result.subscribe((allowed) => {
         expect(allowed).toBe(true);
-        expect(tokenService.hasToken()).toBe(false);
       });
     }
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/user`);
-    req.flush({ message: 'Unauthenticated.' }, { status: 401, statusText: 'Unauthorized' });
+    const request = httpMock.expectOne(`${environment.apiUrl}/user`);
+    request.flush(
+      { message: 'Unauthenticated.' },
+      { status: 401, statusText: 'Unauthorized' }
+    );
+
+    expect(authService.currentUser()).toBeNull();
+  });
+
+  it('should not reload the session once authentication state is initialized without a user', () => {
+    authService.isInitialized.set(true);
+
+    const result = TestBed.runInInjectionContext(() =>
+      guestGuard({} as any, { url: '/login' } as any)
+    );
+
+    expect(result).toBe(true);
   });
 });

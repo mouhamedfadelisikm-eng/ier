@@ -18,31 +18,17 @@ describe('TokenService', () => {
     expect(service).toBeTruthy();
   });
 
-  // 1. set token
-  it('should set token in storage', () => {
-    service.setToken('my-sanctum-token');
-    expect(localStorage.getItem('ier_admin_token')).toBe('my-sanctum-token');
+  it('should remove the legacy token from storage', () => {
+    localStorage.setItem('ier_admin_token', 'legacy-token');
+
+    service.clearLegacyToken();
+
+    expect(localStorage.getItem('ier_admin_token')).toBeNull();
   });
 
-  // 2. get token
-  it('should get token from storage', () => {
-    localStorage.setItem('ier_admin_token', 'retrieved-token');
-    expect(service.getToken()).toBe('retrieved-token');
-  });
+  it('should be a no-op when no legacy token exists', () => {
+    service.clearLegacyToken();
 
-  // 3. has token
-  it('should correctly check if token exists (has token)', () => {
-    expect(service.hasToken()).toBe(false);
-    service.setToken('valid-token');
-    expect(service.hasToken()).toBe(true);
-  });
-
-  // 4. clear token
-  it('should clear token from storage', () => {
-    service.setToken('token-to-remove');
-    expect(service.hasToken()).toBe(true);
-    service.clearToken();
-    expect(service.getToken()).toBeNull();
-    expect(service.hasToken()).toBe(false);
+    expect(localStorage.getItem('ier_admin_token')).toBeNull();
   });
 });
