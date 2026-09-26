@@ -69,15 +69,17 @@
     </div>
   </section>
 
-  <!-- Heatmap Real Data Section -->
-  <section class="dashboard-card">
-    <div class="card-header-bar">
+  <!-- Operational map -->
+  <section class="dashboard-map-section">
+    <div class="dashboard-map-header">
       <div>
-        <h2 class="card-title">Points chauds de signalements (Heatmap)</h2>
+        <span class="section-kicker">SUPERVISION GÉOGRAPHIQUE</span>
+        <h2 class="card-title">Points chauds des signalements</h2>
         <p class="card-subtitle">
-          Données en direct fournies par l'endpoint <code>GET /api/dashboard/heatmap</code>
+          La carte devient le support principal de lecture des données géographiques.
         </p>
       </div>
+
       <button class="btn btn-secondary btn-sm" (click)="loadHeatmap()" [disabled]="isLoadingHeatmap()">
         <svg class="refresh-icon" [class.spinning]="isLoadingHeatmap()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="23 4 23 10 17 10"></polyline>
@@ -88,90 +90,36 @@
       </button>
     </div>
 
-    <!-- Loading State -->
-    @if (isLoadingHeatmap()) {
-      <div class="state-container">
-        <div class="spinner spinner-dark"></div>
-        <p class="state-text">Chargement des points géographiques depuis l'API...</p>
+    <app-map-shell [points]="mapPoints()" [fitToPoints]="true">
+      <div map-top-left class="dashboard-map-card">
+        <span>DONNÉES API</span>
+        <strong>{{ totalPoints() }} points géographiques</strong>
+        <p>{{ distinctZonesCount() }} zones concernées · poids cumulé {{ totalWeight() }}</p>
       </div>
-    }
 
-    <!-- Error State -->
-    @else if (heatmapError()) {
-      <div class="state-container state-error">
-        <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <p class="error-title">Erreur de récupération</p>
-        <p class="error-desc">{{ heatmapError() }}</p>
-        <button class="btn btn-secondary btn-sm" (click)="loadHeatmap()">Réessayer</button>
-      </div>
-    }
+      <a map-top-right class="dashboard-map-link" routerLink="/admin/carte">
+        Ouvrir la carte opérationnelle
+      </a>
 
-    <!-- Empty State -->
-    @else if (heatmapPoints().length === 0) {
-      <div class="state-container state-empty">
-        <svg class="empty-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M8 12h8"></path>
-        </svg>
-        <p class="empty-title">Aucun point chaud actuellement</p>
-        <p class="empty-desc">Aucun signalement actif nécessitant une agrégation cartographique pour le moment.</p>
-      </div>
-    }
+      @if (isLoadingHeatmap()) {
+        <div map-bottom-left class="dashboard-map-status">
+          <span class="spinner spinner-dark"></span>
+          <span>Synchronisation des données cartographiques…</span>
+        </div>
+      }
 
-    <!-- Heatmap Table -->
-    @else {
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Zone d'intervention</th>
-              <th>Coordonnées géographiques</th>
-              <th>Poids (Gravité / Répétition)</th>
-              <th>Statut d'intensité</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (point of heatmapPoints(); track $index) {
-              <tr>
-                <td>
-                  <div class="zone-cell">
-                    <span class="zone-name">{{ point.zone_nom || 'Zone non assignée' }}</span>
-                    @if (point.zone_id) {
-                      <span class="zone-id">ID: #{{ point.zone_id }}</span>
-                    }
-                  </div>
-                </td>
-                <td>
-                  <span class="coord-badge">
-                    {{ point.latitude.toFixed(5) }}, {{ point.longitude.toFixed(5) }}
-                  </span>
-                </td>
-                <td>
-                  <span class="weight-value">{{ point.weight }}</span>
-                </td>
-                <td>
-                  @switch (getWeightSeverity(point.weight)) {
-                    @case ('high') {
-                      <span class="badge badge-danger">Forte affluence</span>
-                    }
-                    @case ('medium') {
-                      <span class="badge badge-warning">Modérée</span>
-                    }
-                    @case ('low') {
-                      <span class="badge badge-primary">Faible</span>
-                    }
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
+      @else if (heatmapError()) {
+        <div map-bottom-left class="dashboard-map-status dashboard-map-status--error">
+          <span>{{ heatmapError() }}</span>
+        </div>
+      }
+
+      @else if (heatmapPoints().length === 0) {
+        <div map-bottom-left class="dashboard-map-status">
+          Aucun point chaud disponible actuellement.
+        </div>
+      }
+    </app-map-shell>
   </section>
 
   <!-- Quick Access Navigation Cards for Planned Modules -->
