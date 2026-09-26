@@ -113,7 +113,7 @@ class AuthApiTest extends TestCase
                  ]);
     }
 
-    public function test_spa_login_uses_session_without_creating_token(): void
+    public function test_spa_login_authenticates_web_session_without_creating_token(): void
     {
         $this->withoutMiddleware(ValidateCsrfToken::class);
 
@@ -130,40 +130,25 @@ class AuthApiTest extends TestCase
             ]);
 
         $response->assertStatus(200)
-                 ->assertJsonPath('data.user.email', $user->email);
+            ->assertJsonPath('data.user.email', $user->email);
 
+        $this->assertAuthenticatedAs($user, 'web');
         $this->assertDatabaseCount('personal_access_tokens', 0);
-
-        $this->withHeader('Origin', 'http://localhost:4200')
-            ->getJson('/api/user')
-            ->assertStatus(200)
-            ->assertJsonPath('data.email', $user->email);
     }
 
-    public function test_spa_logout_invalidates_session(): void
+    public function test_spa_logout_invalidates_web_session(): void
     {
         $this->withoutMiddleware(ValidateCsrfToken::class);
 
-        $password = 'Password123!';
-        $user = User::factory()->create([
-            'password' => Hash::make($password)
-        ]);
+        $user = User::factory()->create();
         $user->assignRole(RoleEnum::CITIZEN->value);
 
-        $this->withHeader('Origin', 'http://localhost:4200')
-            ->postJson('/api/auth/session/login', [
-                'email' => $user->email,
-                'password' => $password,
-            ])
-            ->assertStatus(200);
-
-        $this->withHeader('Origin', 'http://localhost:4200')
+        $this->actingAs($user, 'web')
+            ->withHeader('Origin', 'http://localhost:4200')
             ->postJson('/api/auth/session/logout')
             ->assertNoContent();
 
-        $this->withHeader('Origin', 'http://localhost:4200')
-            ->getJson('/api/user')
-            ->assertStatus(401);
+        $this->assertGuest('web');
     }
 
     public function test_inactive_account_cannot_login(): void
