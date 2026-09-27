@@ -1,56 +1,280 @@
-<div class="page-shell">
-  <div class="page-header">
-    <div><h1 class="page-title">Intervention #{{ intervention()?.id }}</h1><p class="page-subtitle">Détail, compte rendu, statut et preuves photo.</p></div>
-    <div class="header-actions"><a routerLink="/admin/interventions" class="btn btn-secondary">Retour</a></div>
+<div class="min-h-full bg-ier-bg p-4 text-ier-text sm:p-6 xl:p-8">
+  <div class="mx-auto flex max-w-[1600px] flex-col gap-6">
+    <header class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <div class="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-ier-muted">
+          <span class="h-1.5 w-1.5 rounded-full bg-ier-violet"></span>
+          Intervention terrain
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="font-heading text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            Intervention #{{ intervention()?.id || '—' }}
+          </h1>
+          @if (intervention()) {
+            <span class="rounded-full border px-2.5 py-1 text-xs font-medium" [ngClass]="statusClass(intervention()!.statut)">
+              {{ statusLabel(intervention()!.statut) }}
+            </span>
+          }
+        </div>
+        <p class="mt-2 max-w-2xl text-sm leading-6 text-ier-muted">
+          Suivi de l’opération, compte rendu, preuves photo et localisation du terrain.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <a routerLink="/admin/interventions" class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2.5 text-sm font-medium text-ier-text transition hover:bg-ier-elevated">
+          Retour aux interventions
+        </a>
+      </div>
+    </header>
+
+    @if (successMessage()) {
+      <div class="rounded-2xl border border-ier-green/20 bg-ier-green/10 px-4 py-3 text-sm text-ier-green">{{ successMessage() }}</div>
+    }
+
+    @if (errorMessage()) {
+      <div class="rounded-2xl border border-ier-red/20 bg-ier-red/10 px-4 py-3 text-sm text-red-200">{{ errorMessage() }}</div>
+    }
+
+    @if (isLoading()) {
+      <section class="flex min-h-[520px] items-center justify-center rounded-3xl border border-ier-border bg-ier-surface">
+        <div class="flex flex-col items-center gap-3 text-center">
+          <div class="h-9 w-9 animate-spin rounded-full border-2 border-ier-border border-t-ier-violet"></div>
+          <p class="text-sm text-ier-muted">Chargement de l’intervention…</p>
+        </div>
+      </section>
+    } @else if (intervention()) {
+      <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div class="min-w-0 space-y-5">
+          <section class="rounded-3xl border border-ier-border bg-ier-surface p-5 sm:p-6">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">État opérationnel</p>
+                <h2 class="mt-1 text-lg font-semibold text-white">{{ statusLabel(intervention()!.statut) }}</h2>
+                <p class="mt-1 text-sm leading-6 text-ier-muted">{{ statusDescription(intervention()!.statut) }}</p>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-center sm:min-w-[220px]">
+                <div class="rounded-2xl border border-ier-border bg-ier-bg px-4 py-3">
+                  <p class="text-[11px] uppercase tracking-[0.14em] text-ier-muted">Début</p>
+                  <p class="mt-1 text-sm font-medium text-white">{{ intervention()!.date_heure_debut | date:'dd/MM HH:mm' }}</p>
+                </div>
+                <div class="rounded-2xl border border-ier-border bg-ier-bg px-4 py-3">
+                  <p class="text-[11px] uppercase tracking-[0.14em] text-ier-muted">Fin</p>
+                  <p class="mt-1 text-sm font-medium text-white">
+                    {{ intervention()!.date_heure_fin ? (intervention()!.date_heure_fin | date:'dd/MM HH:mm') : '—' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="rounded-3xl border border-ier-border bg-ier-surface">
+            <div class="border-b border-ier-border px-5 py-4 sm:px-6">
+              <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Pilotage</p>
+              <h2 class="mt-1 text-lg font-semibold text-white">Mettre à jour l’intervention</h2>
+            </div>
+
+            <div class="grid gap-5 px-5 py-5 sm:grid-cols-2 sm:px-6">
+              <label class="block">
+                <span class="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-ier-muted">Statut</span>
+                <select
+                  [ngModel]="statut()"
+                  (ngModelChange)="statut.set($event)"
+                  class="w-full rounded-xl border border-ier-border bg-ier-bg px-3.5 py-3 text-sm text-ier-text outline-none transition focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10">
+                  <option value="en_cours">En cours</option>
+                  <option value="suspendue">Suspendue</option>
+                  <option value="terminee">Terminée</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-ier-muted">Date et heure de fin</span>
+                <input
+                  type="datetime-local"
+                  [ngModel]="dateFin()"
+                  (ngModelChange)="dateFin.set($event)"
+                  class="w-full rounded-xl border border-ier-border bg-ier-bg px-3.5 py-3 text-sm text-ier-text outline-none transition focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10">
+              </label>
+
+              <label class="block sm:col-span-2">
+                <span class="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-ier-muted">Compte rendu</span>
+                <textarea
+                  rows="7"
+                  [ngModel]="compteRendu()"
+                  (ngModelChange)="compteRendu.set($event)"
+                  placeholder="Décrivez le travail effectué, les volumes traités et les éléments constatés."
+                  class="w-full resize-y rounded-2xl border border-ier-border bg-ier-bg px-3.5 py-3 text-sm leading-6 text-ier-text outline-none transition placeholder:text-ier-muted focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10"></textarea>
+              </label>
+
+              <label class="block sm:col-span-2">
+                <span class="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-ier-muted">Observation</span>
+                <textarea
+                  rows="4"
+                  [ngModel]="observation()"
+                  (ngModelChange)="observation.set($event)"
+                  placeholder="Incidents, contraintes, matériel ou suivi nécessaire."
+                  class="w-full resize-y rounded-2xl border border-ier-border bg-ier-bg px-3.5 py-3 text-sm leading-6 text-ier-text outline-none transition placeholder:text-ier-muted focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10"></textarea>
+              </label>
+
+              <label class="block sm:col-span-2">
+                <span class="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-ier-muted">Nouvelles photos</span>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp"
+                  (change)="onFilesSelected($event)"
+                  class="block w-full rounded-2xl border border-dashed border-ier-border bg-ier-bg px-3.5 py-3 text-sm text-ier-muted file:mr-3 file:rounded-lg file:border-0 file:bg-ier-violet/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-ier-violet hover:border-ier-violet/40">
+                @if (files().length) {
+                  <p class="mt-2 text-xs text-ier-muted">{{ files().length }} fichier{{ files().length > 1 ? 's' : '' }} sélectionné{{ files().length > 1 ? 's' : '' }}.</p>
+                }
+              </label>
+            </div>
+
+            <div class="flex flex-col gap-2 border-t border-ier-border px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+              <button
+                type="button"
+                class="rounded-xl bg-ier-violet px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                (click)="save()"
+                [disabled]="isSaving()">
+                {{ isSaving() ? 'Enregistrement…' : 'Enregistrer les modifications' }}
+              </button>
+
+              @if (intervention()!.statut === 'terminee') {
+                <button
+                  type="button"
+                  class="rounded-xl border border-ier-green/30 bg-ier-green/10 px-4 py-2.5 text-sm font-semibold text-ier-green transition hover:bg-ier-green/15 disabled:cursor-not-allowed disabled:opacity-50"
+                  (click)="closeIntervention()"
+                  [disabled]="isClosing()">
+                  {{ isClosing() ? 'Clôture…' : 'Clôturer l’intervention' }}
+                </button>
+              }
+
+              <button
+                type="button"
+                class="rounded-xl border border-ier-red/20 bg-ier-red/10 px-4 py-2.5 text-sm font-semibold text-red-200 transition hover:bg-ier-red/15"
+                (click)="promptDelete()">
+                Supprimer
+              </button>
+            </div>
+          </section>
+
+          <section class="rounded-3xl border border-ier-border bg-ier-surface">
+            <div class="border-b border-ier-border px-5 py-4 sm:px-6">
+              <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Preuves</p>
+              <h2 class="mt-1 text-lg font-semibold text-white">Photos d’intervention</h2>
+            </div>
+
+            <div class="p-5 sm:p-6">
+              @if (!(intervention()!.photos || []).length) {
+                <div class="rounded-2xl border border-dashed border-ier-border bg-ier-bg px-5 py-8 text-center">
+                  <p class="text-sm font-medium text-white">Aucune photo disponible</p>
+                  <p class="mt-1 text-sm text-ier-muted">Les photos ajoutées lors d’une mise à jour apparaîtront ici.</p>
+                </div>
+              } @else {
+                <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+                  @for (photo of intervention()!.photos; track photo.id) {
+                    <a [href]="photo.url" target="_blank" rel="noopener" class="group overflow-hidden rounded-2xl border border-ier-border bg-ier-bg">
+                      <img
+                        [src]="photo.url"
+                        [alt]="'Photo intervention #' + photo.id"
+                        class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.03]">
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          </section>
+        </div>
+
+        <aside class="space-y-5">
+          <section class="rounded-3xl border border-ier-border bg-ier-surface p-5 sm:p-6">
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Contexte</p>
+            <div class="mt-4 space-y-4">
+              <div>
+                <p class="text-xs text-ier-muted">Équipe</p>
+                <p class="mt-1 font-medium text-white">{{ intervention()!.affectation?.equipe?.nom_equipe || 'Équipe non renseignée' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-ier-muted">Signalement</p>
+                <p class="mt-1 font-medium text-white">#{{ intervention()!.affectation?.signalement?.id || '—' }}</p>
+                @if (intervention()!.affectation?.signalement?.description) {
+                  <p class="mt-1 text-sm leading-5 text-ier-muted">{{ intervention()!.affectation?.signalement?.description }}</p>
+                }
+              </div>
+              @if (intervention()!.affectation?.signalement?.zone?.nom_zone) {
+                <div>
+                  <p class="text-xs text-ier-muted">Zone</p>
+                  <p class="mt-1 font-medium text-white">{{ intervention()!.affectation?.signalement?.zone?.nom_zone }}</p>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="overflow-hidden rounded-3xl border border-ier-border bg-ier-surface">
+            <div class="border-b border-ier-border px-5 py-4">
+              <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Localisation</p>
+              <h2 class="mt-1 text-sm font-semibold text-white">Intervention sur la carte</h2>
+            </div>
+            <div class="bg-ier-bg p-2">
+              @if (mapPoint()) {
+                <app-map-shell
+                  class="block min-h-[360px]"
+                  [points]="[mapPoint()!]"
+                  [fitToPoints]="true">
+                </app-map-shell>
+              } @else {
+                <div class="flex min-h-[360px] items-center justify-center px-5 text-center">
+                  <div>
+                    <p class="text-sm font-medium text-white">Localisation indisponible</p>
+                    <p class="mt-1 text-xs leading-5 text-ier-muted">Le signalement lié ne fournit pas de coordonnées exploitables.</p>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+
+          <section class="rounded-3xl border border-ier-border bg-ier-surface p-5 sm:p-6">
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Affectation</p>
+            <div class="mt-4 space-y-3">
+              <div class="flex items-center justify-between gap-4 text-sm">
+                <span class="text-ier-muted">Référence</span>
+                <span class="font-mono text-white">#{{ intervention()!.affectation?.id || '—' }}</span>
+              </div>
+              <div class="flex items-center justify-between gap-4 text-sm">
+                <span class="text-ier-muted">Date</span>
+                <span class="text-right text-white">{{ intervention()!.affectation?.date_heure_affectation | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              @if (intervention()!.affectation?.observation) {
+                <div class="border-t border-ier-border pt-3 text-sm">
+                  <p class="text-ier-muted">Observation</p>
+                  <p class="mt-1 leading-6 text-white">{{ intervention()!.affectation?.observation }}</p>
+                </div>
+              }
+            </div>
+          </section>
+        </aside>
+      </div>
+    }
   </div>
 
-  @if (successMessage()) { <div class="alert alert-success">{{ successMessage() }}</div> }
-  @if (errorMessage()) { <div class="alert alert-danger">{{ errorMessage() }}</div> }
-
-  @if (isLoading()) {
-    <div class="card state"><div class="spinner spinner-dark"></div><p>Chargement...</p></div>
-  } @else if (intervention()) {
-    <div class="grid">
-      <section class="card">
-        <div class="card-header"><h2>Informations</h2><span class="badge" [ngClass]="statusClass(intervention()!.statut)">{{ statusLabel(intervention()!.statut) }}</span></div>
-        <div class="facts">
-          <div><span>ID</span><strong>#{{ intervention()!.id }}</strong></div>
-          <div><span>Début</span><strong>{{ intervention()!.date_heure_debut | date:'dd/MM/yyyy HH:mm:ss' }}</strong></div>
-          <div><span>Fin</span><strong>{{ intervention()!.date_heure_fin ? (intervention()!.date_heure_fin | date:'dd/MM/yyyy HH:mm:ss') : '—' }}</strong></div>
-          <div><span>Équipe</span><strong>{{ intervention()!.affectation?.equipe?.nom_equipe || '—' }}</strong></div>
-          <div><span>Signalement</span><strong>#{{ intervention()!.affectation?.signalement?.id || '—' }}</strong></div>
-        </div>
-      </section>
-
-      <section class="card">
-        <div class="card-header"><h2>Mise à jour</h2></div>
-        <div class="form-grid">
-          <div class="form-group"><label>Statut</label><select class="form-control" [ngModel]="statut()" (ngModelChange)="statut.set($event)"><option value="en_cours">En cours</option><option value="suspendue">Suspendue</option><option value="terminee">Terminée</option></select></div>
-          <div class="form-group"><label>Date/heure de fin</label><input type="datetime-local" class="form-control" [ngModel]="dateFin()" (ngModelChange)="dateFin.set($event)"></div>
-          <div class="form-group full"><label>Compte rendu</label><textarea class="form-control" rows="6" [ngModel]="compteRendu()" (ngModelChange)="compteRendu.set($event)" placeholder="Compte rendu d’intervention"></textarea></div>
-          <div class="form-group full"><label>Observation</label><textarea class="form-control" rows="4" [ngModel]="observation()" (ngModelChange)="observation.set($event)"></textarea></div>
-          <div class="form-group full"><label>Photos d’intervention</label><input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="onFilesSelected($event)"></div>
-        </div>
-        <div class="actions-row"><button class="btn btn-primary" (click)="save()" [disabled]="isSaving()">{{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}</button>
-          @if (intervention()!.statut === 'terminee') { <button class="btn btn-success" (click)="closeIntervention()" [disabled]="isClosing()">Clôturer l’intervention</button> }
-          <button class="btn btn-danger" (click)="promptDelete()">Supprimer</button>
-        </div>
-      </section>
-
-      <section class="card full-width">
-        <div class="card-header"><h2>Photos</h2></div>
-        @if ((intervention()!.photos || []).length === 0) { <p class="muted">Aucune photo.</p> } @else {
-          <div class="photos-grid">@for (photo of intervention()!.photos; track photo.id) { <a [href]="photo.url" target="_blank" rel="noopener"><img [src]="photo.url" alt="Photo intervention #{{ photo.id }}"></a> }</div>
-        }
-      </section>
-    </div>
-  }
-
   @if (showDelete()) {
-    <div class="modal-backdrop" (click)="cancelDelete()"><div class="modal-dialog" (click)="$event.stopPropagation()">
-      <div class="modal-header"><h3>Confirmer la suppression</h3><button class="modal-close" (click)="cancelDelete()">&times;</button></div>
-      <div class="modal-body">Cette action supprime l’intervention et ses photos.</div>
-      <div class="modal-footer"><button class="btn btn-secondary" (click)="cancelDelete()">Annuler</button><button class="btn btn-danger" (click)="confirmDelete()">Supprimer</button></div>
-    </div></div>
+    <div class="fixed inset-0 z-[1000] flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center" (click)="cancelDelete()">
+      <div class="w-full max-w-lg overflow-hidden rounded-3xl border border-ier-border bg-ier-surface shadow-2xl" (click)="$event.stopPropagation()">
+        <div class="flex items-start justify-between gap-4 border-b border-ier-border px-5 py-4">
+          <div>
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-red">Action sensible</p>
+            <h3 class="mt-1 text-lg font-semibold text-white">Supprimer l’intervention ?</h3>
+          </div>
+          <button type="button" class="rounded-lg p-2 text-xl leading-none text-ier-muted hover:bg-ier-elevated hover:text-white" (click)="cancelDelete()" aria-label="Fermer">×</button>
+        </div>
+        <div class="px-5 py-5 text-sm leading-6 text-ier-muted">
+          Cette action supprime l’intervention et les photos associées.
+        </div>
+        <div class="flex flex-col-reverse gap-2 border-t border-ier-border px-5 py-4 sm:flex-row sm:justify-end">
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-bg px-4 py-2.5 text-sm font-medium text-ier-text hover:bg-ier-elevated" (click)="cancelDelete()">Annuler</button>
+          <button type="button" class="rounded-xl bg-ier-red px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110" (click)="confirmDelete()">Supprimer l’intervention</button>
+        </div>
+      </div>
+    </div>
   }
 </div>
