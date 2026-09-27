@@ -1,87 +1,253 @@
-<div class="page-shell">
-  <div class="page-header">
+<div class="flex min-h-full flex-col gap-6 bg-ier-bg p-4 text-ier-text sm:p-6 xl:p-8">
+  <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
-      <h1 class="page-title">Suivi des interventions</h1>
-      <p class="page-subtitle">Pilotage des interventions terrain et de leur état d’avancement.</p>
+      <div class="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-ier-muted">
+        <span class="h-1.5 w-1.5 rounded-full bg-ier-violet"></span>
+        Opérations terrain
+      </div>
+      <h1 class="font-heading text-2xl font-semibold tracking-tight text-white sm:text-3xl">Interventions</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-ier-muted">
+        Suivi des équipes mobilisées, de leur avancement et des opérations en cours.
+      </p>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-secondary" (click)="load(meta()?.current_page ?? 1)" [disabled]="isLoading()">Actualiser</button>
-      <button class="btn btn-primary" (click)="openCreate()">Démarrer une intervention</button>
-    </div>
-  </div>
 
-  @if (successMessage()) { <div class="alert alert-success">{{ successMessage() }}</div> }
-  @if (errorMessage()) { <div class="alert alert-danger">{{ errorMessage() }}</div> }
-
-  <div class="filters-card">
-    <div>
-      <label>Recherche</label>
-      <input class="form-control" [ngModel]="search()" (ngModelChange)="search.set($event)" placeholder="Équipe, signalement, compte rendu...">
+    <div class="flex flex-wrap gap-2">
+      <button
+        type="button"
+        class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2.5 text-sm font-medium text-ier-text transition hover:border-ier-muted hover:bg-ier-elevated disabled:cursor-not-allowed disabled:opacity-50"
+        (click)="load(meta()?.current_page ?? 1)"
+        [disabled]="isLoading()">
+        Actualiser
+      </button>
+      <button
+        type="button"
+        class="rounded-xl bg-ier-violet px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+        (click)="openCreate()">
+        Démarrer une intervention
+      </button>
     </div>
-    <div>
-      <label>Statut</label>
-      <select class="form-control" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
-        <option value="">Tous</option>
+  </header>
+
+  @if (successMessage()) {
+    <div class="rounded-2xl border border-ier-green/20 bg-ier-green/10 px-4 py-3 text-sm text-ier-green">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="rounded-2xl border border-ier-red/20 bg-ier-red/10 px-4 py-3 text-sm text-red-200">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <section class="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+    <label class="rounded-2xl border border-ier-border bg-ier-surface p-4">
+      <span class="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Recherche</span>
+      <input
+        type="search"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        placeholder="Équipe, signalement, compte rendu..."
+        class="w-full rounded-xl border border-ier-border bg-ier-bg px-3.5 py-2.5 text-sm text-ier-text outline-none transition placeholder:text-ier-muted focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10">
+    </label>
+
+    <label class="rounded-2xl border border-ier-border bg-ier-surface p-4">
+      <span class="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Statut</span>
+      <select
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        class="w-full rounded-xl border border-ier-border bg-ier-bg px-3.5 py-2.5 text-sm text-ier-text outline-none transition focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10">
+        <option value="">Tous les statuts</option>
         <option value="en_cours">En cours</option>
         <option value="suspendue">Suspendue</option>
         <option value="terminee">Terminée</option>
       </select>
-    </div>
-  </div>
+    </label>
+  </section>
 
-  <div class="card">
-    @if (isLoading()) {
-      <div class="state"><div class="spinner spinner-dark"></div><p>Chargement...</p></div>
-    } @else if (filtered().length === 0) {
-      <div class="state"><strong>Aucune intervention</strong><p>Aucune intervention ne correspond aux critères.</p></div>
-    } @else {
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead><tr><th>ID</th><th>Début</th><th>Équipe</th><th>Signalement</th><th>Statut</th><th></th></tr></thead>
-          <tbody>
-            @for (item of filtered(); track item.id) {
-              <tr>
-                <td><strong>#{{ item.id }}</strong></td>
-                <td>{{ item.date_heure_debut | date:'dd/MM/yyyy HH:mm' }}</td>
-                <td>{{ item.affectation?.equipe?.nom_equipe || '—' }}</td>
-                <td>{{ item.affectation?.signalement?.description || ('Signalement #' + (item.affectation?.signalement?.id || '')) }}</td>
-                <td><span class="badge" [ngClass]="statusClass(item.statut)">{{ statusLabel(item.statut) }}</span></td>
-                <td class="actions"><a class="btn btn-secondary btn-sm" [routerLink]="['/admin/interventions', item.id]">Voir</a></td>
-              </tr>
-            }
-          </tbody>
-        </table>
+  <section class="grid min-h-[560px] overflow-hidden rounded-3xl border border-ier-border bg-ier-surface lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,1.05fr)]">
+    <div class="min-w-0 border-b border-ier-border lg:border-b-0 lg:border-r">
+      <div class="flex items-center justify-between gap-4 border-b border-ier-border px-5 py-4">
+        <div>
+          <h2 class="text-sm font-semibold text-white">Opérations</h2>
+          <p class="mt-1 text-xs text-ier-muted">
+            {{ filtered().length }} intervention{{ filtered().length > 1 ? 's' : '' }} affichée{{ filtered().length > 1 ? 's' : '' }}
+          </p>
+        </div>
+        @if (mapPoints().length) {
+          <span class="rounded-full border border-ier-violet/20 bg-ier-violet/10 px-2.5 py-1 text-[11px] font-medium text-ier-violet">
+            {{ mapPoints().length }} localisée{{ mapPoints().length > 1 ? 's' : '' }}
+          </span>
+        }
       </div>
-      @if (meta() && meta()!.last_page > 1) {
-        <div class="pagination-bar">
-          <span>{{ meta()!.from }}–{{ meta()!.to }} sur {{ meta()!.total }}</span>
-          <div>
-            <button class="btn btn-secondary btn-sm" [disabled]="meta()!.current_page===1" (click)="onPageChange(meta()!.current_page-1)">Précédent</button>
-            <span class="page-indicator">Page {{ meta()!.current_page }} / {{ meta()!.last_page }}</span>
-            <button class="btn btn-secondary btn-sm" [disabled]="meta()!.current_page===meta()!.last_page" (click)="onPageChange(meta()!.current_page+1)">Suivant</button>
+
+      @if (isLoading()) {
+        <div class="flex min-h-[480px] flex-col items-center justify-center gap-3 px-6 text-center">
+          <div class="h-8 w-8 animate-spin rounded-full border-2 border-ier-border border-t-ier-violet"></div>
+          <p class="text-sm text-ier-muted">Chargement des interventions…</p>
+        </div>
+      } @else if (filtered().length === 0) {
+        <div class="flex min-h-[480px] flex-col items-center justify-center px-6 text-center">
+          <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-ier-border bg-ier-elevated text-ier-muted">
+            <span class="text-lg">∅</span>
+          </div>
+          <h3 class="text-sm font-semibold text-white">Aucune intervention</h3>
+          <p class="mt-2 max-w-sm text-sm leading-6 text-ier-muted">Aucune intervention ne correspond aux critères actuels.</p>
+        </div>
+      } @else {
+        <div class="max-h-[560px] overflow-auto">
+          <div class="divide-y divide-ier-border">
+            @for (item of filtered(); track item.id) {
+              <a
+                [routerLink]="['/admin/interventions', item.id]"
+                class="block px-5 py-4 transition hover:bg-ier-elevated/60">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-xs text-ier-muted">#{{ item.id }}</span>
+                      <span class="rounded-full border px-2 py-0.5 text-[11px] font-medium" [ngClass]="statusClass(item.statut)">
+                        {{ statusLabel(item.statut) }}
+                      </span>
+                    </div>
+                    <h3 class="mt-2 truncate text-sm font-semibold text-white">
+                      {{ item.affectation?.equipe?.nom_equipe || 'Équipe non renseignée' }}
+                    </h3>
+                    <p class="mt-1 line-clamp-2 text-sm leading-5 text-ier-muted">
+                      {{ item.affectation?.signalement?.description || ('Signalement #' + (item.affectation?.signalement?.id || '—')) }}
+                    </p>
+                  </div>
+                  <span class="shrink-0 text-xs text-ier-muted">
+                    {{ item.date_heure_debut | date:'dd/MM HH:mm' }}
+                  </span>
+                </div>
+
+                <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ier-muted">
+                  <span>{{ item.compte_rendu ? 'Compte rendu disponible' : 'Compte rendu absent' }}</span>
+                  <span>{{ (item.photos || []).length }} photo{{ (item.photos || []).length > 1 ? 's' : '' }}</span>
+                  @if (item.affectation?.signalement?.zone?.nom_zone) {
+                    <span>{{ item.affectation?.signalement?.zone?.nom_zone }}</span>
+                  }
+                </div>
+              </a>
+            }
+          </div>
+        </div>
+
+        @if (meta() && meta()!.last_page > 1) {
+          <div class="flex flex-col gap-3 border-t border-ier-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <span class="text-xs text-ier-muted">{{ meta()!.from }}–{{ meta()!.to }} sur {{ meta()!.total }}</span>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                class="rounded-lg border border-ier-border bg-ier-bg px-3 py-2 text-xs font-medium text-ier-text transition hover:bg-ier-elevated disabled:cursor-not-allowed disabled:opacity-40"
+                [disabled]="meta()!.current_page === 1"
+                (click)="onPageChange(meta()!.current_page - 1)">
+                Précédent
+              </button>
+              <span class="px-2 text-xs text-ier-muted">Page {{ meta()!.current_page }} / {{ meta()!.last_page }}</span>
+              <button
+                type="button"
+                class="rounded-lg border border-ier-border bg-ier-bg px-3 py-2 text-xs font-medium text-ier-text transition hover:bg-ier-elevated disabled:cursor-not-allowed disabled:opacity-40"
+                [disabled]="meta()!.current_page === meta()!.last_page"
+                (click)="onPageChange(meta()!.current_page + 1)">
+                Suivant
+              </button>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="relative min-h-[360px] bg-ier-bg lg:min-h-full">
+      <div class="absolute left-4 top-4 z-[500] rounded-xl border border-ier-border bg-ier-surface/95 px-3 py-2 shadow-lg backdrop-blur">
+        <p class="text-[11px] font-medium uppercase tracking-[0.14em] text-ier-muted">Carte opérationnelle</p>
+        <p class="mt-1 text-xs text-ier-text">Localisation des interventions filtrées</p>
+      </div>
+
+      <app-map-shell
+        class="block h-full min-h-[360px]"
+        [points]="mapPoints()"
+        [fitToPoints]="true"
+        (pointSelected)="openDetail($event)">
+      </app-map-shell>
+
+      @if (!mapPoints().length && !isLoading()) {
+        <div class="pointer-events-none absolute inset-0 z-[400] flex items-center justify-center">
+          <div class="rounded-2xl border border-ier-border bg-ier-surface/90 px-5 py-4 text-center shadow-xl backdrop-blur">
+            <p class="text-sm font-medium text-white">Aucune intervention localisée</p>
+            <p class="mt-1 text-xs text-ier-muted">Les coordonnées des signalements liés ne sont pas disponibles.</p>
           </div>
         </div>
       }
-    }
-  </div>
+    </div>
+  </section>
 
   @if (showCreate()) {
-    <div class="modal-backdrop" (click)="closeCreate()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header"><h3>Nouvelle intervention</h3><button class="modal-close" (click)="closeCreate()">&times;</button></div>
-        <div class="modal-body">
-          @if (createError()) { <div class="alert alert-danger">{{ createError() }}</div> }
-          <div class="form-group"><label>Affectation</label>
-            <select class="form-control" [ngModel]="affectationId()" (ngModelChange)="affectationId.set($event ? +$event : null)">
-              <option [ngValue]="null">Sélectionner</option>
+    <div class="fixed inset-0 z-[1000] flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center" (click)="closeCreate()">
+      <div
+        class="w-full max-w-2xl overflow-hidden rounded-3xl border border-ier-border bg-ier-surface shadow-2xl"
+        (click)="$event.stopPropagation()">
+        <div class="flex items-start justify-between gap-4 border-b border-ier-border px-5 py-4 sm:px-6">
+          <div>
+            <p class="text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Nouvelle opération</p>
+            <h3 class="mt-1 text-lg font-semibold text-white">Démarrer une intervention</h3>
+          </div>
+          <button
+            type="button"
+            class="rounded-lg p-2 text-xl leading-none text-ier-muted transition hover:bg-ier-elevated hover:text-white"
+            (click)="closeCreate()"
+            aria-label="Fermer">
+            ×
+          </button>
+        </div>
+
+        <div class="space-y-5 px-5 py-5 sm:px-6">
+          @if (createError()) {
+            <div class="rounded-2xl border border-ier-red/20 bg-ier-red/10 px-4 py-3 text-sm text-red-200">
+              {{ createError() }}
+            </div>
+          }
+
+          <label class="block">
+            <span class="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Affectation</span>
+            <select
+              [ngModel]="affectationId()"
+              (ngModelChange)="affectationId.set($event ? +$event : null)"
+              class="w-full rounded-xl border border-ier-border bg-ier-bg px-3.5 py-3 text-sm text-ier-text outline-none transition focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10">
+              <option [ngValue]="null">Sélectionner une affectation</option>
               @for (item of affectations(); track item.id) {
-                <option [ngValue]="item.id">#{{ item.id }} — {{ item.equipe?.nom_equipe || 'Équipe' }} — signalement #{{ item.signalement?.id }}</option>
+                <option [ngValue]="item.id">
+                  #{{ item.id }} — {{ item.equipe?.nom_equipe || 'Équipe' }} — signalement #{{ item.signalement?.id || '—' }}
+                </option>
               }
             </select>
-          </div>
-          <div class="form-group"><label>Date/heure de début</label><input class="form-control" [ngModel]="dateDebut()" (ngModelChange)="dateDebut.set($event)"></div>
+          </label>
+
+          <label class="block">
+            <span class="mb-2 block text-xs font-medium uppercase tracking-[0.14em] text-ier-muted">Date et heure de début</span>
+            <input
+              type="datetime-local"
+              [ngModel]="dateDebut()"
+              (ngModelChange)="dateDebut.set($event)"
+              class="w-full rounded-xl border border-ier-border bg-ier-bg px-3.5 py-3 text-sm text-ier-text outline-none transition focus:border-ier-violet/60 focus:ring-2 focus:ring-ier-violet/10">
+          </label>
         </div>
-        <div class="modal-footer"><button class="btn btn-secondary" (click)="closeCreate()">Annuler</button><button class="btn btn-primary" (click)="create()" [disabled]="actionInProgress()">Créer</button></div>
+
+        <div class="flex flex-col-reverse gap-2 border-t border-ier-border px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+          <button
+            type="button"
+            class="rounded-xl border border-ier-border bg-ier-bg px-4 py-2.5 text-sm font-medium text-ier-text transition hover:bg-ier-elevated"
+            (click)="closeCreate()">
+            Annuler
+          </button>
+          <button
+            type="button"
+            class="rounded-xl bg-ier-violet px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            (click)="create()"
+            [disabled]="actionInProgress()">
+            {{ actionInProgress() ? 'Création…' : 'Démarrer l’intervention' }}
+          </button>
+        </div>
       </div>
     </div>
   }
