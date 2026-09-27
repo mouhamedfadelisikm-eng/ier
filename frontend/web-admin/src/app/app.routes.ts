@@ -5,6 +5,7 @@ import { guestGuard } from './core/guards/guest.guard';
 import { LoginComponent } from './features/auth/login/login.component';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
+import { CarteComponent } from './features/carte/carte.component';
 import { SignalementsListComponent } from './features/signalements/signalements-list/signalements-list.component';
 import { SignalementDetailComponent } from './features/signalements/signalement-detail/signalement-detail.component';
 import { AffectationsListComponent } from './features/affectations/affectations-list/affectations-list.component';
@@ -33,6 +34,7 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', component: DashboardComponent, data: { title: 'Tableau de bord' } },
+      { path: 'carte', component: CarteComponent, data: { title: 'Carte opérationnelle' } },
       { path: 'signalements', component: SignalementsListComponent, data: { title: 'Gestion des Signalements' } },
       { path: 'signalements/:id', component: SignalementDetailComponent, data: { title: 'Détail du Signalement' } },
       { path: 'affectations', component: AffectationsListComponent, data: { title: 'Gestion des Affectations' } },

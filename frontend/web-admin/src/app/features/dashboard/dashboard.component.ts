@@ -5,11 +5,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/auth/auth.service';
 import { DashboardService } from '../../core/services/dashboard.service';
 import { HeatmapPoint } from '../../core/models/dashboard.model';
+import { MapPoint } from '../../core/models/map.model';
+import { MapShellComponent } from '../../shared/ui/map-shell/map-shell.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, MapShellComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -25,6 +27,17 @@ export class DashboardComponent implements OnInit {
   readonly heatmapError = signal<string | null>(null);
 
   // Computations based solely on real API data
+  readonly mapPoints = computed<MapPoint[]>(() =>
+    this.heatmapPoints().map((point, index) => ({
+      id: point.zone_id ? 'heatmap-' + point.zone_id : 'heatmap-' + index,
+      latitude: point.latitude,
+      longitude: point.longitude,
+      kind: 'heatmap',
+      weight: point.weight,
+      label: point.zone_nom || 'Point chaud'
+    }))
+  );
+
   readonly totalPoints = computed(() => this.heatmapPoints().length);
   readonly totalWeight = computed(() =>
     this.heatmapPoints().reduce((acc, curr) => acc + (curr.weight || 0), 0)

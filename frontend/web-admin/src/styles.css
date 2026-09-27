@@ -1,6 +1,21 @@
-/* ==========================================================================
-   ISI-Eco Report (IER) - Web Admin Design System
-   ========================================================================== */
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Outfit', 'Inter', -apple-system, sans-serif;
+  --color-ier-bg: #0b0d10;
+  --color-ier-surface: #11151a;
+  --color-ier-elevated: #171c22;
+  --color-ier-border: #252c34;
+  --color-ier-text: #f4f7fa;
+  --color-ier-muted: #9aa5b1;
+  --color-ier-cyan: #38bdf8;
+  --color-ier-blue: #0ea5e9;
+  --color-ier-violet: #8b5cf6;
+  --color-ier-green: #22c55e;
+  --color-ier-orange: #f59e0b;
+  --color-ier-red: #ef4444;
+}
 
 :root {
   /* Brand & Palette */
@@ -212,4 +227,47 @@ a {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Leaflet marker primitives: Leaflet owns the marker DOM, so these stay global. */
+.ier-map-marker {
+  position: relative;
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+.ier-map-marker__core {
+  position: absolute;
+  inset: 6px;
+  display: block;
+  border: 2px solid #fff;
+  border-radius: 9999px;
+  background: var(--color-ier-cyan);
+  box-shadow: 0 3px 12px rgb(56 189 248 / 0.45);
+}
+.ier-map-marker--heatmap .ier-map-marker__core,
+.ier-map-marker--signalement .ier-map-marker__core {
+  background: var(--color-ier-blue);
+  box-shadow: 0 3px 12px rgb(14 165 233 / 0.45);
+}
+.ier-map-marker--intervention .ier-map-marker__core {
+  background: var(--color-ier-violet);
+  box-shadow: 0 3px 12px rgb(139 92 246 / 0.45);
+}
+.ier-map-marker--equipe .ier-map-marker__core {
+  background: var(--color-ier-orange);
+  box-shadow: 0 3px 12px rgb(245 158 11 / 0.45);
+}
+.ier-map-marker--new::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border: 2px solid var(--color-ier-cyan);
+  border-radius: 9999px;
+  opacity: 0.9;
+  animation: ier-map-pulse 1.45s ease-out 4;
+}
+@keyframes ier-map-pulse {
+  0% { transform: scale(0.65); opacity: 0.95; }
+  70%, 100% { transform: scale(1.55); opacity: 0; }
 }

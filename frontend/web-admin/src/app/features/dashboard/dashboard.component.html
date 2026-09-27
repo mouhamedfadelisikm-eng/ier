@@ -69,17 +69,22 @@
     </div>
   </section>
 
-  <!-- Heatmap Real Data Section -->
-  <section class="dashboard-card">
-    <div class="card-header-bar">
+  <!-- Operational map -->
+  <section class="flex flex-col gap-4">
+    <div class="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
       <div>
-        <h2 class="card-title">Points chauds de signalements (Heatmap)</h2>
-        <p class="card-subtitle">
-          Données en direct fournies par l'endpoint <code>GET /api/dashboard/heatmap</code>
+        <span class="mb-1 block text-[0.68rem] font-extrabold tracking-[0.1em] text-sky-700">SUPERVISION GÉOGRAPHIQUE</span>
+        <h2 class="text-lg font-semibold text-slate-900">Points chauds des signalements</h2>
+        <p class="mt-1 text-[0.8125rem] text-slate-500">
+          La carte devient le support principal de lecture des données géographiques.
         </p>
       </div>
-      <button class="btn btn-secondary btn-sm" (click)="loadHeatmap()" [disabled]="isLoadingHeatmap()">
-        <svg class="refresh-icon" [class.spinning]="isLoadingHeatmap()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+
+      <button
+        class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+        (click)="loadHeatmap()"
+        [disabled]="isLoadingHeatmap()">
+        <svg class="size-3.5" [class.animate-spin]="isLoadingHeatmap()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="23 4 23 10 17 10"></polyline>
           <polyline points="1 20 1 14 7 14"></polyline>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -88,90 +93,49 @@
       </button>
     </div>
 
-    <!-- Loading State -->
-    @if (isLoadingHeatmap()) {
-      <div class="state-container">
-        <div class="spinner spinner-dark"></div>
-        <p class="state-text">Chargement des points géographiques depuis l'API...</p>
+    <app-map-shell [points]="mapPoints()" [fitToPoints]="true">
+      <div
+        map-top-left
+        class="min-w-[250px] rounded-[14px] border border-white/30 bg-slate-900/90 p-3.5 text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl max-sm:min-w-0">
+        <span class="mb-1 block text-[0.64rem] font-extrabold tracking-[0.08em] text-sky-300">DONNÉES API</span>
+        <strong class="block text-[0.95rem]">{{ totalPoints() }} points géographiques</strong>
+        <p class="mt-1 text-[0.74rem] text-white/65">
+          {{ distinctZonesCount() }} zones concernées · poids cumulé {{ totalWeight() }}
+        </p>
       </div>
-    }
 
-    <!-- Error State -->
-    @else if (heatmapError()) {
-      <div class="state-container state-error">
-        <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <p class="error-title">Erreur de récupération</p>
-        <p class="error-desc">{{ heatmapError() }}</p>
-        <button class="btn btn-secondary btn-sm" (click)="loadHeatmap()">Réessayer</button>
-      </div>
-    }
+      <a
+        map-top-right
+        routerLink="/admin/carte"
+        class="inline-flex min-h-[38px] items-center rounded-[14px] border border-white/30 bg-slate-900/90 px-3 py-2 text-xs font-bold text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl transition hover:bg-slate-900">
+        Ouvrir la carte opérationnelle
+      </a>
 
-    <!-- Empty State -->
-    @else if (heatmapPoints().length === 0) {
-      <div class="state-container state-empty">
-        <svg class="empty-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M8 12h8"></path>
-        </svg>
-        <p class="empty-title">Aucun point chaud actuellement</p>
-        <p class="empty-desc">Aucun signalement actif nécessitant une agrégation cartographique pour le moment.</p>
-      </div>
-    }
+      @if (isLoadingHeatmap()) {
+        <div
+          map-bottom-left
+          class="inline-flex items-center gap-2 rounded-[14px] border border-white/30 bg-slate-900/90 px-3 py-2 text-xs text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl">
+          <span class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+          <span>Synchronisation des données cartographiques…</span>
+        </div>
+      }
 
-    <!-- Heatmap Table -->
-    @else {
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Zone d'intervention</th>
-              <th>Coordonnées géographiques</th>
-              <th>Poids (Gravité / Répétition)</th>
-              <th>Statut d'intensité</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (point of heatmapPoints(); track $index) {
-              <tr>
-                <td>
-                  <div class="zone-cell">
-                    <span class="zone-name">{{ point.zone_nom || 'Zone non assignée' }}</span>
-                    @if (point.zone_id) {
-                      <span class="zone-id">ID: #{{ point.zone_id }}</span>
-                    }
-                  </div>
-                </td>
-                <td>
-                  <span class="coord-badge">
-                    {{ point.latitude.toFixed(5) }}, {{ point.longitude.toFixed(5) }}
-                  </span>
-                </td>
-                <td>
-                  <span class="weight-value">{{ point.weight }}</span>
-                </td>
-                <td>
-                  @switch (getWeightSeverity(point.weight)) {
-                    @case ('high') {
-                      <span class="badge badge-danger">Forte affluence</span>
-                    }
-                    @case ('medium') {
-                      <span class="badge badge-warning">Modérée</span>
-                    }
-                    @case ('low') {
-                      <span class="badge badge-primary">Faible</span>
-                    }
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-    }
+      @else if (heatmapError()) {
+        <div
+          map-bottom-left
+          class="rounded-[14px] border border-red-200 bg-red-950/90 px-3 py-2 text-xs text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl">
+          <span>{{ heatmapError() }}</span>
+        </div>
+      }
+
+      @else if (heatmapPoints().length === 0) {
+        <div
+          map-bottom-left
+          class="rounded-[14px] border border-white/30 bg-slate-900/90 px-3 py-2 text-xs text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl">
+          Aucun point chaud disponible actuellement.
+        </div>
+      }
+    </app-map-shell>
   </section>
 
   <!-- Quick Access Navigation Cards for Planned Modules -->

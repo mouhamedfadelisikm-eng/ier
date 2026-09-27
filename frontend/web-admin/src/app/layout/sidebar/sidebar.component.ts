@@ -22,6 +22,7 @@ export class SidebarComponent {
 
   navItems: NavItem[] = [
     { label: 'Tableau de bord', route: '/admin/dashboard', icon: 'dashboard', exact: true },
+    { label: 'Carte opérationnelle', route: '/admin/carte', icon: 'map' },
     { label: 'Signalements', route: '/admin/signalements', icon: 'signalement' },
     { label: 'Affectations', route: '/admin/affectations', icon: 'affectation' },
     { label: 'Interventions', route: '/admin/interventions', icon: 'intervention' },
