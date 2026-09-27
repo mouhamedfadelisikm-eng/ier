@@ -1,37 +1,37 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { SignalementService } from '../../../core/services/signalement.service';
 import { Signalement, ZoneSummary, TypeDechetItem, UpdateSignalementPayload } from '../../../core/models/signalement.model';
-import { formatStatut, getStatutBadgeClass, formatPriorite, SignalementPriorite, DangerositeType } from '../../../core/models/signalement-constants';
+import { formatStatut, formatPriorite, SignalementPriorite, DangerositeType } from '../../../core/models/signalement-constants';
+import { MapPoint } from '../../../core/models/map.model';
+import { MapShellComponent } from '../../../shared/ui/map-shell/map-shell.component';
 
 @Component({
   selector: 'app-signalement-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
-  templateUrl: './signalement-detail.component.html',
-  styleUrls: ['./signalement-detail.component.css']
+  imports: [CommonModule, RouterLink, FormsModule, MapShellComponent],
+  templateUrl: './signalement-detail.component.html'
 })
 export class SignalementDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly signalementService = inject(SignalementService);
 
-  signalement = signal<Signalement | null>(null);
-  isLoading = signal<boolean>(true);
-  errorMessage = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
-  actionInProgress = signal<boolean>(false);
+  readonly signalement = signal<Signalement | null>(null);
+  readonly isLoading = signal<boolean>(true);
+  readonly errorMessage = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
+  readonly actionInProgress = signal<boolean>(false);
 
-  // Edit form state
-  isEditing = signal<boolean>(false);
-  editDescription = signal<string | null>('');
-  editZoneId = signal<number | null>(null);
-  zonesList = signal<ZoneSummary[]>([]);
-  typesDechetsList = signal<TypeDechetItem[]>([]);
-  editableTypeDechets = signal<Array<{
+  readonly isEditing = signal<boolean>(false);
+  readonly editDescription = signal<string | null>('');
+  readonly editZoneId = signal<number | null>(null);
+  readonly zonesList = signal<ZoneSummary[]>([]);
+  readonly typesDechetsList = signal<TypeDechetItem[]>([]);
+  readonly editableTypeDechets = signal<Array<{
     type_dechet_id: number;
     libelle?: string;
     quantite_estime?: number | null;
@@ -40,7 +40,6 @@ export class SignalementDetailComponent implements OnInit {
     remarque?: string | null;
   }>>([]);
 
-  // Initial state snapshots for dirty-checking
   private initialDescription: string | null = null;
   private initialZoneId: number | null = null;
   private initialTypeDechets: Array<{
@@ -51,29 +50,47 @@ export class SignalementDetailComponent implements OnInit {
     remarque?: string | null;
   }> = [];
 
-  // Prioritize modal state
-  showPrioritizeModal = signal<boolean>(false);
-  selectedPriority = signal<SignalementPriorite>('normale');
+  readonly showPrioritizeModal = signal<boolean>(false);
+  readonly selectedPriority = signal<SignalementPriorite>('normale');
+  readonly showRejectModal = signal<boolean>(false);
+  readonly showDeleteModal = signal<boolean>(false);
 
-  // Reject modal state
-  showRejectModal = signal<boolean>(false);
+  readonly mapPoint = computed<MapPoint | null>(() => {
+    const item = this.signalement();
 
-  // Delete modal state
-  showDeleteModal = signal<boolean>(false);
+    if (!item || !Number.isFinite(item.latitude) || !Number.isFinite(item.longitude)) {
+      return null;
+    }
 
-  readonly formatStatut = formatStatut;
-  readonly getStatutBadgeClass = getStatutBadgeClass;
-  readonly formatPriorite = formatPriorite;
+    return {
+      id: item.id,
+      latitude: item.latitude,
+      longitude: item.longitude,
+      kind: 'signalement',
+      priority: item.priorite,
+      status: item.statut,
+      label: item.description || 'Signalement #' + item.id
+    };
+  });
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      const id = Number(idParam);
-      this.loadSignalement(id);
-    } else {
+
+    if (!idParam) {
       this.errorMessage.set('Identifiant de signalement invalide.');
       this.isLoading.set(false);
+      return;
     }
+
+    const id = Number(idParam);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      this.errorMessage.set('Identifiant de signalement invalide.');
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.loadSignalement(id);
   }
 
   loadSignalement(id: number): void {
@@ -82,8 +99,9 @@ export class SignalementDetailComponent implements OnInit {
     this.successMessage.set(null);
 
     this.signalementService.getById(id).subscribe({
-      next: (res) => {
+      next: res => {
         const item = res.data;
+
         this.signalement.set(item);
         this.editDescription.set(item.description || '');
         this.editZoneId.set(item.zone?.id || null);
@@ -94,8 +112,12 @@ export class SignalementDetailComponent implements OnInit {
 
         const canonicalWastes = (item.type_dechets || []).map(td => ({
           type_dechet_id: td.id || td.type_dechet_id || 0,
-          quantite_estime: td.quantite_estime !== undefined && td.quantite_estime !== null ? Number(td.quantite_estime) : (td.pivot?.quantite_estime !== null && td.pivot?.quantite_estime !== undefined ? Number(td.pivot.quantite_estime) : null),
-          volume_estime: td.volume_estime !== undefined && td.volume_estime !== null ? Number(td.volume_estime) : (td.pivot?.volume_estime !== null && td.pivot?.volume_estime !== undefined ? Number(td.pivot.volume_estime) : null),
+          quantite_estime: td.quantite_estime !== undefined && td.quantite_estime !== null
+            ? Number(td.quantite_estime)
+            : (td.pivot?.quantite_estime !== null && td.pivot?.quantite_estime !== undefined ? Number(td.pivot.quantite_estime) : null),
+          volume_estime: td.volume_estime !== undefined && td.volume_estime !== null
+            ? Number(td.volume_estime)
+            : (td.pivot?.volume_estime !== null && td.pivot?.volume_estime !== undefined ? Number(td.pivot.volume_estime) : null),
           dangerosite: td.dangerosite !== undefined ? (td.dangerosite || null) : ((td.pivot?.dangerosite as DangerositeType) || null),
           remarque: td.remarque !== undefined ? (td.remarque || null) : (td.pivot?.remarque || null)
         }));
@@ -114,11 +136,11 @@ export class SignalementDetailComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.isLoading.set(false);
-        if (err.status === 404) {
-          this.errorMessage.set('Signalement introuvable.');
-        } else {
-          this.errorMessage.set('Erreur lors du chargement des détails du signalement.');
-        }
+        this.errorMessage.set(
+          err.status === 404
+            ? 'Signalement introuvable.'
+            : 'Erreur lors du chargement des détails du signalement.'
+        );
       }
     });
   }
@@ -126,42 +148,49 @@ export class SignalementDetailComponent implements OnInit {
   startEditing(): void {
     if (!this.zonesList().length) {
       this.signalementService.getZones().subscribe({
-        next: (res) => this.zonesList.set(res.data || [])
+        next: res => this.zonesList.set(res.data || [])
       });
     }
+
     if (!this.typesDechetsList().length) {
       this.signalementService.getTypesDechets().subscribe({
-        next: (res) => this.typesDechetsList.set(res.data || [])
+        next: res => this.typesDechetsList.set(res.data || [])
       });
     }
+
     this.isEditing.set(true);
   }
 
   cancelEditing(): void {
     this.isEditing.set(false);
+
     const item = this.signalement();
-    if (item) {
-      this.editDescription.set(this.initialDescription);
-      this.editZoneId.set(this.initialZoneId);
-      const loadedWastes = (item.type_dechets || []).map(td => ({
-        type_dechet_id: td.id || td.type_dechet_id || 0,
-        libelle: td.libelle,
-        quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
-        volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
-        dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
-        remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
-      }));
-      this.editableTypeDechets.set(JSON.parse(JSON.stringify(loadedWastes)));
-    }
+
+    if (!item) return;
+
+    this.editDescription.set(this.initialDescription);
+    this.editZoneId.set(this.initialZoneId);
+
+    const loadedWastes = (item.type_dechets || []).map(td => ({
+      type_dechet_id: td.id || td.type_dechet_id || 0,
+      libelle: td.libelle,
+      quantite_estime: td.quantite_estime !== undefined ? td.quantite_estime : td.pivot?.quantite_estime ?? null,
+      volume_estime: td.volume_estime !== undefined ? td.volume_estime : td.pivot?.volume_estime ?? null,
+      dangerosite: td.dangerosite !== undefined ? td.dangerosite : (td.pivot?.dangerosite as DangerositeType) ?? null,
+      remarque: td.remarque !== undefined ? td.remarque : td.pivot?.remarque ?? null
+    }));
+
+    this.editableTypeDechets.set(JSON.parse(JSON.stringify(loadedWastes)));
   }
 
   addWasteType(typeDechetId: number): void {
     if (!typeDechetId) return;
-    const found = this.typesDechetsList().find(t => t.id === Number(typeDechetId));
-    if (!found) return;
 
-    const current = this.editableTypeDechets();
-    if (current.some(item => item.type_dechet_id === found.id)) return;
+    const found = this.typesDechetsList().find(type => type.id === Number(typeDechetId));
+
+    if (!found || this.editableTypeDechets().some(item => item.type_dechet_id === found.id)) {
+      return;
+    }
 
     this.editableTypeDechets.update(list => [
       ...list,
@@ -177,11 +206,12 @@ export class SignalementDetailComponent implements OnInit {
   }
 
   removeWasteType(index: number): void {
-    this.editableTypeDechets.update(list => list.filter((_, i) => i !== index));
+    this.editableTypeDechets.update(list => list.filter((_, currentIndex) => currentIndex !== index));
   }
 
   saveEdition(): void {
     const item = this.signalement();
+
     if (!item) return;
 
     this.actionInProgress.set(true);
@@ -190,12 +220,16 @@ export class SignalementDetailComponent implements OnInit {
 
     const currentDesc = this.editDescription();
     const currentZoneId = this.editZoneId();
-    const currentWastes = this.editableTypeDechets().map(w => ({
-      type_dechet_id: w.type_dechet_id,
-      quantite_estime: w.quantite_estime !== null && w.quantite_estime !== undefined && w.quantite_estime !== ('' as unknown as number) ? Number(w.quantite_estime) : null,
-      volume_estime: w.volume_estime !== null && w.volume_estime !== undefined && w.volume_estime !== ('' as unknown as number) ? Number(w.volume_estime) : null,
-      dangerosite: w.dangerosite || null,
-      remarque: w.remarque || null
+    const currentWastes = this.editableTypeDechets().map(waste => ({
+      type_dechet_id: waste.type_dechet_id,
+      quantite_estime: waste.quantite_estime !== null && waste.quantite_estime !== undefined && waste.quantite_estime !== ('' as unknown as number)
+        ? Number(waste.quantite_estime)
+        : null,
+      volume_estime: waste.volume_estime !== null && waste.volume_estime !== undefined && waste.volume_estime !== ('' as unknown as number)
+        ? Number(waste.volume_estime)
+        : null,
+      dangerosite: waste.dangerosite || null,
+      remarque: waste.remarque || null
     }));
 
     const descChanged = currentDesc !== this.initialDescription;
@@ -210,23 +244,31 @@ export class SignalementDetailComponent implements OnInit {
     }
 
     const payload: UpdateSignalementPayload = {};
+
     if (descChanged) payload.description = currentDesc;
     if (zoneChanged) payload.zone_id = currentZoneId;
     if (wastesChanged) payload.type_dechets = currentWastes;
 
     this.signalementService.update(item.id, payload).subscribe({
-      next: (res) => {
+      next: res => {
         const updated = res.data;
+
         this.signalement.set(updated);
         this.initialDescription = updated.description || null;
         this.initialZoneId = updated.zone?.id || null;
+
         const newWastes = (updated.type_dechets || []).map(td => ({
           type_dechet_id: td.id || td.type_dechet_id || 0,
-          quantite_estime: td.quantite_estime !== undefined && td.quantite_estime !== null ? Number(td.quantite_estime) : (td.pivot?.quantite_estime !== null && td.pivot?.quantite_estime !== undefined ? Number(td.pivot.quantite_estime) : null),
-          volume_estime: td.volume_estime !== undefined && td.volume_estime !== null ? Number(td.volume_estime) : (td.pivot?.volume_estime !== null && td.pivot?.volume_estime !== undefined ? Number(td.pivot.volume_estime) : null),
+          quantite_estime: td.quantite_estime !== undefined && td.quantite_estime !== null
+            ? Number(td.quantite_estime)
+            : (td.pivot?.quantite_estime !== null && td.pivot?.quantite_estime !== undefined ? Number(td.pivot.quantite_estime) : null),
+          volume_estime: td.volume_estime !== undefined && td.volume_estime !== null
+            ? Number(td.volume_estime)
+            : (td.pivot?.volume_estime !== null && td.pivot?.volume_estime !== undefined ? Number(td.pivot.volume_estime) : null),
           dangerosite: td.dangerosite !== undefined ? (td.dangerosite || null) : ((td.pivot?.dangerosite as DangerositeType) || null),
           remarque: td.remarque !== undefined ? (td.remarque || null) : (td.pivot?.remarque || null)
         }));
+
         this.initialTypeDechets = JSON.parse(JSON.stringify(newWastes));
         this.editableTypeDechets.set((updated.type_dechets || []).map(td => ({
           type_dechet_id: td.id || td.type_dechet_id || 0,
@@ -250,6 +292,7 @@ export class SignalementDetailComponent implements OnInit {
 
   validate(): void {
     const item = this.signalement();
+
     if (!item || this.actionInProgress()) return;
 
     this.actionInProgress.set(true);
@@ -257,7 +300,7 @@ export class SignalementDetailComponent implements OnInit {
     this.successMessage.set(null);
 
     this.signalementService.validate(item.id).subscribe({
-      next: (res) => {
+      next: res => {
         this.signalement.set(res.data);
         this.actionInProgress.set(false);
         this.successMessage.set('Signalement validé avec succès.');
@@ -279,6 +322,7 @@ export class SignalementDetailComponent implements OnInit {
 
   confirmReject(): void {
     const item = this.signalement();
+
     if (!item) return;
 
     this.actionInProgress.set(true);
@@ -287,7 +331,7 @@ export class SignalementDetailComponent implements OnInit {
     this.successMessage.set(null);
 
     this.signalementService.reject(item.id).subscribe({
-      next: (res) => {
+      next: res => {
         this.signalement.set(res.data);
         this.actionInProgress.set(false);
         this.successMessage.set('Signalement rejeté.');
@@ -309,19 +353,20 @@ export class SignalementDetailComponent implements OnInit {
 
   confirmPrioritize(): void {
     const item = this.signalement();
+
     if (!item) return;
 
-    const priorite = this.selectedPriority();
+    const priority = this.selectedPriority();
     this.actionInProgress.set(true);
     this.closePrioritizeModal();
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    this.signalementService.prioritize(item.id, priorite).subscribe({
-      next: (res) => {
+    this.signalementService.prioritize(item.id, priority).subscribe({
+      next: res => {
         this.signalement.set(res.data);
         this.actionInProgress.set(false);
-        this.successMessage.set(`Signalement priorisé avec succès (${priorite}).`);
+        this.successMessage.set(`Signalement priorisé avec succès (${priority}).`);
       },
       error: (err: HttpErrorResponse) => {
         this.actionInProgress.set(false);
@@ -340,6 +385,7 @@ export class SignalementDetailComponent implements OnInit {
 
   confirmDelete(): void {
     const item = this.signalement();
+
     if (!item) return;
 
     this.actionInProgress.set(true);
@@ -355,5 +401,49 @@ export class SignalementDetailComponent implements OnInit {
         this.errorMessage.set(err.error?.message || 'Erreur lors de la suppression.');
       }
     });
+  }
+
+  setEditZoneId(value: number | string | null): void {
+    this.editZoneId.set(value === null || value === '' ? null : Number(value));
+  }
+
+  formatStatut(status: string): string {
+    return formatStatut(status);
+  }
+
+  formatPriorite(priority?: string | null): string {
+    return formatPriorite(priority);
+  }
+
+  getStatusClasses(status: string): string {
+    switch (status) {
+      case 'en_attente_validation':
+      case 'en_intervention':
+        return 'border-ier-orange/25 bg-ier-orange/10 text-ier-orange';
+      case 'valide':
+      case 'termine':
+        return 'border-ier-green/25 bg-ier-green/10 text-ier-green';
+      case 'rejete':
+        return 'border-ier-red/25 bg-ier-red/10 text-red-200';
+      case 'priorise':
+        return 'border-ier-cyan/25 bg-ier-cyan/10 text-ier-cyan';
+      case 'affecte':
+        return 'border-ier-violet/25 bg-ier-violet/10 text-ier-violet';
+      default:
+        return 'border-ier-border bg-ier-elevated text-ier-muted';
+    }
+  }
+
+  getPriorityClasses(priority?: string | null): string {
+    switch (priority) {
+      case 'urgente':
+        return 'border-ier-red/25 bg-ier-red/10 text-red-200';
+      case 'haute':
+        return 'border-ier-orange/25 bg-ier-orange/10 text-ier-orange';
+      case 'normale':
+        return 'border-ier-cyan/25 bg-ier-cyan/10 text-ier-cyan';
+      default:
+        return 'border-ier-border bg-ier-elevated text-ier-muted';
+    }
   }
 }

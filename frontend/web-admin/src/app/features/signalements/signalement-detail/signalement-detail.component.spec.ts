@@ -7,6 +7,16 @@ import { SignalementDetailComponent } from './signalement-detail.component';
 import { SignalementService } from '../../../core/services/signalement.service';
 import { Signalement } from '../../../core/models/signalement.model';
 import { environment } from '../../../../environments/environment';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MapPoint } from '../../../core/models/map.model';
+import { MapShellComponent } from '../../../shared/ui/map-shell/map-shell.component';
+
+@Component({ selector: 'app-map-shell', standalone: true, template: '<ng-content></ng-content>' })
+class MockMapShellComponent {
+  @Input() points: MapPoint[] = [];
+  @Input() fitToPoints = true;
+  @Output() pointSelected = new EventEmitter<MapPoint>();
+}
 
 describe('SignalementDetailComponent', () => {
   let component: SignalementDetailComponent;
@@ -60,7 +70,12 @@ describe('SignalementDetailComponent', () => {
           }
         }
       ]
-    }).compileComponents();
+    })
+      .overrideComponent(SignalementDetailComponent, {
+        remove: { imports: [MapShellComponent] },
+        add: { imports: [MockMapShellComponent] }
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SignalementDetailComponent);
     component = fixture.componentInstance;
@@ -85,6 +100,15 @@ describe('SignalementDetailComponent', () => {
     expect(component.signalement()?.type_dechets?.length).toBe(1);
     expect(component.signalement()?.type_dechets?.[0].quantite_estime).toBe(10);
     expect(component.signalement()?.type_dechets?.[0].dangerosite).toBe('eleve');
+    expect(component.mapPoint()).toEqual({
+      id: 1,
+      latitude: 14.6928,
+      longitude: -17.4467,
+      kind: 'signalement',
+      priority: 'normale',
+      status: 'en_attente_validation',
+      label: 'Détail signalement test'
+    });
   });
 
   it('should handle 404 error when signalement not found', () => {
