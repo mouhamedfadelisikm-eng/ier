@@ -1,17 +1,22 @@
-<div class="admin-wrapper">
-  <!-- Sidebar -->
-  <app-sidebar [isOpen]="sidebarOpen()" (closeSidebar)="closeSidebar()"></app-sidebar>
+<div class="min-h-screen w-full bg-ier-bg text-ier-text">
+  <app-sidebar
+    [isOpen]="sidebarOpen()"
+    (closeSidebar)="closeSidebar()">
+  </app-sidebar>
 
-  <!-- Overlay sur mobile -->
   @if (sidebarOpen()) {
-    <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+    <button
+      type="button"
+      class="fixed inset-0 z-40 bg-black/55 backdrop-blur-[2px] lg:hidden"
+      aria-label="Fermer le menu"
+      (click)="closeSidebar()">
+    </button>
   }
 
-  <!-- Main Container -->
-  <div class="admin-main">
+  <div class="min-h-screen transition-[margin] duration-300 lg:ml-64">
     <app-header (toggleSidebar)="toggleSidebar()"></app-header>
 
-    <main class="admin-content">
+    <main class="mx-auto w-full max-w-[1800px] px-3 py-4 sm:px-5 sm:py-5 xl:px-7">
       <router-outlet></router-outlet>
     </main>
   </div>
