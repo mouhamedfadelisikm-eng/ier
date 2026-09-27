@@ -403,6 +403,10 @@ export class SignalementDetailComponent implements OnInit {
     });
   }
 
+  setEditZoneId(value: number | string | null): void {
+    this.editZoneId.set(value === null || value === '' ? null : Number(value));
+  }
+
   getStatusClasses(status: string): string {
     switch (status) {
       case 'en_attente_validation':
