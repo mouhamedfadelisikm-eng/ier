@@ -13,8 +13,7 @@ interface NavItem {
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css']
+  templateUrl: './sidebar.component.html'
 })
 export class SidebarComponent {
   isOpen = input<boolean>(true);
@@ -27,7 +26,7 @@ export class SidebarComponent {
     { label: 'Affectations', route: '/admin/affectations', icon: 'affectation' },
     { label: 'Interventions', route: '/admin/interventions', icon: 'intervention' },
     { label: 'Équipes', route: '/admin/equipes', icon: 'equipe' },
-    { label: 'Zones d\'intervention', route: '/admin/zones', icon: 'zone' },
+    { label: 'Zones d’intervention', route: '/admin/zones', icon: 'zone' },
     { label: 'Types de déchets', route: '/admin/types-dechets', icon: 'dechet' },
     { label: 'Utilisateurs & Rôles', route: '/admin/utilisateurs', icon: 'users' },
     { label: 'Gamification', route: '/admin/gamification', icon: 'trophy' },
