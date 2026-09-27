@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -12,21 +12,18 @@ import { MapShellComponent } from '../../shared/ui/map-shell/map-shell.component
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink, MapShellComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  templateUrl: './dashboard.component.html'
 })
 export class DashboardComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly dashboardService = inject(DashboardService);
 
   readonly currentUser = this.authService.currentUser;
-
-  // Heatmap State
   readonly heatmapPoints = signal<HeatmapPoint[]>([]);
-  readonly isLoadingHeatmap = signal<boolean>(true);
+  readonly isLoadingHeatmap = signal(true);
   readonly heatmapError = signal<string | null>(null);
+  readonly lastSyncedAt = signal<Date | null>(null);
 
-  // Computations based solely on real API data
   readonly mapPoints = computed<MapPoint[]>(() =>
     this.heatmapPoints().map((point, index) => ({
       id: point.zone_id ? 'heatmap-' + point.zone_id : 'heatmap-' + index,
@@ -39,17 +36,49 @@ export class DashboardComponent implements OnInit {
   );
 
   readonly totalPoints = computed(() => this.heatmapPoints().length);
+
   readonly totalWeight = computed(() =>
     this.heatmapPoints().reduce((acc, curr) => acc + (curr.weight || 0), 0)
   );
+
   readonly distinctZonesCount = computed(() => {
     const zones = new Set(
       this.heatmapPoints()
-        .map(p => p.zone_nom)
-        .filter((z): z is string => !!z)
+        .map(point => point.zone_nom)
+        .filter((zone): zone is string => !!zone)
     );
+
     return zones.size;
   });
+
+  readonly topZones = computed(() => {
+    const zones = new Map<string, { name: string; weight: number; zoneId: number | null }>();
+
+    for (const point of this.heatmapPoints()) {
+      const key = point.zone_id !== null
+        ? String(point.zone_id)
+        : point.zone_nom || String(point.latitude) + ',' + String(point.longitude);
+
+      const current = zones.get(key);
+
+      if (current) {
+        current.weight += point.weight || 0;
+        continue;
+      }
+
+      zones.set(key, {
+        name: point.zone_nom || 'Zone non nommée',
+        weight: point.weight || 0,
+        zoneId: point.zone_id
+      });
+    }
+
+    return Array.from(zones.values())
+      .sort((left, right) => right.weight - left.weight)
+      .slice(0, 5);
+  });
+
+  readonly maxZoneWeight = computed(() => this.topZones()[0]?.weight || 1);
 
   ngOnInit(): void {
     this.loadHeatmap();
@@ -60,16 +89,17 @@ export class DashboardComponent implements OnInit {
     this.heatmapError.set(null);
 
     this.dashboardService.getHeatmapData().subscribe({
-      next: (points: HeatmapPoint[]) => {
+      next: points => {
         this.heatmapPoints.set(points || []);
+        this.lastSyncedAt.set(new Date());
         this.isLoadingHeatmap.set(false);
       },
       error: (err: HttpErrorResponse) => {
         this.isLoadingHeatmap.set(false);
         this.heatmapError.set(
           err.status === 403
-            ? 'Accès refusé (rôle admin requis).'
-            : 'Impossible de charger les données cartographiques réelles de l\'API.'
+            ? 'Accès refusé. Les données cartographiques nécessitent les droits administrateur.'
+            : 'Impossible de synchroniser les données cartographiques de l’API.'
         );
       }
     });
@@ -79,5 +109,9 @@ export class DashboardComponent implements OnInit {
     if (weight >= 5) return 'high';
     if (weight >= 2) return 'medium';
     return 'low';
+  }
+
+  getZoneBarWidth(weight: number): number {
+    return Math.max(8, Math.round((weight / this.maxZoneWeight()) * 100));
   }
 }
