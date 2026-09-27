@@ -19,7 +19,6 @@ import { MapPoint } from '../../../core/models/map.model';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './map-shell.component.html',
-  styleUrls: ['./map-shell.component.css']
 })
 export class MapShellComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() points: MapPoint[] = [];
