@@ -1,17 +1,18 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { InterventionService } from '../../../core/services/intervention.service';
 import { Intervention, InterventionStatut } from '../../../core/models/intervention.model';
+import { MapPoint } from '../../../core/models/map.model';
+import { MapShellComponent } from '../../../shared/ui/map-shell/map-shell.component';
 
 @Component({
   selector: 'app-intervention-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, MapShellComponent],
   templateUrl: './intervention-detail.component.html',
-  styleUrls: ['./intervention-detail.component.css']
 })
 export class InterventionDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -32,9 +33,28 @@ export class InterventionDetailComponent implements OnInit {
   files = signal<File[]>([]);
   showDelete = signal(false);
 
+  readonly mapPoint = computed<MapPoint | null>(() => {
+    const item = this.intervention();
+    const signalement = item?.affectation?.signalement;
+
+    if (!signalement || !Number.isFinite(signalement.latitude) || !Number.isFinite(signalement.longitude)) {
+      return null;
+    }
+
+    return {
+      id: item!.id,
+      latitude: signalement.latitude,
+      longitude: signalement.longitude,
+      kind: 'intervention',
+      priority: signalement.priorite,
+      status: item!.statut,
+      label: signalement.description || `Intervention #${item!.id}`
+    };
+  });
+
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!Number.isFinite(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       this.errorMessage.set('Identifiant d’intervention invalide.');
       this.isLoading.set(false);
       return;
@@ -132,7 +152,19 @@ export class InterventionDetailComponent implements OnInit {
   }
 
   statusClass(status: InterventionStatut): string {
-    return ({ en_cours: 'badge-info', suspendue: 'badge-warning', terminee: 'badge-success' } as Record<InterventionStatut,string>)[status];
+    switch (status) {
+      case 'en_cours': return 'border-ier-cyan/25 bg-ier-cyan/10 text-ier-cyan';
+      case 'suspendue': return 'border-ier-orange/25 bg-ier-orange/10 text-ier-orange';
+      case 'terminee': return 'border-ier-green/25 bg-ier-green/10 text-ier-green';
+    }
+  }
+
+  statusDescription(status: InterventionStatut): string {
+    return ({
+      en_cours: 'Opération actuellement en cours sur le terrain.',
+      suspendue: 'Opération mise en pause, reprise à confirmer.',
+      terminee: 'Opération terrain terminée, en attente de clôture.'
+    } as Record<InterventionStatut, string>)[status];
   }
 
   private now(): string {
