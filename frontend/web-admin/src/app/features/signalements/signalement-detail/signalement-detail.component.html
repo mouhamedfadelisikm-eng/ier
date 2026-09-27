@@ -139,7 +139,7 @@
                   <select
                     class="w-full rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10"
                     [ngModel]="editZoneId()"
-                    (ngModelChange)="editZoneId.set($event === null || $event === '' ? null : Number($event))">
+                    (ngModelChange)="setEditZoneId($event)">
                     <option [ngValue]="null">Aucune zone</option>
                     @for (zone of zonesList(); track zone.id) {
                       <option [ngValue]="zone.id">{{ zone.nom_zone }}</option>
