@@ -1,25 +1,33 @@
-<section class="map-shell" aria-label="Carte interactive">
-  <div #mapHost class="map-canvas"></div>
+<section class="relative isolate min-h-[440px] w-full overflow-hidden rounded-[14px] border border-slate-200 bg-slate-100 shadow-lg md:min-h-[520px] md:rounded-[18px]" aria-label="Carte interactive">
+  <div #mapHost class="absolute inset-0 z-0"></div>
 
-  <div class="map-overlay map-overlay--top-left">
-    <ng-content select="[map-top-left]"></ng-content>
+  <div class="pointer-events-none absolute left-3 top-3 z-[500] md:left-4 md:top-4">
+    <div class="[&>*]:pointer-events-auto">
+      <ng-content select="[map-top-left]"></ng-content>
+    </div>
   </div>
 
-  <div class="map-overlay map-overlay--top-right">
-    <ng-content select="[map-top-right]"></ng-content>
+  <div class="pointer-events-none absolute right-3 top-3 z-[500] md:right-4 md:top-4">
+    <div class="[&>*]:pointer-events-auto">
+      <ng-content select="[map-top-right]"></ng-content>
+    </div>
   </div>
 
-  <div class="map-overlay map-overlay--bottom-left">
-    <ng-content select="[map-bottom-left]"></ng-content>
+  <div class="pointer-events-none absolute bottom-3 left-3 z-[500] md:bottom-4 md:left-4">
+    <div class="[&>*]:pointer-events-auto">
+      <ng-content select="[map-bottom-left]"></ng-content>
+    </div>
   </div>
 
-  <div class="map-overlay map-overlay--right-center">
-    <ng-content select="[map-right-panel]"></ng-content>
+  <div class="pointer-events-none absolute bottom-3 right-[4.5rem] z-[500] w-[calc(100%-5.25rem)] md:bottom-auto md:right-4 md:top-1/2 md:w-[360px] md:-translate-y-1/2">
+    <div class="[&>*]:pointer-events-auto">
+      <ng-content select="[map-right-panel]"></ng-content>
+    </div>
   </div>
 
-  <div class="map-toolbar" aria-label="Contrôles de la carte">
-    <button type="button" class="map-tool-button" (click)="zoomIn()" aria-label="Zoom avant" title="Zoom avant">+</button>
-    <button type="button" class="map-tool-button" (click)="zoomOut()" aria-label="Zoom arrière" title="Zoom arrière">−</button>
-    <button type="button" class="map-tool-button" (click)="resetView()" aria-label="Recentrer la carte" title="Recentrer la carte">⌖</button>
+  <div class="absolute bottom-3 right-3 z-[500] flex flex-col gap-1.5 md:bottom-4 md:right-4" aria-label="Contrôles de la carte">
+    <button type="button" class="grid size-[42px] place-items-center rounded-xl border border-slate-900/10 bg-white/95 text-xl leading-none text-slate-800 shadow-md backdrop-blur-md transition-transform duration-150 hover:-translate-y-px hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-400/25" (click)="zoomIn()" aria-label="Zoom avant" title="Zoom avant">+</button>
+    <button type="button" class="grid size-[42px] place-items-center rounded-xl border border-slate-900/10 bg-white/95 text-xl leading-none text-slate-800 shadow-md backdrop-blur-md transition-transform duration-150 hover:-translate-y-px hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-400/25" (click)="zoomOut()" aria-label="Zoom arrière" title="Zoom arrière">−</button>
+    <button type="button" class="grid size-[42px] place-items-center rounded-xl border border-slate-900/10 bg-white/95 text-xl leading-none text-slate-800 shadow-md backdrop-blur-md transition-transform duration-150 hover:-translate-y-px hover:bg-white focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-400/25" (click)="resetView()" aria-label="Recentrer la carte" title="Recentrer la carte">⌖</button>
   </div>
 </section>
