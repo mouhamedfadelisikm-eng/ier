@@ -1,342 +1,365 @@
-<div class="signalement-detail-container">
-  <!-- Top Navigation & Actions Bar -->
-  <div class="detail-header-bar">
-    <a routerLink="/admin/signalements" class="back-link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
+<div class="space-y-5 text-ier-text">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <a
+      routerLink="/admin/signalements"
+      class="inline-flex items-center gap-2 text-xs font-semibold text-ier-muted transition hover:text-white">
+      <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5"></path>
+        <path d="m12 19-7-7 7-7"></path>
       </svg>
-      Retour à la liste
+      Retour aux signalements
     </a>
 
-    @if (signalement() && !isLoading()) {
-      <div class="header-action-group">
-        <!-- Validate / Reject if en_attente_validation -->
-        @if (signalement()?.statut === 'en_attente_validation') {
-          <button class="btn btn-success btn-sm" (click)="validate()" [disabled]="actionInProgress()">
-            Valider le signalement
-          </button>
-          <button class="btn btn-danger btn-sm" (click)="promptReject()" [disabled]="actionInProgress()">
-            Rejeter
-          </button>
+    @if (signalement(); as item) {
+      <div class="flex flex-wrap gap-2">
+        @if (item.statut === 'en_attente_validation') {
+          <button type="button" class="rounded-xl bg-ier-green px-3.5 py-2 text-xs font-bold text-slate-950 transition hover:bg-green-300 disabled:cursor-wait disabled:opacity-60" (click)="validate()" [disabled]="actionInProgress()">Valider</button>
+          <button type="button" class="rounded-xl border border-ier-red/25 bg-ier-red/10 px-3.5 py-2 text-xs font-bold text-red-200 transition hover:bg-ier-red/15 disabled:cursor-wait disabled:opacity-60" (click)="promptReject()" [disabled]="actionInProgress()">Rejeter</button>
         }
 
-        <!-- Prioritize if valide -->
-        @if (signalement()?.statut === 'valide') {
-          <button class="btn btn-primary btn-sm" (click)="openPrioritizeModal()" [disabled]="actionInProgress()">
-            Prioriser
-          </button>
+        @if (item.statut === 'valide') {
+          <button type="button" class="rounded-xl border border-ier-cyan/25 bg-ier-cyan/10 px-3.5 py-2 text-xs font-bold text-ier-cyan transition hover:bg-ier-cyan/15 disabled:cursor-wait disabled:opacity-60" (click)="openPrioritizeModal()" [disabled]="actionInProgress()">Prioriser</button>
         }
 
-        <!-- Edit button -->
         @if (!isEditing()) {
-          <button class="btn btn-secondary btn-sm" (click)="startEditing()" [disabled]="actionInProgress()">Modifier</button>
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-elevated px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#1c232b]" (click)="startEditing()" [disabled]="actionInProgress()">Modifier</button>
         } @else {
-          <button class="btn btn-secondary btn-sm" (click)="cancelEditing()" [disabled]="actionInProgress()">Annuler</button>
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-elevated px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#1c232b]" (click)="cancelEditing()" [disabled]="actionInProgress()">Annuler</button>
         }
 
-        <!-- Delete button -->
-        <button class="btn btn-danger btn-sm" (click)="promptDelete()" [disabled]="actionInProgress()">Supprimer</button>
+        <button type="button" class="rounded-xl border border-ier-red/25 bg-ier-red/10 px-3.5 py-2 text-xs font-bold text-red-200 transition hover:bg-ier-red/15 disabled:cursor-wait disabled:opacity-60" (click)="promptDelete()" [disabled]="actionInProgress()">Supprimer</button>
       </div>
     }
   </div>
 
-  <!-- Notification Banners -->
   @if (successMessage()) {
-    <div class="alert alert-success">
+    <div class="flex items-center justify-between gap-3 rounded-xl border border-ier-green/25 bg-ier-green/10 px-4 py-3 text-sm text-green-200">
       <span>{{ successMessage() }}</span>
-      <button class="alert-close" (click)="successMessage.set(null)">&times;</button>
+      <button type="button" class="text-lg leading-none text-green-200/60 hover:text-green-100" (click)="successMessage.set(null)" aria-label="Fermer">×</button>
     </div>
   }
 
   @if (errorMessage()) {
-    <div class="alert alert-danger">
+    <div class="flex items-center justify-between gap-3 rounded-xl border border-ier-red/25 bg-ier-red/10 px-4 py-3 text-sm text-red-200">
       <span>{{ errorMessage() }}</span>
-      <button class="alert-close" (click)="errorMessage.set(null)">&times;</button>
+      <button type="button" class="text-lg leading-none text-red-200/60 hover:text-red-100" (click)="errorMessage.set(null)" aria-label="Fermer">×</button>
     </div>
   }
 
-  <!-- Loading State -->
   @if (isLoading()) {
-    <div class="state-container">
-      <div class="spinner spinner-dark"></div>
-      <p class="state-text">Chargement des détails du signalement...</p>
-    </div>
-  }
-
-  <!-- Error State -->
-  @else if (errorMessage() && !signalement()) {
-    <div class="state-container state-error">
-      <svg class="error-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-      </svg>
-      <p class="error-title">Erreur</p>
-      <p class="error-desc">{{ errorMessage() }}</p>
-      <a routerLink="/admin/signalements" class="btn btn-secondary btn-sm">Retour à la liste</a>
-    </div>
-  }
-
-  <!-- Content Details -->
-  @else if (signalement(); as item) {
-    <div class="detail-grid">
-      <!-- Main Info Card -->
-      <div class="dashboard-card main-info-card">
-        <div class="card-title-bar">
-          <div>
-            <span class="signalement-id">Signalement #{{ item.id }}</span>
-            <h2 class="section-title">Informations Générales</h2>
-          </div>
-          <div class="badges-row">
-            <span class="badge" [ngClass]="getStatutBadgeClass(item.statut)">
-              {{ formatStatut(item.statut) }}
-            </span>
-            <span class="badge badge-primary">
-              Priorité : {{ formatPriorite(item.priorite) }}
-            </span>
-          </div>
-        </div>
-
-        @if (!isEditing()) {
-          <div class="info-block">
-            <h3 class="block-label">Description</h3>
-            <p class="description-text">{{ item.description || 'Aucune description fournie.' }}</p>
-          </div>
-        } @else {
-          <!-- Edit Form -->
-          <div class="edit-form-block">
-            <h3>Modifier le Signalement</h3>
-            <div class="form-group">
-              <label for="editDesc">Description</label>
-              <textarea id="editDesc" class="form-control" rows="3" [(ngModel)]="editDescription"></textarea>
-            </div>
-            <div class="form-group">
-              <label for="editZone">Zone d'intervention</label>
-              <select id="editZone" class="form-control" [(ngModel)]="editZoneId">
-                <option [ngValue]="null">Aucune zone</option>
-                @for (zone of zonesList(); track zone.id) {
-                  <option [ngValue]="zone.id">{{ zone.nom_zone }}</option>
-                }
-              </select>
-            </div>
-
-            <!-- Waste Types Editor Section -->
-            <div class="form-group">
-              <label class="section-sub-label">Types de déchets associés</label>
-              <div class="add-waste-bar">
-                <select #newWasteSelect class="form-control form-control-sm" aria-label="Sélectionner un type de déchet">
-                  <option value="">-- Ajouter un type de déchet --</option>
-                  @for (t of typesDechetsList(); track t.id) {
-                    <option [value]="t.id">{{ t.libelle }}</option>
-                  }
-                </select>
-                <button type="button" class="btn btn-secondary btn-sm" (click)="addWasteType(+newWasteSelect.value); newWasteSelect.value=''">Ajouter</button>
-              </div>
-
-              @if (editableTypeDechets().length > 0) {
-                <div class="editable-wastes-list">
-                  @for (w of editableTypeDechets(); track w.type_dechet_id; let idx = $index) {
-                    <div class="editable-waste-item">
-                      <div class="waste-item-header">
-                        <strong>{{ w.libelle || ('Type #' + w.type_dechet_id) }}</strong>
-                        <button type="button" class="btn-text-danger" (click)="removeWasteType(idx)">Supprimer</button>
-                      </div>
-                      <div class="waste-item-grid">
-                        <div class="form-group">
-                          <label>Quantité estimée</label>
-                          <input type="number" step="any" class="form-control form-control-sm" [(ngModel)]="w.quantite_estime" placeholder="Ex: 5">
-                        </div>
-                        <div class="form-group">
-                          <label>Volume estimé (m³)</label>
-                          <input type="number" step="any" class="form-control form-control-sm" [(ngModel)]="w.volume_estime" placeholder="Ex: 1.5">
-                        </div>
-                        <div class="form-group">
-                          <label>Dangerosité</label>
-                          <select class="form-control form-control-sm" [(ngModel)]="w.dangerosite" aria-label="Dangerosité">
-                            <option [ngValue]="null">Non spécifié</option>
-                            <option value="faible">Faible</option>
-                            <option value="modere">Modéré</option>
-                            <option value="eleve">Elevé</option>
-                            <option value="extreme">Extrême</option>
-                          </select>
-                        </div>
-                        <div class="form-group full-width">
-                          <label>Remarque</label>
-                          <input type="text" class="form-control form-control-sm" [(ngModel)]="w.remarque" placeholder="Remarque spécifique...">
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              } @else {
-                <p class="muted-text">Aucun type de déchet associé.</p>
-              }
-            </div>
-
-            <div class="form-actions">
-              <button class="btn btn-secondary btn-sm" (click)="cancelEditing()" [disabled]="actionInProgress()">Annuler</button>
-              <button class="btn btn-primary btn-sm" (click)="saveEdition()" [disabled]="actionInProgress()">Enregistrer les modifications</button>
-            </div>
-          </div>
-        }
-
-        <div class="meta-details-grid">
-          <div class="meta-item">
-            <span class="meta-label">Date & Heure</span>
-            <span class="meta-value">{{ item.date_heure_signalement | date:'dd/MM/yyyy HH:mm:ss' }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Zone assignée</span>
-            <span class="meta-value">{{ item.zone?.nom_zone || 'Non assignée' }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Coordonnées GPS</span>
-            <span class="meta-value coord-code">{{ item.latitude }}, {{ item.longitude }}</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Dernière mise à jour</span>
-            <span class="meta-value">{{ item.updated_at | date:'dd/MM/yyyy HH:mm' }}</span>
-          </div>
-        </div>
+    <section class="grid min-h-[420px] place-items-center rounded-2xl border border-ier-border bg-ier-surface">
+      <div class="flex flex-col items-center gap-3 text-center">
+        <span class="size-8 animate-spin rounded-full border-2 border-ier-border border-t-ier-cyan"></span>
+        <p class="text-sm text-ier-muted">Chargement du signalement…</p>
       </div>
-
-      <!-- Sidebar Info Cards -->
-      <div class="sidebar-cards">
-        <!-- Citoyen / Utilisateur Card -->
-        <div class="dashboard-card sidebar-card">
-          <h3 class="card-subtitle-heading">Citoyen Auteur</h3>
-          @if (item.user) {
-            <div class="user-profile-info">
-              <div class="user-avatar">{{ item.user.prenom?.[0] || item.user.email[0] | uppercase }}</div>
-              <div class="user-details">
-                <strong>{{ item.user.prenom }} {{ item.user.nom }}</strong>
-                <span class="sub-text">{{ item.user.email }}</span>
-                @if (item.user.telephone) {
-                  <span class="sub-text">Tél : {{ item.user.telephone }}</span>
-                }
-              </div>
-            </div>
-          } @else {
-            <p class="muted-text">Informations utilisateur non disponibles.</p>
-          }
+    </section>
+  } @else if (!signalement()) {
+    <section class="grid min-h-[320px] place-items-center rounded-2xl border border-ier-red/20 bg-ier-surface">
+      <div class="max-w-md text-center">
+        <div class="mx-auto grid size-12 place-items-center rounded-2xl border border-ier-red/20 bg-ier-red/10 text-ier-red">
+          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 8v4"></path>
+            <path d="M12 16h.01"></path>
+          </svg>
         </div>
+        <h1 class="mt-3 font-heading text-lg font-semibold text-white">Signalement indisponible</h1>
+        <p class="mt-1 text-sm text-ier-muted">{{ errorMessage() || 'Impossible de récupérer ce signalement.' }}</p>
+        <a routerLink="/admin/signalements" class="mt-4 inline-flex rounded-xl border border-ier-border bg-ier-elevated px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#1c232b]">Retour à la liste</a>
+      </div>
+    </section>
+  } @else {
+    @if (signalement(); as item) {
+      <section class="overflow-hidden rounded-2xl border border-ier-border bg-[radial-gradient(circle_at_top_right,rgba(56,189,248,0.1),transparent_35%),#11151a] p-5 shadow-[0_20px_55px_rgba(0,0,0,0.18)] md:p-6">
+        <div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
+          <div>
+            <div class="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-ier-cyan">Signalement #{{ item.id }}</div>
+            <h1 class="mt-1 max-w-3xl font-heading text-2xl font-bold tracking-[-0.03em] text-white">
+              {{ item.description || 'Signalement sans description' }}
+            </h1>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.64rem] font-bold" [class]="getStatusClasses(item.statut)">
+                {{ formatStatut(item.statut) }}
+              </span>
+              <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.64rem] font-bold" [class]="getPriorityClasses(item.priorite)">
+                Priorité : {{ formatPriorite(item.priorite) }}
+              </span>
+            </div>
+          </div>
 
-        <!-- Types de déchets Card -->
-        <div class="dashboard-card sidebar-card">
-          <h3 class="card-subtitle-heading">Types de Déchets Associés</h3>
-          @if (item.type_dechets && item.type_dechets.length > 0) {
-            <ul class="waste-list">
-              @for (dechet of item.type_dechets; track dechet.id || dechet.type_dechet_id) {
-                <li class="waste-item">
-                  <div class="waste-name">{{ dechet.libelle }}</div>
-                  <div class="waste-pivot">
-                    @if (dechet.quantite_estime !== null && dechet.quantite_estime !== undefined) {
-                      <span>Qté : {{ dechet.quantite_estime }}</span>
+          <div class="grid min-w-[220px] gap-2 sm:grid-cols-2 lg:min-w-[300px]">
+            <div class="rounded-xl border border-ier-border bg-ier-elevated/70 p-3">
+              <div class="text-[0.62rem] font-bold uppercase tracking-[0.1em] text-ier-muted">Zone</div>
+              <div class="mt-1 text-sm font-semibold text-white">{{ item.zone?.nom_zone || 'Non assignée' }}</div>
+            </div>
+            <div class="rounded-xl border border-ier-border bg-ier-elevated/70 p-3">
+              <div class="text-[0.62rem] font-bold uppercase tracking-[0.1em] text-ier-muted">Signalé le</div>
+              <div class="mt-1 text-sm font-semibold text-white">{{ item.date_heure_signalement | date:'dd/MM/yyyy HH:mm' }}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.8fr)]">
+        <div class="space-y-4">
+          @if (!isEditing()) {
+            <article class="rounded-2xl border border-ier-border bg-ier-surface p-5 shadow-[0_16px_45px_rgba(0,0,0,0.14)]">
+              <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-cyan">Contexte</div>
+              <h2 class="mt-1 font-heading text-lg font-semibold text-white">Informations générales</h2>
+              <p class="mt-4 whitespace-pre-wrap text-sm leading-6 text-ier-muted">{{ item.description || 'Aucune description fournie.' }}</p>
+
+              <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                <div class="rounded-xl border border-ier-border bg-ier-elevated/55 p-3.5">
+                  <div class="text-[0.62rem] font-bold uppercase tracking-[0.1em] text-ier-muted">Coordonnées GPS</div>
+                  <div class="mt-1 font-mono text-sm font-semibold text-white">{{ item.latitude }}, {{ item.longitude }}</div>
+                </div>
+                <div class="rounded-xl border border-ier-border bg-ier-elevated/55 p-3.5">
+                  <div class="text-[0.62rem] font-bold uppercase tracking-[0.1em] text-ier-muted">Mise à jour</div>
+                  <div class="mt-1 text-sm font-semibold text-white">{{ item.updated_at | date:'dd/MM/yyyy HH:mm' }}</div>
+                </div>
+              </div>
+            </article>
+          } @else {
+            <article class="rounded-2xl border border-ier-border bg-ier-surface p-5 shadow-[0_16px_45px_rgba(0,0,0,0.14)]">
+              <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-cyan">Édition</div>
+              <h2 class="mt-1 font-heading text-lg font-semibold text-white">Modifier le signalement</h2>
+
+              <div class="mt-5 space-y-4">
+                <label class="block">
+                  <span class="mb-1.5 block text-xs font-semibold text-white">Description</span>
+                  <textarea
+                    rows="4"
+                    class="w-full resize-y rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none placeholder:text-ier-muted/70 focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10"
+                    [ngModel]="editDescription()"
+                    (ngModelChange)="editDescription.set($event)"></textarea>
+                </label>
+
+                <label class="block">
+                  <span class="mb-1.5 block text-xs font-semibold text-white">Zone d’intervention</span>
+                  <select
+                    class="w-full rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10"
+                    [ngModel]="editZoneId()"
+                    (ngModelChange)="editZoneId.set($event === null || $event === '' ? null : Number($event))">
+                    <option [ngValue]="null">Aucune zone</option>
+                    @for (zone of zonesList(); track zone.id) {
+                      <option [ngValue]="zone.id">{{ zone.nom_zone }}</option>
                     }
-                    @if (dechet.volume_estime !== null && dechet.volume_estime !== undefined) {
-                      <span>Vol : {{ dechet.volume_estime }} m³</span>
-                    }
-                    @if (dechet.dangerosite) {
-                      <span class="badge badge-warning">Danger : {{ dechet.dangerosite }}</span>
+                  </select>
+                </label>
+
+                <div>
+                  <div class="mb-2 flex items-center justify-between gap-3">
+                    <span class="text-xs font-semibold text-white">Types de déchets associés</span>
+                    <span class="text-[0.66rem] text-ier-muted">{{ editableTypeDechets().length }} élément{{ editableTypeDechets().length > 1 ? 's' : '' }}</span>
+                  </div>
+
+                  <div class="flex flex-col gap-2 sm:flex-row">
+                    <select #newWasteSelect class="min-w-0 flex-1 rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10">
+                      <option value="">Ajouter un type de déchet</option>
+                      @for (type of typesDechetsList(); track type.id) {
+                        <option [value]="type.id">{{ type.libelle }}</option>
+                      }
+                    </select>
+                    <button type="button" class="rounded-xl border border-ier-border bg-ier-elevated px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#1c232b]" (click)="addWasteType(+newWasteSelect.value); newWasteSelect.value=''">Ajouter</button>
+                  </div>
+                </div>
+
+                @if (editableTypeDechets().length > 0) {
+                  <div class="space-y-3">
+                    @for (waste of editableTypeDechets(); track waste.type_dechet_id; let index = $index) {
+                      <div class="rounded-xl border border-ier-border bg-ier-elevated/45 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                          <div class="text-sm font-semibold text-white">{{ waste.libelle || ('Type #' + waste.type_dechet_id) }}</div>
+                          <button type="button" class="text-xs font-semibold text-red-300 hover:text-red-200" (click)="removeWasteType(index)">Supprimer</button>
+                        </div>
+
+                        <div class="mt-3 grid gap-3 md:grid-cols-3">
+                          <label class="block">
+                            <span class="mb-1 block text-[0.66rem] text-ier-muted">Quantité</span>
+                            <input type="number" step="any" class="w-full rounded-lg border border-ier-border bg-ier-bg px-3 py-2 text-sm text-white outline-none focus:border-ier-cyan/40" [(ngModel)]="waste.quantite_estime">
+                          </label>
+                          <label class="block">
+                            <span class="mb-1 block text-[0.66rem] text-ier-muted">Volume (m³)</span>
+                            <input type="number" step="any" class="w-full rounded-lg border border-ier-border bg-ier-bg px-3 py-2 text-sm text-white outline-none focus:border-ier-cyan/40" [(ngModel)]="waste.volume_estime">
+                          </label>
+                          <label class="block">
+                            <span class="mb-1 block text-[0.66rem] text-ier-muted">Dangerosité</span>
+                            <select class="w-full rounded-lg border border-ier-border bg-ier-bg px-3 py-2 text-sm text-white outline-none focus:border-ier-cyan/40" [(ngModel)]="waste.dangerosite">
+                              <option [ngValue]="null">Non spécifié</option>
+                              <option value="faible">Faible</option>
+                              <option value="modere">Modéré</option>
+                              <option value="eleve">Élevé</option>
+                              <option value="extreme">Extrême</option>
+                            </select>
+                          </label>
+                        </div>
+
+                        <label class="mt-3 block">
+                          <span class="mb-1 block text-[0.66rem] text-ier-muted">Remarque</span>
+                          <input type="text" class="w-full rounded-lg border border-ier-border bg-ier-bg px-3 py-2 text-sm text-white outline-none focus:border-ier-cyan/40" [(ngModel)]="waste.remarque">
+                        </label>
+                      </div>
                     }
                   </div>
-                  @if (dechet.remarque) {
-                    <div class="waste-remarque">Remarque : {{ dechet.remarque }}</div>
-                  }
-                </li>
-              }
-            </ul>
-          } @else {
-            <p class="muted-text">Aucun type de déchet spécifique associé.</p>
-          }
-        </div>
-      </div>
-    </div>
+                } @else {
+                  <div class="rounded-xl border border-dashed border-ier-border bg-ier-elevated/40 p-4 text-sm text-ier-muted">Aucun type de déchet associé.</div>
+                }
 
-    <!-- Photos Section -->
-    <div class="dashboard-card photos-card">
-      <h3 class="card-subtitle-heading">Photos du Signalement</h3>
-      @if (item.photos && item.photos.length > 0) {
-        <div class="photos-grid">
-          @for (photo of item.photos; track photo.id) {
-            <div class="photo-item">
-              <img [src]="photo.url" [alt]="photo.description || 'Photo signalement'" class="signalement-img">
-              @if (photo.description) {
-                <span class="photo-desc">{{ photo.description }}</span>
-              }
+                <div class="flex justify-end">
+                  <button type="button" class="rounded-xl bg-ier-cyan px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-sky-300 disabled:cursor-wait disabled:opacity-60" (click)="saveEdition()" [disabled]="actionInProgress()">Enregistrer les modifications</button>
+                </div>
+              </div>
+            </article>
+          }
+
+          <article class="rounded-2xl border border-ier-border bg-ier-surface p-5 shadow-[0_16px_45px_rgba(0,0,0,0.14)]">
+            <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-orange">Auteur</div>
+            <h2 class="mt-1 font-heading text-lg font-semibold text-white">Citoyen à l’origine du signalement</h2>
+
+            @if (item.user; as user) {
+              <div class="mt-4 flex items-center gap-3">
+                <div class="grid size-11 place-items-center rounded-xl border border-ier-cyan/20 bg-ier-cyan/10 text-sm font-bold uppercase text-ier-cyan">
+                  {{ user.prenom?.[0] || user.email[0] | uppercase }}
+                </div>
+                <div class="min-w-0">
+                  <div class="truncate text-sm font-semibold text-white">{{ user.prenom }} {{ user.nom }}</div>
+                  <div class="truncate text-xs text-ier-muted">{{ user.email }}</div>
+                  @if (user.telephone) {
+                    <div class="mt-1 text-xs text-ier-muted">Tél. {{ user.telephone }}</div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <p class="mt-4 text-sm text-ier-muted">Informations utilisateur non disponibles.</p>
+            }
+          </article>
+
+          <article class="rounded-2xl border border-ier-border bg-ier-surface p-5 shadow-[0_16px_45px_rgba(0,0,0,0.14)]">
+            <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-violet">Déchets</div>
+            <h2 class="mt-1 font-heading text-lg font-semibold text-white">Types associés</h2>
+
+            @if (item.type_dechets && item.type_dechets.length > 0) {
+              <div class="mt-4 space-y-2">
+                @for (dechet of item.type_dechets; track dechet.id || dechet.type_dechet_id) {
+                  <div class="rounded-xl border border-ier-border bg-ier-elevated/45 p-3">
+                    <div class="text-sm font-semibold text-white">{{ dechet.libelle }}</div>
+                    <div class="mt-2 flex flex-wrap gap-1.5 text-[0.65rem] text-ier-muted">
+                      @if (dechet.quantite_estime !== null && dechet.quantite_estime !== undefined) {
+                        <span class="rounded-full border border-ier-border bg-ier-bg px-2 py-1">Qté {{ dechet.quantite_estime }}</span>
+                      }
+                      @if (dechet.volume_estime !== null && dechet.volume_estime !== undefined) {
+                        <span class="rounded-full border border-ier-border bg-ier-bg px-2 py-1">Vol {{ dechet.volume_estime }} m³</span>
+                      }
+                      @if (dechet.dangerosite) {
+                        <span class="rounded-full border border-ier-orange/20 bg-ier-orange/10 px-2 py-1 text-ier-orange">Danger {{ dechet.dangerosite }}</span>
+                      }
+                    </div>
+                    @if (dechet.remarque) {
+                      <p class="mt-2 text-xs italic text-ier-muted">{{ dechet.remarque }}</p>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="mt-4 text-sm text-ier-muted">Aucun type de déchet spécifique associé.</p>
+            }
+          </article>
+        </div>
+
+        <div class="space-y-4">
+          @if (mapPoint(); as point) {
+            <div class="xl:sticky xl:top-[88px]">
+              <app-map-shell [points]="[point]" [fitToPoints]="true">
+                <div map-top-left class="rounded-[16px] border border-white/20 bg-[#0b0d10]/90 px-3.5 py-3 text-white shadow-[0_16px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+                  <div class="text-[0.62rem] font-bold uppercase tracking-[0.11em] text-ier-cyan">Localisation</div>
+                  <div class="mt-1 text-sm font-semibold">Point du signalement</div>
+                  <div class="mt-1 font-mono text-[0.66rem] text-white/60">{{ item.latitude }}, {{ item.longitude }}</div>
+                </div>
+              </app-map-shell>
             </div>
           }
+
+          <article class="rounded-2xl border border-ier-border bg-ier-surface p-5 shadow-[0_16px_45px_rgba(0,0,0,0.14)]">
+            <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-green">Pièces jointes</div>
+            <h2 class="mt-1 font-heading text-lg font-semibold text-white">Photos du signalement</h2>
+
+            @if (item.photos && item.photos.length > 0) {
+              <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                @for (photo of item.photos; track photo.id) {
+                  <figure class="overflow-hidden rounded-xl border border-ier-border bg-ier-elevated">
+                    <img [src]="photo.url" [alt]="photo.description || 'Photo du signalement'" class="aspect-[4/3] w-full object-cover">
+                    @if (photo.description) {
+                      <figcaption class="px-3 py-2 text-xs text-ier-muted">{{ photo.description }}</figcaption>
+                    }
+                  </figure>
+                }
+              </div>
+            } @else {
+              <div class="mt-4 rounded-xl border border-dashed border-ier-border bg-ier-elevated/40 p-6 text-center text-sm text-ier-muted">
+                Aucune photo jointe à ce signalement.
+              </div>
+            }
+          </article>
         </div>
-      } @else {
-        <div class="empty-photos">
-          <p class="muted-text">Aucune photo jointe à ce signalement.</p>
-        </div>
-      }
-    </div>
+      </section>
+    }
   }
 
-  <!-- Prioritization Modal -->
   @if (showPrioritizeModal()) {
-    <div class="modal-backdrop" (click)="closePrioritizeModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Prioriser le signalement #{{ signalement()?.id }}</h3>
-          <button class="modal-close" (click)="closePrioritizeModal()">&times;</button>
+    <div class="fixed inset-0 z-[1000] grid place-items-center bg-black/65 px-4 py-6 backdrop-blur-sm" (click)="closePrioritizeModal()">
+      <div class="w-full max-w-md overflow-hidden rounded-2xl border border-ier-border bg-ier-surface shadow-[0_30px_90px_rgba(0,0,0,0.45)]" (click)="$event.stopPropagation()">
+        <div class="border-b border-ier-border px-5 py-4">
+          <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-cyan">Priorisation</div>
+          <h2 class="mt-1 font-heading text-lg font-semibold text-white">Signalement #{{ signalement()?.id }}</h2>
         </div>
-        <div class="modal-body">
-          <p class="modal-desc">Sélectionnez le niveau de priorité à assigner :</p>
-          <div class="form-group">
-            <label for="detailPrioritySelect">Priorité</label>
-            <select id="detailPrioritySelect" class="form-control" [(ngModel)]="selectedPriority">
-              <option value="faible">Faible</option>
-              <option value="normale">Normale</option>
-              <option value="haute">Haute</option>
-              <option value="urgente">Urgente</option>
-            </select>
-          </div>
+        <div class="space-y-4 px-5 py-5">
+          <p class="text-sm leading-5 text-ier-muted">Sélectionnez le niveau de priorité à assigner.</p>
+          <select class="w-full rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none focus:border-ier-cyan/40" [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event)">
+            <option value="faible">Faible</option>
+            <option value="normale">Normale</option>
+            <option value="haute">Haute</option>
+            <option value="urgente">Urgente</option>
+          </select>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closePrioritizeModal()">Annuler</button>
-          <button class="btn btn-primary" (click)="confirmPrioritize()" [disabled]="actionInProgress()">Enregistrer</button>
+        <div class="flex justify-end gap-2 border-t border-ier-border bg-ier-elevated/40 px-5 py-4">
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2 text-xs font-semibold text-white hover:bg-ier-elevated" (click)="closePrioritizeModal()">Annuler</button>
+          <button type="button" class="rounded-xl bg-ier-cyan px-4 py-2 text-xs font-bold text-slate-950 hover:bg-sky-300 disabled:cursor-wait disabled:opacity-60" (click)="confirmPrioritize()" [disabled]="actionInProgress()">Enregistrer</button>
         </div>
       </div>
     </div>
   }
 
-  <!-- Reject Confirmation Modal -->
   @if (showRejectModal()) {
-    <div class="modal-backdrop" (click)="closeRejectModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Confirmer le rejet</h3>
-          <button class="modal-close" (click)="closeRejectModal()">&times;</button>
+    <div class="fixed inset-0 z-[1000] grid place-items-center bg-black/65 px-4 py-6 backdrop-blur-sm" (click)="closeRejectModal()">
+      <div class="w-full max-w-md overflow-hidden rounded-2xl border border-ier-border bg-ier-surface shadow-[0_30px_90px_rgba(0,0,0,0.45)]" (click)="$event.stopPropagation()">
+        <div class="border-b border-ier-border px-5 py-4">
+          <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-red">Décision</div>
+          <h2 class="mt-1 font-heading text-lg font-semibold text-white">Confirmer le rejet</h2>
         </div>
-        <div class="modal-body">
-          <p class="modal-desc">Êtes-vous sûr de vouloir rejeter le signalement #{{ signalement()?.id }} ?</p>
+        <div class="px-5 py-5">
+          <p class="text-sm leading-5 text-ier-muted">Rejeter le signalement #{{ signalement()?.id }} ?</p>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closeRejectModal()">Annuler</button>
-          <button class="btn btn-danger" (click)="confirmReject()" [disabled]="actionInProgress()">Confirmer le rejet</button>
+        <div class="flex justify-end gap-2 border-t border-ier-border bg-ier-elevated/40 px-5 py-4">
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2 text-xs font-semibold text-white hover:bg-ier-elevated" (click)="closeRejectModal()">Annuler</button>
+          <button type="button" class="rounded-xl bg-ier-red px-4 py-2 text-xs font-bold text-white hover:bg-red-500 disabled:cursor-wait disabled:opacity-60" (click)="confirmReject()" [disabled]="actionInProgress()">Confirmer le rejet</button>
         </div>
       </div>
     </div>
   }
 
-  <!-- Delete Confirmation Modal -->
   @if (showDeleteModal()) {
-    <div class="modal-backdrop" (click)="closeDeleteModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Confirmer la suppression</h3>
-          <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+    <div class="fixed inset-0 z-[1000] grid place-items-center bg-black/65 px-4 py-6 backdrop-blur-sm" (click)="closeDeleteModal()">
+      <div class="w-full max-w-md overflow-hidden rounded-2xl border border-ier-border bg-ier-surface shadow-[0_30px_90px_rgba(0,0,0,0.45)]" (click)="$event.stopPropagation()">
+        <div class="border-b border-ier-border px-5 py-4">
+          <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-red">Suppression</div>
+          <h2 class="mt-1 font-heading text-lg font-semibold text-white">Supprimer le signalement #{{ signalement()?.id }}</h2>
         </div>
-        <div class="modal-body">
-          <p class="modal-desc">Êtes-vous sûr de vouloir supprimer définitivement le signalement #{{ signalement()?.id }} ? Cette action est irréversible.</p>
+        <div class="px-5 py-5">
+          <p class="text-sm leading-5 text-ier-muted">Cette action est irréversible. Le signalement sera supprimé définitivement.</p>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
-          <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="actionInProgress()">Supprimer définitivement</button>
+        <div class="flex justify-end gap-2 border-t border-ier-border bg-ier-elevated/40 px-5 py-4">
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2 text-xs font-semibold text-white hover:bg-ier-elevated" (click)="closeDeleteModal()">Annuler</button>
+          <button type="button" class="rounded-xl bg-ier-red px-4 py-2 text-xs font-bold text-white hover:bg-red-500 disabled:cursor-wait disabled:opacity-60" (click)="confirmDelete()" [disabled]="actionInProgress()">Supprimer définitivement</button>
         </div>
       </div>
     </div>
