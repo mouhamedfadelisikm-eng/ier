@@ -407,6 +407,14 @@ export class SignalementDetailComponent implements OnInit {
     this.editZoneId.set(value === null || value === '' ? null : Number(value));
   }
 
+  formatStatut(status: string): string {
+    return formatStatut(status);
+  }
+
+  formatPriorite(priority?: string | null): string {
+    return formatPriorite(priority);
+  }
+
   getStatusClasses(status: string): string {
     switch (status) {
       case 'en_attente_validation':
