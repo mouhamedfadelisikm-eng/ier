@@ -70,18 +70,21 @@
   </section>
 
   <!-- Operational map -->
-  <section class="dashboard-map-section">
-    <div class="dashboard-map-header">
+  <section class="flex flex-col gap-4">
+    <div class="flex flex-col items-start justify-between gap-4 md:flex-row md:items-end">
       <div>
-        <span class="section-kicker">SUPERVISION GÉOGRAPHIQUE</span>
-        <h2 class="card-title">Points chauds des signalements</h2>
-        <p class="card-subtitle">
+        <span class="mb-1 block text-[0.68rem] font-extrabold tracking-[0.1em] text-sky-700">SUPERVISION GÉOGRAPHIQUE</span>
+        <h2 class="text-lg font-semibold text-slate-900">Points chauds des signalements</h2>
+        <p class="mt-1 text-[0.8125rem] text-slate-500">
           La carte devient le support principal de lecture des données géographiques.
         </p>
       </div>
 
-      <button class="btn btn-secondary btn-sm" (click)="loadHeatmap()" [disabled]="isLoadingHeatmap()">
-        <svg class="refresh-icon" [class.spinning]="isLoadingHeatmap()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button
+        class="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+        (click)="loadHeatmap()"
+        [disabled]="isLoadingHeatmap()">
+        <svg class="size-3.5" [class.animate-spin]="isLoadingHeatmap()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="23 4 23 10 17 10"></polyline>
           <polyline points="1 20 1 14 7 14"></polyline>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -91,31 +94,44 @@
     </div>
 
     <app-map-shell [points]="mapPoints()" [fitToPoints]="true">
-      <div map-top-left class="dashboard-map-card">
-        <span>DONNÉES API</span>
-        <strong>{{ totalPoints() }} points géographiques</strong>
-        <p>{{ distinctZonesCount() }} zones concernées · poids cumulé {{ totalWeight() }}</p>
+      <div
+        map-top-left
+        class="min-w-[250px] rounded-[14px] border border-white/30 bg-slate-900/90 p-3.5 text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl max-sm:min-w-0">
+        <span class="mb-1 block text-[0.64rem] font-extrabold tracking-[0.08em] text-sky-300">DONNÉES API</span>
+        <strong class="block text-[0.95rem]">{{ totalPoints() }} points géographiques</strong>
+        <p class="mt-1 text-[0.74rem] text-white/65">
+          {{ distinctZonesCount() }} zones concernées · poids cumulé {{ totalWeight() }}
+        </p>
       </div>
 
-      <a map-top-right class="dashboard-map-link" routerLink="/admin/carte">
+      <a
+        map-top-right
+        routerLink="/admin/carte"
+        class="inline-flex min-h-[38px] items-center rounded-[14px] border border-white/30 bg-slate-900/90 px-3 py-2 text-xs font-bold text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl transition hover:bg-slate-900">
         Ouvrir la carte opérationnelle
       </a>
 
       @if (isLoadingHeatmap()) {
-        <div map-bottom-left class="dashboard-map-status">
-          <span class="spinner spinner-dark"></span>
+        <div
+          map-bottom-left
+          class="inline-flex items-center gap-2 rounded-[14px] border border-white/30 bg-slate-900/90 px-3 py-2 text-xs text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl">
+          <span class="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
           <span>Synchronisation des données cartographiques…</span>
         </div>
       }
 
       @else if (heatmapError()) {
-        <div map-bottom-left class="dashboard-map-status dashboard-map-status--error">
+        <div
+          map-bottom-left
+          class="rounded-[14px] border border-red-200 bg-red-950/90 px-3 py-2 text-xs text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl">
           <span>{{ heatmapError() }}</span>
         </div>
       }
 
       @else if (heatmapPoints().length === 0) {
-        <div map-bottom-left class="dashboard-map-status">
+        <div
+          map-bottom-left
+          class="rounded-[14px] border border-white/30 bg-slate-900/90 px-3 py-2 text-xs text-white shadow-[0_14px_34px_rgba(15,23,42,0.25)] backdrop-blur-xl">
           Aucun point chaud disponible actuellement.
         </div>
       }
