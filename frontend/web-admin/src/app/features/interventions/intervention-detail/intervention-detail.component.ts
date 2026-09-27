@@ -13,7 +13,6 @@ import { MapShellComponent } from '../../../shared/ui/map-shell/map-shell.compon
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule, MapShellComponent],
   templateUrl: './intervention-detail.component.html',
-  styleUrls: ['./intervention-detail.component.css']
 })
 export class InterventionDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
