@@ -15,7 +15,6 @@ import { formatPriorite, formatStatut } from '../../core/models/signalement-cons
   standalone: true,
   imports: [CommonModule, RouterLink, MapShellComponent],
   templateUrl: './carte.component.html',
-  styleUrls: ['./carte.component.css']
 })
 export class CarteComponent implements OnInit, OnDestroy {
   private readonly signalementService = inject(SignalementService);
