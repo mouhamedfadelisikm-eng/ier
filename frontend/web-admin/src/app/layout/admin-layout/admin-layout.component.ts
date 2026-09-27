@@ -8,14 +8,13 @@ import { HeaderComponent } from '../header/header.component';
   selector: 'app-admin-layout',
   standalone: true,
   imports: [CommonModule, RouterOutlet, SidebarComponent, HeaderComponent],
-  templateUrl: './admin-layout.component.html',
-  styleUrls: ['./admin-layout.component.css']
+  templateUrl: './admin-layout.component.html'
 })
 export class AdminLayoutComponent {
   sidebarOpen = signal<boolean>(false);
 
   toggleSidebar(): void {
-    this.sidebarOpen.update(v => !v);
+    this.sidebarOpen.update(value => !value);
   }
 
   closeSidebar(): void {
