@@ -126,7 +126,7 @@ export class InterventionsListComponent implements OnInit {
 
     this.service.create({
       affectation_id: affectation,
-      date_heure_debut: date
+      date_heure_debut: this.toBackendDate(date)
     }).subscribe({
       next: () => {
         this.actionInProgress.set(false);
@@ -183,6 +183,10 @@ export class InterventionsListComponent implements OnInit {
     const d = new Date();
     const pad = (n: number) => String(n).padStart(2, '0');
 
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  private toBackendDate(value: string): string {
+    return value.length === 16 ? value.replace('T', ' ') + ':00' : value.replace('T', ' ');
   }
 }
