@@ -7,6 +7,7 @@ import { SignalementsListComponent } from './signalements-list.component';
 import { SignalementService } from '../../../core/services/signalement.service';
 import { Signalement } from '../../../core/models/signalement.model';
 import { MapPoint } from '../../../core/models/map.model';
+import { MapShellComponent } from '../../../shared/ui/map-shell/map-shell.component';
 
 @Component({
   selector: 'app-map-shell',
@@ -61,7 +62,7 @@ describe('SignalementsListComponent', () => {
       ]
     })
       .overrideComponent(SignalementsListComponent, {
-        remove: { imports: [MockMapShellComponent] },
+        remove: { imports: [MapShellComponent] },
         add: { imports: [MockMapShellComponent] }
       })
       .compileComponents();
