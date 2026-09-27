@@ -1,290 +1,307 @@
-<div class="signalements-container">
-  <!-- Header Title & Stats -->
-  <div class="page-header">
+<div class="space-y-5 text-ier-text">
+  <section class="flex flex-col justify-between gap-4 rounded-2xl border border-ier-border bg-ier-surface p-5 shadow-[0_18px_45px_rgba(0,0,0,0.16)] md:flex-row md:items-end">
     <div>
-      <h1 class="page-title">Gestion des Signalements</h1>
-      <p class="page-subtitle">Supervision, validation, priorisation et suivi des signalements citoyens</p>
+      <div class="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-ier-cyan">Opérations terrain</div>
+      <h1 class="mt-1 font-heading text-2xl font-bold tracking-[-0.03em] text-white">Signalements</h1>
+      <p class="mt-1 max-w-2xl text-sm text-ier-muted">Valider, prioriser et suivre les signalements citoyens depuis une même surface de travail.</p>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-secondary btn-sm" (click)="loadSignalements(currentPage())" [disabled]="isLoading()">
-        <svg class="refresh-icon" [class.spinning]="isLoading()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polyline points="23 4 23 10 17 10"></polyline>
-          <polyline points="1 20 1 14 7 14"></polyline>
-          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+
+    <div class="flex items-center gap-2">
+      @if (meta(); as pageMeta) {
+        <div class="hidden rounded-xl border border-ier-border bg-ier-elevated px-3 py-2 text-xs text-ier-muted sm:block">
+          {{ pageMeta.total }} signalement{{ pageMeta.total > 1 ? 's' : '' }}
+        </div>
+      }
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-xl border border-ier-border bg-ier-elevated px-3.5 py-2.5 text-xs font-semibold text-white transition hover:border-ier-cyan/30 hover:bg-[#1c232b] disabled:cursor-wait disabled:opacity-60"
+        (click)="loadSignalements(currentPage())"
+        [disabled]="isLoading()">
+        <svg class="size-4" [class.animate-spin]="isLoading()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M20 11a8 8 0 1 0 1 4"></path>
+          <path d="M20 4v7h-7"></path>
         </svg>
         Actualiser
       </button>
     </div>
-  </div>
+  </section>
 
-  <!-- Notification Banners -->
   @if (successMessage()) {
-    <div class="alert alert-success">
+    <div class="flex items-center justify-between gap-3 rounded-xl border border-ier-green/25 bg-ier-green/10 px-4 py-3 text-sm text-green-200">
       <span>{{ successMessage() }}</span>
-      <button class="alert-close" (click)="successMessage.set(null)">&times;</button>
+      <button type="button" class="text-lg leading-none text-green-200/60 hover:text-green-100" (click)="successMessage.set(null)" aria-label="Fermer">×</button>
     </div>
   }
 
   @if (errorMessage()) {
-    <div class="alert alert-danger">
+    <div class="flex items-center justify-between gap-3 rounded-xl border border-ier-red/25 bg-ier-red/10 px-4 py-3 text-sm text-red-200">
       <span>{{ errorMessage() }}</span>
-      <button class="alert-close" (click)="errorMessage.set(null)">&times;</button>
+      <button type="button" class="text-lg leading-none text-red-200/60 hover:text-red-100" (click)="errorMessage.set(null)" aria-label="Fermer">×</button>
     </div>
   }
 
-  <!-- Filters Bar -->
-  <div class="filters-card">
-    <div class="filter-group">
-      <label for="searchQuery">Recherche</label>
-      <input
-        type="text"
-        id="searchQuery"
-        class="form-control"
-        placeholder="Rechercher par description, zone, utilisateur..."
-        [(ngModel)]="searchQuery"
-      >
-    </div>
+  <section class="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(360px,0.85fr)]">
+    <div class="space-y-4">
+      <div class="rounded-2xl border border-ier-border bg-ier-surface p-4 shadow-[0_18px_45px_rgba(0,0,0,0.14)]">
+        <div class="grid gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(180px,0.7fr)_minmax(180px,0.7fr)]">
+          <label class="block">
+            <span class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-[0.1em] text-ier-muted">Recherche</span>
+            <div class="relative">
+              <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ier-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m20 20-4-4"></path>
+              </svg>
+              <input
+                id="searchQuery"
+                type="text"
+                class="w-full rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 pl-9 text-sm text-white outline-none transition placeholder:text-ier-muted/70 focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10"
+                placeholder="Description, zone, utilisateur ou ID"
+                [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)">
+            </div>
+          </label>
 
-    <div class="filter-group">
-      <label for="filterStatus">Filtrer par Statut</label>
-      <select id="filterStatus" class="form-control" [(ngModel)]="filterStatus">
-        <option value="">Tous les statuts</option>
-        <option value="brouillon">Brouillon</option>
-        <option value="en_attente_validation">En attente de validation</option>
-        <option value="valide">Validé</option>
-        <option value="rejete">Rejeté</option>
-        <option value="priorise">Priorisé</option>
-        <option value="affecte">Affecté</option>
-        <option value="en_intervention">En intervention</option>
-        <option value="termine">Terminé</option>
-        <option value="cloture">Clôturé</option>
-      </select>
-    </div>
+          <label class="block">
+            <span class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-[0.1em] text-ier-muted">Statut</span>
+            <select
+              id="filterStatus"
+              class="w-full rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none transition focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10"
+              [ngModel]="filterStatus()" (ngModelChange)="filterStatus.set($event)">
+              <option value="">Tous les statuts</option>
+              <option value="brouillon">Brouillon</option>
+              <option value="en_attente_validation">En attente de validation</option>
+              <option value="valide">Validé</option>
+              <option value="rejete">Rejeté</option>
+              <option value="priorise">Priorisé</option>
+              <option value="affecte">Affecté</option>
+              <option value="en_intervention">En intervention</option>
+              <option value="termine">Terminé</option>
+              <option value="cloture">Clôturé</option>
+            </select>
+          </label>
 
-    <div class="filter-group">
-      <label for="filterPriority">Filtrer par Priorité</label>
-      <select id="filterPriority" class="form-control" [(ngModel)]="filterPriority">
-        <option value="">Toutes les priorités</option>
-        <option value="faible">Faible</option>
-        <option value="normale">Normale</option>
-        <option value="haute">Haute</option>
-        <option value="urgente">Urgente</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Main Content Card -->
-  <div class="dashboard-card">
-    <!-- Loading State -->
-    @if (isLoading()) {
-      <div class="state-container">
-        <div class="spinner spinner-dark"></div>
-        <p class="state-text">Chargement des signalements depuis l'API...</p>
-      </div>
-    }
-
-    <!-- Empty State -->
-    @else if (filteredSignalements().length === 0) {
-      <div class="state-container state-empty">
-        <svg class="empty-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M8 12h8"></path>
-        </svg>
-        <p class="empty-title">Aucun signalement trouvé</p>
-        <p class="empty-desc">Aucun signalement ne correspond aux critères de recherche ou la liste est vide.</p>
-      </div>
-    }
-
-    <!-- Table -->
-    @else {
-      <div class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Date & Heure</th>
-              <th>Utilisateur</th>
-              <th>Zone</th>
-              <th>Statut</th>
-              <th>Priorité</th>
-              <th>Coordonnées</th>
-              <th class="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of filteredSignalements(); track item.id) {
-              <tr class="clickable-row" [routerLink]="['/admin/signalements', item.id]">
-                <td><strong>#{{ item.id }}</strong></td>
-                <td>
-                  <span class="date-text">{{ item.date_heure_signalement | date:'dd/MM/yyyy HH:mm' }}</span>
-                </td>
-                <td>
-                  <div class="user-cell">
-                    <span class="user-name">{{ item.user?.prenom }} {{ item.user?.nom }}</span>
-                    <span class="user-email">{{ item.user?.email }}</span>
-                  </div>
-                </td>
-                <td>
-                  <span class="zone-badge">{{ item.zone?.nom_zone || 'Non assignée' }}</span>
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="getStatutBadgeClass(item.statut)">
-                    {{ formatStatut(item.statut) }}
-                  </span>
-                </td>
-                <td>
-                  <span class="priority-text">{{ formatPriorite(item.priorite) }}</span>
-                </td>
-                <td>
-                  <span class="coord-badge" title="Latitude, Longitude">
-                    {{ item.latitude | number:'1.4-4' }}, {{ item.longitude | number:'1.4-4' }}
-                  </span>
-                </td>
-                <td class="text-right actions-cell" (click)="$event.stopPropagation()">
-                  <div class="action-buttons">
-                    <!-- View detail -->
-                    <a [routerLink]="['/admin/signalements', item.id]" class="btn-icon btn-icon-view" title="Voir le détail">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </a>
-
-                    <!-- Validate / Reject if en_attente_validation -->
-                    @if (item.statut === 'en_attente_validation') {
-                      <button
-                        class="btn btn-success btn-xs"
-                        (click)="validate(item.id, $event)"
-                        [disabled]="actionInProgressId() === item.id"
-                        title="Valider le signalement">
-                        Valider
-                      </button>
-                      <button
-                        class="btn btn-danger btn-xs"
-                        (click)="promptReject(item, $event)"
-                        [disabled]="actionInProgressId() === item.id"
-                        title="Rejeter le signalement">
-                        Rejeter
-                      </button>
-                    }
-
-                    <!-- Prioritize if valide -->
-                    @if (item.statut === 'valide') {
-                      <button
-                        class="btn btn-primary btn-xs"
-                        (click)="openPrioritizeModal(item, $event)"
-                        [disabled]="actionInProgressId() === item.id"
-                        title="Prioriser le signalement">
-                        Prioriser
-                      </button>
-                    }
-
-                    <!-- Delete -->
-                    <button
-                      class="btn-icon btn-icon-delete"
-                      (click)="promptDeleteSignalement(item, $event)"
-                      [disabled]="actionInProgressId() === item.id"
-                      title="Supprimer">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Pagination bar -->
-      @if (meta() && meta()!.last_page > 1) {
-        <div class="pagination-bar">
-          <span class="pagination-info">
-            Affichage de {{ meta()!.from }} à {{ meta()!.to }} sur {{ meta()!.total }} signalements
-          </span>
-          <div class="pagination-buttons">
-            <button
-              class="btn btn-secondary btn-sm"
-              [disabled]="meta()!.current_page === 1 || isLoading()"
-              (click)="onPageChange(meta()!.current_page - 1)">
-              Précédent
-            </button>
-            <span class="page-indicator">Page {{ meta()!.current_page }} / {{ meta()!.last_page }}</span>
-            <button
-              class="btn btn-secondary btn-sm"
-              [disabled]="meta()!.current_page === meta()!.last_page || isLoading()"
-              (click)="onPageChange(meta()!.current_page + 1)">
-              Suivant
-            </button>
-          </div>
-        </div>
-      }
-    }
-  </div>
-
-  <!-- Prioritization Modal -->
-  @if (showPrioritizeModal()) {
-    <div class="modal-backdrop" (click)="closePrioritizeModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Prioriser le signalement #{{ selectedSignalementForPrioritize()?.id }}</h3>
-          <button class="modal-close" (click)="closePrioritizeModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-          <p class="modal-desc">Veuillez sélectionner le niveau de priorité à assigner à ce signalement validé :</p>
-          <div class="form-group">
-            <label for="prioritySelect">Niveau de priorité</label>
-            <select id="prioritySelect" class="form-control" [(ngModel)]="selectedPriority">
+          <label class="block">
+            <span class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-[0.1em] text-ier-muted">Priorité</span>
+            <select
+              id="filterPriority"
+              class="w-full rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none transition focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10"
+              [ngModel]="filterPriority()" (ngModelChange)="filterPriority.set($event)">
+              <option value="">Toutes les priorités</option>
               <option value="faible">Faible</option>
               <option value="normale">Normale</option>
               <option value="haute">Haute</option>
               <option value="urgente">Urgente</option>
             </select>
+          </label>
+        </div>
+      </div>
+
+      <section class="overflow-hidden rounded-2xl border border-ier-border bg-ier-surface shadow-[0_18px_45px_rgba(0,0,0,0.14)]">
+        <div class="flex items-center justify-between gap-3 border-b border-ier-border px-4 py-3">
+          <div>
+            <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-cyan">File opérationnelle</div>
+            <div class="mt-1 text-sm font-semibold text-white">{{ filteredSignalements().length }} élément{{ filteredSignalements().length > 1 ? 's' : '' }} visible{{ filteredSignalements().length > 1 ? 's' : '' }}</div>
           </div>
+          <span class="text-[0.68rem] text-ier-muted">Page {{ currentPage() }}</span>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closePrioritizeModal()">Annuler</button>
-          <button class="btn btn-primary" (click)="confirmPrioritize()" [disabled]="actionInProgressId() !== null">Enregistrer la priorité</button>
+
+        @if (isLoading()) {
+          <div class="grid min-h-[320px] place-items-center px-5">
+            <div class="flex flex-col items-center gap-3 text-center">
+              <span class="size-7 animate-spin rounded-full border-2 border-ier-border border-t-ier-cyan"></span>
+              <p class="text-sm text-ier-muted">Chargement des signalements…</p>
+            </div>
+          </div>
+        } @else if (filteredSignalements().length === 0) {
+          <div class="grid min-h-[320px] place-items-center px-5">
+            <div class="max-w-sm text-center">
+              <div class="mx-auto grid size-12 place-items-center rounded-2xl border border-ier-border bg-ier-elevated text-ier-muted">
+                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M8 12h8"></path>
+                </svg>
+              </div>
+              <h2 class="mt-3 font-heading text-base font-semibold text-white">Aucun signalement trouvé</h2>
+              <p class="mt-1 text-sm leading-5 text-ier-muted">Les filtres courants ne renvoient aucun résultat sur la page chargée.</p>
+            </div>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="min-w-[900px] w-full border-collapse text-left">
+              <thead class="bg-ier-elevated/60">
+                <tr class="border-b border-ier-border text-[0.63rem] font-bold uppercase tracking-[0.09em] text-ier-muted">
+                  <th class="px-4 py-3">Signalement</th>
+                  <th class="px-4 py-3">Zone</th>
+                  <th class="px-4 py-3">Statut</th>
+                  <th class="px-4 py-3">Priorité</th>
+                  <th class="px-4 py-3">Date</th>
+                  <th class="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of filteredSignalements(); track item.id) {
+                  <tr class="group border-b border-ier-border last:border-b-0 transition hover:bg-ier-elevated/55">
+                    <td class="px-4 py-3 align-top">
+                      <a [routerLink]="['/admin/signalements', item.id]" class="block max-w-[300px]">
+                        <div class="text-[0.66rem] font-bold uppercase tracking-[0.1em] text-ier-cyan">#{{ item.id }}</div>
+                        <div class="mt-1 truncate text-sm font-semibold text-white group-hover:text-ier-cyan">
+                          {{ item.description || 'Signalement sans description' }}
+                        </div>
+                        <div class="mt-1 truncate text-[0.68rem] text-ier-muted">
+                          {{ item.user?.prenom }} {{ item.user?.nom }}
+                        </div>
+                      </a>
+                    </td>
+
+                    <td class="px-4 py-3 align-top">
+                      <div class="text-xs font-medium text-white">{{ item.zone?.nom_zone || 'Non assignée' }}</div>
+                      <div class="mt-1 font-mono text-[0.65rem] text-ier-muted">
+                        {{ item.latitude | number:'1.4-4' }}, {{ item.longitude | number:'1.4-4' }}
+                      </div>
+                    </td>
+
+                    <td class="px-4 py-3 align-top">
+                      <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.64rem] font-bold" [class]="getStatusClasses(item.statut)">
+                        {{ formatStatut(item.statut) }}
+                      </span>
+                    </td>
+
+                    <td class="px-4 py-3 align-top">
+                      <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.64rem] font-bold" [class]="getPriorityClasses(item.priorite)">
+                        {{ formatPriorite(item.priorite) }}
+                      </span>
+                    </td>
+
+                    <td class="px-4 py-3 align-top">
+                      <div class="whitespace-nowrap text-xs text-white">{{ item.date_heure_signalement | date:'dd/MM/yyyy' }}</div>
+                      <div class="mt-1 whitespace-nowrap text-[0.68rem] text-ier-muted">{{ item.date_heure_signalement | date:'HH:mm' }}</div>
+                    </td>
+
+                    <td class="px-4 py-3 align-top">
+                      <div class="flex flex-wrap justify-end gap-1.5">
+                        <a
+                          [routerLink]="['/admin/signalements', item.id]"
+                          class="grid size-8 place-items-center rounded-lg border border-ier-border bg-ier-elevated text-ier-muted transition hover:border-ier-cyan/30 hover:text-ier-cyan"
+                          title="Voir le détail">
+                          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                          </svg>
+                        </a>
+
+                        @if (item.statut === 'en_attente_validation') {
+                          <button type="button" class="rounded-lg border border-ier-green/20 bg-ier-green/10 px-2.5 py-1.5 text-[0.64rem] font-bold text-ier-green transition hover:bg-ier-green/15 disabled:cursor-wait disabled:opacity-60" (click)="validate(item.id, $event)" [disabled]="actionInProgressId() === item.id">Valider</button>
+                          <button type="button" class="rounded-lg border border-ier-red/20 bg-ier-red/10 px-2.5 py-1.5 text-[0.64rem] font-bold text-red-200 transition hover:bg-ier-red/15 disabled:cursor-wait disabled:opacity-60" (click)="promptReject(item, $event)" [disabled]="actionInProgressId() === item.id">Rejeter</button>
+                        }
+
+                        @if (item.statut === 'valide') {
+                          <button type="button" class="rounded-lg border border-ier-cyan/20 bg-ier-cyan/10 px-2.5 py-1.5 text-[0.64rem] font-bold text-ier-cyan transition hover:bg-ier-cyan/15 disabled:cursor-wait disabled:opacity-60" (click)="openPrioritizeModal(item, $event)" [disabled]="actionInProgressId() === item.id">Prioriser</button>
+                        }
+
+                        <button
+                          type="button"
+                          class="grid size-8 place-items-center rounded-lg border border-ier-border bg-ier-elevated text-ier-muted transition hover:border-ier-red/30 hover:text-red-200 disabled:cursor-wait disabled:opacity-60"
+                          (click)="promptDeleteSignalement(item, $event)"
+                          [disabled]="actionInProgressId() === item.id"
+                          title="Supprimer">
+                          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M3 6h18"></path>
+                            <path d="M8 6V4h8v2"></path>
+                            <path d="M19 6v14H5V6"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          @if (meta() && meta()!.last_page > 1) {
+            <div class="flex flex-col gap-3 border-t border-ier-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <span class="text-[0.68rem] text-ier-muted">
+                {{ meta()!.from }}–{{ meta()!.to }} sur {{ meta()!.total }} signalements
+              </span>
+              <div class="flex items-center gap-2">
+                <button type="button" class="rounded-lg border border-ier-border bg-ier-elevated px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1c232b] disabled:cursor-not-allowed disabled:opacity-40" [disabled]="meta()!.current_page === 1 || isLoading()" (click)="onPageChange(meta()!.current_page - 1)">Précédent</button>
+                <span class="rounded-lg border border-ier-border px-3 py-2 text-xs font-semibold text-ier-muted">Page {{ meta()!.current_page }} / {{ meta()!.last_page }}</span>
+                <button type="button" class="rounded-lg border border-ier-border bg-ier-elevated px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1c232b] disabled:cursor-not-allowed disabled:opacity-40" [disabled]="meta()!.current_page === meta()!.last_page || isLoading()" (click)="onPageChange(meta()!.current_page + 1)">Suivant</button>
+              </div>
+            </div>
+          }
+        }
+      </section>
+    </div>
+
+    <aside class="min-h-[560px] xl:sticky xl:top-[88px] xl:h-[calc(100vh-120px)]">
+      <app-map-shell [points]="mapPoints()" [fitToPoints]="true" (pointSelected)="selectPoint($event)">
+        <div map-top-left class="min-w-[220px] rounded-[16px] border border-white/20 bg-[#0b0d10]/90 px-3.5 py-3 text-white shadow-[0_16px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl max-sm:min-w-0">
+          <div class="text-[0.62rem] font-bold uppercase tracking-[0.11em] text-ier-cyan">Contexte géographique</div>
+          <div class="mt-1 font-heading text-sm font-semibold">{{ mapPoints().length }} signalement{{ mapPoints().length > 1 ? 's' : '' }} visible{{ mapPoints().length > 1 ? 's' : '' }}</div>
+          <p class="mt-1 text-[0.68rem] text-white/60">Cliquez sur un point pour ouvrir sa fiche.</p>
+        </div>
+      </app-map-shell>
+    </aside>
+  </section>
+
+  @if (showPrioritizeModal()) {
+    <div class="fixed inset-0 z-[1000] grid place-items-center bg-black/65 px-4 py-6 backdrop-blur-sm" (click)="closePrioritizeModal()">
+      <div class="w-full max-w-md overflow-hidden rounded-2xl border border-ier-border bg-ier-surface shadow-[0_30px_90px_rgba(0,0,0,0.45)]" (click)="$event.stopPropagation()">
+        <div class="border-b border-ier-border px-5 py-4">
+          <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-cyan">Priorisation</div>
+          <h2 class="mt-1 font-heading text-lg font-semibold text-white">Signalement #{{ selectedSignalementForPrioritize()?.id }}</h2>
+        </div>
+        <div class="space-y-4 px-5 py-5">
+          <p class="text-sm leading-5 text-ier-muted">Sélectionnez le niveau de priorité à assigner à ce signalement validé.</p>
+          <label class="block">
+            <span class="mb-1.5 block text-xs font-semibold text-white">Priorité</span>
+            <select id="prioritySelect" class="w-full rounded-xl border border-ier-border bg-ier-bg px-3 py-2.5 text-sm text-white outline-none focus:border-ier-cyan/40 focus:ring-4 focus:ring-ier-cyan/10" [ngModel]="selectedPriority()" (ngModelChange)="selectedPriority.set($event)">
+              <option value="faible">Faible</option>
+              <option value="normale">Normale</option>
+              <option value="haute">Haute</option>
+              <option value="urgente">Urgente</option>
+            </select>
+          </label>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-ier-border bg-ier-elevated/40 px-5 py-4">
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2 text-xs font-semibold text-white transition hover:bg-ier-elevated" (click)="closePrioritizeModal()">Annuler</button>
+          <button type="button" class="rounded-xl bg-ier-cyan px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-sky-300 disabled:cursor-wait disabled:opacity-60" (click)="confirmPrioritize()" [disabled]="actionInProgressId() !== null">Enregistrer</button>
         </div>
       </div>
     </div>
   }
 
-  <!-- Reject Confirmation Modal -->
   @if (showRejectModal()) {
-    <div class="modal-backdrop" (click)="closeRejectModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Confirmer le rejet</h3>
-          <button class="modal-close" (click)="closeRejectModal()">&times;</button>
+    <div class="fixed inset-0 z-[1000] grid place-items-center bg-black/65 px-4 py-6 backdrop-blur-sm" (click)="closeRejectModal()">
+      <div class="w-full max-w-md overflow-hidden rounded-2xl border border-ier-border bg-ier-surface shadow-[0_30px_90px_rgba(0,0,0,0.45)]" (click)="$event.stopPropagation()">
+        <div class="border-b border-ier-border px-5 py-4">
+          <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-red">Décision</div>
+          <h2 class="mt-1 font-heading text-lg font-semibold text-white">Confirmer le rejet</h2>
         </div>
-        <div class="modal-body">
-          <p class="modal-desc">Êtes-vous sûr de vouloir rejeter le signalement #{{ selectedSignalementForReject()?.id }} ?</p>
+        <div class="px-5 py-5">
+          <p class="text-sm leading-5 text-ier-muted">Rejeter le signalement #{{ selectedSignalementForReject()?.id }} ? L’action sera appliquée immédiatement côté API.</p>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closeRejectModal()">Annuler</button>
-          <button class="btn btn-danger" (click)="confirmReject()" [disabled]="actionInProgressId() !== null">Confirmer le rejet</button>
+        <div class="flex justify-end gap-2 border-t border-ier-border bg-ier-elevated/40 px-5 py-4">
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2 text-xs font-semibold text-white transition hover:bg-ier-elevated" (click)="closeRejectModal()">Annuler</button>
+          <button type="button" class="rounded-xl bg-ier-red px-4 py-2 text-xs font-bold text-white transition hover:bg-red-500 disabled:cursor-wait disabled:opacity-60" (click)="confirmReject()" [disabled]="actionInProgressId() !== null">Confirmer le rejet</button>
         </div>
       </div>
     </div>
   }
 
-  <!-- Delete Confirmation Modal -->
   @if (showDeleteModal()) {
-    <div class="modal-backdrop" (click)="closeDeleteModal()">
-      <div class="modal-dialog" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Confirmer la suppression</h3>
-          <button class="modal-close" (click)="closeDeleteModal()">&times;</button>
+    <div class="fixed inset-0 z-[1000] grid place-items-center bg-black/65 px-4 py-6 backdrop-blur-sm" (click)="closeDeleteModal()">
+      <div class="w-full max-w-md overflow-hidden rounded-2xl border border-ier-border bg-ier-surface shadow-[0_30px_90px_rgba(0,0,0,0.45)]" (click)="$event.stopPropagation()">
+        <div class="border-b border-ier-border px-5 py-4">
+          <div class="text-[0.64rem] font-bold uppercase tracking-[0.11em] text-ier-red">Suppression</div>
+          <h2 class="mt-1 font-heading text-lg font-semibold text-white">Supprimer le signalement #{{ selectedSignalementForDelete()?.id }}</h2>
         </div>
-        <div class="modal-body">
-          <p class="modal-desc">Êtes-vous sûr de vouloir supprimer définitivement le signalement #{{ selectedSignalementForDelete()?.id }} ? Cette action est irréversible.</p>
+        <div class="px-5 py-5">
+          <p class="text-sm leading-5 text-ier-muted">Cette action est irréversible. Le signalement sera supprimé définitivement via l’API.</p>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="closeDeleteModal()">Annuler</button>
-          <button class="btn btn-danger" (click)="confirmDeleteSignalement()" [disabled]="actionInProgressId() !== null">Supprimer définitivement</button>
+        <div class="flex justify-end gap-2 border-t border-ier-border bg-ier-elevated/40 px-5 py-4">
+          <button type="button" class="rounded-xl border border-ier-border bg-ier-surface px-4 py-2 text-xs font-semibold text-white transition hover:bg-ier-elevated" (click)="closeDeleteModal()">Annuler</button>
+          <button type="button" class="rounded-xl bg-ier-red px-4 py-2 text-xs font-bold text-white transition hover:bg-red-500 disabled:cursor-wait disabled:opacity-60" (click)="confirmDeleteSignalement()" [disabled]="actionInProgressId() !== null">Supprimer définitivement</button>
         </div>
       </div>
     </div>
